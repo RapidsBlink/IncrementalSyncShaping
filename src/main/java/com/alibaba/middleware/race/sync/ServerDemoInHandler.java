@@ -1,3 +1,5 @@
+package com.alibaba.middleware.race.sync;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +38,14 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
         // 保存channel
         Server.getMap().put(getIPString(ctx), ctx.channel());
 
-        logger.info("ServerDemoInHandler.channelRead");
+        logger.info("com.alibaba.middleware.race.sync.ServerDemoInHandler.channelRead");
         ByteBuf result = (ByteBuf) msg;
         byte[] result1 = new byte[result.readableBytes()];
         // msg中存储的是ByteBuf类型的数据，把数据读取到byte[]中
         result.readBytes(result1);
         String resultStr = new String(result1);
         // 接收并打印客户端的信息
-        System.out.println("Client said:" + resultStr);
+        System.out.println("com.alibaba.middleware.race.sync.Client said:" + resultStr);
 
         while (true) {
             // 向客户端发送消息

@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.alibaba.middleware.race</groupId>
-    <artifactId>incremental-sync</artifactId>
+    <artifactId>sync</artifactId>
     <version>1.0</version>
-    <name>incremental-sync</name>
+    <name>sync</name>
 
 
     <dependencies>

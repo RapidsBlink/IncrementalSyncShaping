@@ -1,3 +1,5 @@
+package com.alibaba.middleware.race.sync;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +28,9 @@ public class Client {
         Logger logger = LoggerFactory.getLogger(Client.class);
         logger.info("Welcome");
         Client client = new Client();
-        client.connect("127.0.0.1", 5527);
+        // 从args获取server端的ip
+        String serverIp = args[0];
+        client.connect(serverIp, 5527);
     }
 
     /**

@@ -1,3 +1,5 @@
+package com.alibaba.middleware.race.sync;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,7 +39,7 @@ public class Server {
         Logger logger = LoggerFactory.getLogger(Client.class);
         Server server = new Server();
         server.startServer(5527);
-        logger.info("Server is running....");
+        logger.info("com.alibaba.middleware.race.sync.Server is running....");
 
         // 判断下是否有解析完毕的数据
         while (true) {
