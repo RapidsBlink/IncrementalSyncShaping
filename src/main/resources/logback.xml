@@ -39,10 +39,9 @@
     </appender>
 
 
-
     <root>
-        <level value="${app.logging.level}" />
-        <appender-ref ref="STDOUT" />
-        <appender-ref ref="FILE" />
+        <level value="${app.logging.level}"/>
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>

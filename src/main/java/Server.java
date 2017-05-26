@@ -1,24 +1,20 @@
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.timeout.IdleStateHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 服务器类，负责push消息到client Created by wanshao on 2017/5/25.
@@ -56,12 +52,6 @@ public class Server {
 
     }
 
-    private Object getMessage() throws InterruptedException {
-        // 模拟下数据生成，每隔5秒产生一条消息
-        Thread.sleep(5000);
-        return "message";
-    }
-
     /**
      * 初始化系统属性
      */
@@ -69,6 +59,12 @@ public class Server {
         System.setProperty("middleware.test.home", Constants.TESTER_HOME);
         System.setProperty("middleware.teamcode", Constants.TEAMCODE);
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
+    }
+
+    private Object getMessage() throws InterruptedException {
+        // 模拟下数据生成，每隔5秒产生一条消息
+        Thread.sleep(5000);
+        return "message";
     }
 
     private void startServer(int port) throws InterruptedException {
@@ -84,7 +80,7 @@ public class Server {
                     public void initChannel(SocketChannel ch) throws Exception {
                         // 注册handler
                         ch.pipeline().addLast(new ServerDemoInHandler());
-                        //ch.pipeline().addLast(new ServerDemoOutHandler());
+                        // ch.pipeline().addLast(new ServerDemoOutHandler());
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
