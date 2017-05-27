@@ -139,6 +139,7 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
 Demo基于netty实现了简单的客户端和服务端程序。
 1. Server: 负责接收评测系统给其的输入(通过args参数)，并且将解析好的数据交给Client。
 2. Client: 启动后根据评测系统给其的serverIp来启动，启动后接受Server的信息，并且将最终结果写入到指定结果文件目录
+
 ```
 Server端Program arguments示例（2个参数）：
 middleware {"student":"2","teacher":"1"}
@@ -147,8 +148,10 @@ Client端Program arguments示例：
 127.0.0.1
 
 ```
+
 3. Constants: 比赛时候凡是需要写文件的地方，必须写到指定目录，对相关目录进行了定义。写出的目录路径都包含${teamcode}，千万不能遗漏。
 teamcode是识别选手的唯一标示，评测程序会从选手teamcode相关目录下读取选手的结果文件，并且清理垃圾文件。
+
 ```
     // 赛题数据
     String DATA_HOME = "/home/admin/canal_data";
@@ -161,6 +164,7 @@ teamcode是识别选手的唯一标示，评测程序会从选手teamcode相关�
     
     PS： 中间结果一定要写到指定目录，否则评测程序将不会对其清理。写到非法目录，然后在下次评测的时候直接读取中间结果来提升成绩的视为违规。请注意！
 ```
+
 4. Demo仅做演示用，选手可以自由选择其他通信框架，自己按照自己的方式来处理通信。
 
 
@@ -185,6 +189,7 @@ teamcode是识别选手的唯一标示，评测程序会从选手teamcode相关�
 > 环境相关
 
 1. JDK采用什么版本？
+
 ```
 java version "1.7.0_80"
 Java(TM) SE Runtime Environment (build 1.7.0_80-b15)
@@ -224,6 +229,7 @@ $sudo time dd if=/dev/sda5  of=/dev/null bs=8k count=1000000
 3. CPU信息? 答：24核 2.2GHz
 
 4. 最大文件打开数是多少？
+
 ```
 $ulimit -a
 core file size          (blocks, -c) 0
@@ -248,6 +254,7 @@ file locks                      (-x) unlimited
 
 
 6. 启动选手的Client和Server采用怎样的JVM配置？
+
 ```
 -XX:InitialHeapSize=3221225472 -XX:MaxDirectMemorySize=209715200 -XX:MaxHeapSize=3221225472 -XX:MaxNewSize=1073741824 -XX:MaxTenuringThreshold=6 -XX:NewSize=1073741824 -XX:OldPLABSize=16 -XX:OldSize=2147483648 -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+UseParNewGC
 ```
@@ -256,6 +263,7 @@ file locks                      (-x) unlimited
 > 规则相关
 
 1. 哪些属于违规行为，会取消成绩甚至参赛资格? 
+
 ```
 选手依靠自己的算法和程序，通过程序的运算得到正确答案一般都是不会违规的。
 通过一些hack的方式而不是依靠程序算法本身来获取成绩，视为无效。
@@ -263,6 +271,7 @@ file locks                      (-x) unlimited
 ```
 
 2. 是否可以使用别的语言或者在JAVA中使用shell脚本？
+
 ```
 不可以。之所以不支持别的语言主要原因是：
 1. JAVA属于比较好上手的语言，其语法也能迅速掌握，如果能用其他语言实现自己的算法，换成JAVA也是比较容易的
@@ -272,13 +281,20 @@ file locks                      (-x) unlimited
 ```
 
 3. 可以随意使用三方库吗？
+
 ```
 可以。选手可以随意选择自己所需要的三方库
 ```
 
 4. 不写到指定目录是否可以？
+
 ```
 不可以！！评测程序会对指定目录下的选手中间结果清理。选手将中间结果写入非法目录，评测程序将不会及时对其进行清理。下次选手运行时可能会
+```
+
+5. 可以使用堆外内存吗？
+```
+可以，不过只能使用200MB，这个已通过JVM参数指定
 ```
 
 
