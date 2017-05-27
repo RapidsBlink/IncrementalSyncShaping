@@ -17,6 +17,7 @@
         <!--日志文件输出的文件名 -->
         <file>${middleware.test.home}/logs/${middleware.teamcode}/custom.log</file>
 
+
         <!-- 固定数量的日志文件，防止将磁盘占满 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
             <fileNamePattern>${middleware.test.home}/logs/${middleware.teamcode}/custom.log/custom.%i.log.gz

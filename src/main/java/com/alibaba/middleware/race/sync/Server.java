@@ -38,8 +38,9 @@ public class Server {
         initProperties();
         Logger logger = LoggerFactory.getLogger(Client.class);
         Server server = new Server();
-        server.startServer(5527);
         logger.info("com.alibaba.middleware.race.sync.Server is running....");
+        server.startServer(5527);
+
 
         // 判断下是否有解析完毕的数据
         while (true) {
