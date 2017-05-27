@@ -74,7 +74,8 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
     private Object getMessage() throws InterruptedException {
         // 模拟下数据生成，每隔5秒产生一条消息
         Thread.sleep(5000);
-        // return "message";
-        return null;
+
+        return "message generated in ServerDemoInHandler";
+
     }
 }

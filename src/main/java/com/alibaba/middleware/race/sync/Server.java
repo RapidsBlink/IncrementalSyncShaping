@@ -1,14 +1,15 @@
 package com.alibaba.middleware.race.sync;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSONObject;
+
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -25,6 +26,9 @@ public class Server {
 
     // 保存channel
     private static Map<String, Channel> map = new ConcurrentHashMap<String, Channel>();
+    // 接收评测程序的三个参数
+    private static String schema;
+    private static Map tableNamePkMap;
 
     public static Map<String, Channel> getMap() {
         return map;
@@ -36,23 +40,24 @@ public class Server {
 
     public static void main(String[] args) throws InterruptedException {
         initProperties();
+
+        schema = args[0];
+        JSONObject jsonObject = JSONObject.parseObject(args[1]);
+        tableNamePkMap = JSONObject.parseObject(jsonObject.toJSONString());
+
         Logger logger = LoggerFactory.getLogger(Client.class);
+        logger.info("schema:" + schema);
+        // 打印下输入内容
+        for (Object object : tableNamePkMap.entrySet()) {
+            Entry<String, Long> entry = (Entry<String, Long>) object;
+            logger.info("tableName:" + entry.getKey());
+            logger.info("PrimaryKey:" + entry.getValue());
+
+        }
         Server server = new Server();
         logger.info("com.alibaba.middleware.race.sync.Server is running....");
+
         server.startServer(5527);
-
-
-        // 判断下是否有解析完毕的数据
-        while (true) {
-            String message = (String) server.getMessage();
-            if (message != null) {
-                Channel channel = map.get("127.0.0.1");
-                ByteBuf byteBuf = Unpooled.wrappedBuffer(message.getBytes());
-                channel.writeAndFlush(byteBuf);
-
-            }
-        }
-
     }
 
     /**
@@ -64,11 +69,6 @@ public class Server {
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
     }
 
-    private Object getMessage() throws InterruptedException {
-        // 模拟下数据生成，每隔5秒产生一条消息
-        Thread.sleep(5000);
-        return "message";
-    }
 
     private void startServer(int port) throws InterruptedException {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
