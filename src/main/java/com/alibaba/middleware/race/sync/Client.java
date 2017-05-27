@@ -22,15 +22,19 @@ public class Client {
     private final static int readerIdleTimeSeconds = 40;
     private final static int writerIdleTimeSeconds = 50;
     private final static int allIdleTimeSeconds = 100;
+    private static String ip;
+    private final int port = 5527;
+    private EventLoopGroup loop = new NioEventLoopGroup();
 
     public static void main(String[] args) throws Exception {
         initProperties();
         Logger logger = LoggerFactory.getLogger(Client.class);
         logger.info("Welcome");
-        Client client = new Client();
         // 从args获取server端的ip
-        String serverIp = args[0];
-        client.connect(serverIp, 5527);
+        ip = args[0];
+        Client client = new Client();
+        client.run();
+
     }
 
     /**
@@ -77,4 +81,45 @@ public class Client {
         }
 
     }
+
+    public Bootstrap createBootstrap(Bootstrap bootstrap, EventLoopGroup eventLoop) {
+
+        if (bootstrap != null) {
+
+            bootstrap.group(eventLoop);
+
+            bootstrap.channel(NioSocketChannel.class);
+
+            bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
+
+            bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+
+                @Override
+
+                protected void initChannel(SocketChannel socketChannel) throws Exception {
+
+                    socketChannel.pipeline().addLast(new IdleStateHandler(10, 0, 0));
+                    socketChannel.pipeline().addLast(new ClientIdleEventHandler());
+                    socketChannel.pipeline().addLast(new ClientDemoInHandler());
+
+                }
+
+            });
+
+            bootstrap.remoteAddress(ip, port);
+
+            bootstrap.connect().addListener(new ConnectionListener(this));
+
+        }
+
+        return bootstrap;
+
+    }
+
+    public void run() {
+
+        createBootstrap(new Bootstrap(), loop);
+
+    }
+
 }
