@@ -51,7 +51,7 @@ e. 列值
  
 
 实际例子:
- * 000001:106|1489133349000|test|user|I|id:1:1|<NULL>|102|name:1:0|<NULL>|ljh|score:1:0|<NULL>|98|
+ * 000001:106|1489133349000|test|user|I|id:1:1|<NULL>|102|name:2:0|<NULL>|ljh|score:1:0|<NULL>|98|
  * 000001:106|1489133349000|test|user|U|id:1:1|102|102|score:1:0|98|95|  //执行了变更update score=95 where id=102
 
 
