@@ -41,6 +41,8 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         initProperties();
 
+        printInput(args);
+
         schema = args[0];
         JSONObject jsonObject = JSONObject.parseObject(args[1]);
         tableNamePkMap = JSONObject.parseObject(jsonObject.toJSONString());
@@ -58,6 +60,31 @@ public class Server {
         logger.info("com.alibaba.middleware.race.sync.Server is running....");
 
         server.startServer(5527);
+    }
+
+    /**
+     * 打印赛题输入 赛题输入格式： middleware {"student":"1,2,3","teacher":"4,5,6"}
+     * 上面表示，查询的schema为middleware，查询的表为student中主键为1，2，3的记录和teacher表中主键为4，5，6的记录
+     */
+    private static void printInput(String[] args) {
+        // 第一个参数是Schema Name
+        System.out.println("Schema:" + args[0]);
+
+        for (int i = 1; i < args.length; i++) {
+            String tableAndPkStr = args[i];
+
+            // 去掉花括号
+            tableAndPkStr = tableAndPkStr.substring(1, tableAndPkStr.length() - 1);
+            // 获取键值对
+            String[] keyValuePair = tableAndPkStr.replaceAll("[\\[\\]]", "").split("=");
+            // 第一个
+            String key = keyValuePair[0];
+            String[] valueArray = keyValuePair[1].split(",");
+            for (String s : valueArray) {
+                System.out.println("Key:" + key + ",Value:" + s);
+
+            }
+        }
     }
 
     /**
