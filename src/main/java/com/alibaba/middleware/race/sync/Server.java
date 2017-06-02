@@ -63,28 +63,20 @@ public class Server {
     }
 
     /**
-     * 打印赛题输入 赛题输入格式： middleware {"student":"1,2,3","teacher":"4,5,6"}
-     * 上面表示，查询的schema为middleware，查询的表为student中主键为1，2，3的记录和teacher表中主键为4，5，6的记录
+     * 打印赛题输入 赛题输入格式： schemaName tableName startPkId endPkId，例如输入： middleware student 100 200
+     * 上面表示，查询的schema为middleware，查询的表为student,主键的查询范围是(100,200)，注意是开区间 对应DB的SQL为： select * from middleware.student where
+     * id>100 and id<200
      */
     private static void printInput(String[] args) {
         // 第一个参数是Schema Name
         System.out.println("Schema:" + args[0]);
+        // 第二个参数是Schema Name
+        System.out.println("table:" + args[1]);
+        // 第三个参数是start pk Id
+        System.out.println("start:" + args[2]);
+        // 第四个参数是end pk Id
+        System.out.println("end:" + args[3]);
 
-        for (int i = 1; i < args.length; i++) {
-            String tableAndPkStr = args[i];
-
-            // 去掉花括号
-            tableAndPkStr = tableAndPkStr.substring(1, tableAndPkStr.length() - 1);
-            // 获取键值对
-            String[] keyValuePair = tableAndPkStr.replaceAll("[\\[\\]]", "").split("=");
-            // 第一个
-            String key = keyValuePair[0];
-            String[] valueArray = keyValuePair[1].split(",");
-            for (String s : valueArray) {
-                System.out.println("Key:" + key + ",Value:" + s);
-
-            }
-        }
     }
 
     /**
