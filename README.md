@@ -143,7 +143,7 @@ Demo基于netty实现了简单的客户端和服务端程序。
 
 ```
 Server端Program arguments示例（2个参数）：
-middleware {"student":"2","teacher":"1"}
+middleware student 100 200
 
 Client端Program arguments示例：
 127.0.0.1
