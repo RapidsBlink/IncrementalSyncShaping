@@ -94,6 +94,114 @@ PS：
 3. canal中解析生成赛题数据时，现在只有int类型换解析成"数字类型"，其他的类型都会解析成"字符串类型"
 
 
+选手可以使用如下的存储过程来生成数据：
+
+```
+CREATE TABLE student(
+  id INT NOT NULL AUTO_INCREMENT,
+  first_name VARCHAR(10) NOT NULL,
+  last_name VARCHAR(10) NOT NULL,
+  sex VARCHAR(5) NOT NULL,
+  score INT NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+
+/**增加学生数据的存储过程-- **/
+DROP PROCEDURE IF EXISTS add_student;  
+DELIMITER //
+    create PROCEDURE add_student(in num INT)
+    BEGIN
+        DECLARE rowid INT DEFAULT 0;
+        DECLARE firstname CHAR(1);
+        DECLARE name1 CHAR(1);
+        DECLARE name2 CHAR(1);
+        DECLARE lastname VARCHAR(3) DEFAULT '';
+        DECLARE sex CHAR(1);
+        DECLARE score INT DEFAULT 0;
+        DECLARE updateFirstName  CHAR(1);
+        DECLARE updateLastName CHAR(1);
+        DECLARE updateScore INT DEFAULT 0;
+        SET @exedata = "";
+        WHILE rowid < num DO
+            SET firstname = SUBSTRING('赵钱孙李周吴郑王林杨柳刘孙陈江阮侯邹高彭徐',FLOOR(1+21*RAND()),1); 
+            SET name1 = SUBSTRING('一二三四五六七八九十甲乙丙丁静景京晶名明铭敏闵民军君俊骏天田甜兲恬益依成城诚立莉力黎励',floor(1+43*RAND()),1); 
+            SET name2 = SUBSTRING('一二三四五六七八九十甲乙丙丁静景京晶名明铭敏闵民军君俊骏天田甜兲恬益依成城诚立莉力黎励',floor(1+43*RAND()),1); 
+            SET sex=SUBSTRING('男女',floor(1+2*RAND()),1);
+            SET score= FLOOR(40 + (RAND() *60));
+            SET lastname=SUBSTRING('一二三四五六七八九十甲乙丙丁静景京晶名明铭敏闵民军君俊骏天田甜雨恬益依娥我他刚人发上乐',floor(1+43*RAND()),1);
+            SET rowid = rowid + 1;
+            IF ROUND(RAND())=0 THEN 
+            SET lastname =name1;
+            END IF;
+            IF ROUND(RAND())=1 THEN
+            SET lastname = CONCAT(name1,name2);
+            END IF;
+            IF length(@exedata)>0 THEN
+            SET @exedata = CONCAT(@exedata,',');
+            END IF;
+            SET @exedata=concat(@exedata,"('",firstname,"','",lastname,"','",sex,"','",score,"')");
+            IF rowid%10000=0
+            THEN 
+                SET @exesql =concat("insert into student(first_name,last_name,sex,score) values ", @exedata);
+                prepare stmt from @exesql;
+                execute stmt;
+                DEALLOCATE prepare stmt;
+                SET @exedata = "";
+            END IF;
+        END WHILE;
+        
+        
+        IF length(@exedata)>0 
+        THEN
+            SET @exesql =concat("insert into student(first_name,last_name,sex,score) values ", @exedata);
+            prepare stmt from @exesql;
+            execute stmt;
+            DEALLOCATE prepare stmt;
+        END IF; 
+    END //
+DELIMITER ;
+
+
+/**更新学生数据的存储过程-- **/
+DROP PROCEDURE IF EXISTS update_student;  
+DELIMITER //
+    create PROCEDURE update_student(in num INT)
+    BEGIN
+		DECLARE rowid INT DEFAULT 0;
+        DECLARE randomNum INT DEFAULT 0;
+        WHILE rowid < num DO
+			SET randomNum =  FLOOR(10 + (RAND() *1000));
+			SET rowid = rowid + 1;
+			update student set score=randomNum where id>0;
+        END WHILE;
+    END //
+DELIMITER ;
+
+
+/**删除学生数据的存储过程-- **/
+DROP PROCEDURE IF EXISTS delete_student;  
+DELIMITER //
+    create PROCEDURE delete_student(in num INT)
+    BEGIN
+		DECLARE rowid INT DEFAULT 0;
+        WHILE rowid < num DO
+			SET rowid = rowid + 1;
+			update student set score=randomNum where id mod 2=0;
+        END WHILE;
+    END //
+DELIMITER ;
+
+
+
+/**调用方式 PS:选手可以修改存储过程中的where条件来做不同的变更**/
+call add_student(10);
+call update_student(10);
+call delete_student(10);
+```
+
+
+
 # ========================= 评测程序如何工作 ============================================
 概要说明：评测程序也分为Server和Client，请留意
 
@@ -314,4 +422,16 @@ file locks                      (-x) unlimited
 是的，1.txt中的时间最早，10.txt文件中的变更信息时间最晚。同一个文件内也是最前面的行时间最早
 ```
 
+
+7. 物理机内存是多少？
+
+```
+96G
+```
+
+8. 结果输出顺序咋样？
+
+```
+列顺序按照第一次insert时的列顺序，行的顺序按照主键的顺序。如果范围内某主键的记录被删除了，就不用输出。
+```
 
