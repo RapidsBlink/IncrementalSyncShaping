@@ -92,6 +92,7 @@ PS：
 1. 修改默认路径请更改AbstractCanalClientTest.storeChangeToDisk()方法
 2. canal中转化数据的代码请看：analyseEntryAndFlushToFile()方法
 3. canal中解析生成赛题数据时，现在只有int类型换解析成"数字类型"，其他的类型都会解析成"字符串类型"
+4. 生成大量数据的时候请使用canal项目里面的startup.sh里面的JVM参数启动CanalLauncher和SimpleCanalClientTest，避免GC问题
 
 
 选手可以使用如下的存储过程来生成数据：
