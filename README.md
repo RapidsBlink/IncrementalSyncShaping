@@ -251,7 +251,7 @@ Demo基于netty实现了简单的客户端和服务端程序。
 2. Client: 启动后根据评测系统给其的serverIp来启动，启动后接受Server的信息，并且将最终结果写入到指定结果文件目录
 
 ```
-Server端Program arguments示例（2个参数）：
+Server端Program arguments示例（4个参数）：
 middleware student 100 200
 
 Client端Program arguments示例：
