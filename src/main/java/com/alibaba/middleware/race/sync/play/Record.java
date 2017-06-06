@@ -49,23 +49,8 @@ public class Record {
         }
     }
 
-    // overall structure: | binlog id | timestamp | schema | table | ...
-    // column structure: column info | prev val | cur val
-    Record(String recordStr, boolean isKeepColOrder) {
-        curIndex = 0;
+    private void initAllFieldInfo(String recordStr, StringBuilder stringBuilder, boolean isKeepColOrder) {
         char ch;
-        StringBuilder stringBuilder = new StringBuilder();
-
-        // 1st: skip binlog id, and timestamp
-        skipNextString(recordStr);
-        skipNextString(recordStr);
-
-        // 2nd: get schema and table
-        schemaStr = getNextString(recordStr, stringBuilder);
-        tableStr = getNextString(recordStr, stringBuilder);
-        operationType = getNextString(recordStr, stringBuilder);
-
-        // 3rd: get all field info and prev/cur values
         for (; curIndex < recordStr.length() - 1; ) {
             String key;
             String value;
@@ -125,6 +110,26 @@ public class Record {
                 primaryKeyCurrVal = Long.valueOf(value);
             }
         }
+    }
+
+    // overall structure: | binlog id | timestamp | schema | table | ...
+    // column structure: column info | prev val | cur val
+    Record(String recordStr, boolean isKeepColOrder) {
+        curIndex = 0;
+        char ch;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        // 1st: skip binlog id, and timestamp
+        skipNextString(recordStr);
+        skipNextString(recordStr);
+
+        // 2nd: get schema and table
+        schemaStr = getNextString(recordStr, stringBuilder);
+        tableStr = getNextString(recordStr, stringBuilder);
+        operationType = getNextString(recordStr, stringBuilder);
+
+        // 3rd: get all field info and prev/cur values
+        initAllFieldInfo(recordStr, stringBuilder, isKeepColOrder);
     }
 
     public static void main(String[] args) throws IOException {
