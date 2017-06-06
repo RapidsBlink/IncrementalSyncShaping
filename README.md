@@ -95,6 +95,9 @@ PS：
 4. 生成大量数据的时候请使用canal项目里面的startup.sh里面的JVM参数启动CanalLauncher和SimpleCanalClientTest，避免GC问题
 
 
+为了方便选手测试，也提供了生产好的数据和答案(用的钉钉的网盘)，选手可以下载，其中数据文件可以通过split命令自行分割成10个小文件来测试
+- [数据文件](https://space.dingtalk.com/c/ggHaACQwMWFiZjVhMi04Y2NlLTQ0MmItYTRhNy1lMWEzNTZiMmQ0ZDMCzhndJeg)
+- [测试数据答案](https://space.dingtalk.com/c/ggHaACRmNWQ2ZTNkZS0xYzM5LTQ4MGMtYjE3ZC1iZTk2YzMyYmQ5NTMCzhndPNk)
 选手可以使用如下的存储过程来生成数据：
 
 ```
