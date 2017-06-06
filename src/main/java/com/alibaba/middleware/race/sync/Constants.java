@@ -38,5 +38,5 @@ public interface Constants {
     char SPLIT_CHAR = '|';
     char FIELD_SPLIT_CHAR = ':';
     String IS_PRIMARY_KEY = "1";
-    String IS_INTEGER = "1";
+    String IS_NUMBER = "1";
 }
