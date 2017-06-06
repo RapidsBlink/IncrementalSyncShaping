@@ -345,7 +345,11 @@ $sudo time dd if=/dev/sda5  of=/dev/null bs=8k count=1000000
 16000320inputs+0outputs (1major+362minor)pagefaults 0swaps
 ```
 
-3. CPU信息? 答：24核 2.2GHz
+3. CPU信息? 
+```
+2个CPU,12个物理核，24个逻辑核，2.2GHz
+```
+答：24核 2.2GHz
 
 4. 最大文件打开数是多少？
 
@@ -442,3 +446,8 @@ file locks                      (-x) unlimited
 传输10G的单个大文件，速度在45MB/s
 ```
 
+10. 结果中列的顺序怎样？
+
+```
+第一次插入的时候列信息是完整的，按照第一次插入时候的列顺序来输出即可
+```
