@@ -237,14 +237,13 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
 1. 超时时间： server端不做超时处理，client端超时时间为10分钟
 2. 日志处理：
     - 请将日志写入指定的日志目录：/home/admin/logs/${teamCode}/，这里的teamCode请替换成自己的唯一teamCode，此外请不要透露自己的teamCode给别人哦。
-    - 日志的命名按照如下命名：${test.role}_${teamCode}_custom_WARN.log和${test.role}_${teamCode}_custom_INFO.log。
 3. 如何获取自己运行的日志：
     - 选手每次提交的程序运行的gc日志以及符合上面命名规范的日志，评测程序才会将其反馈给选手。
+    - 日志的命名${logName}按照如下命名：${test.role}-${teamCode}-WARN.log和${test.role}-${teamCode}-INFO.log。例如client-teamCode-INFO.log或者server-teamCode-INFO.log。${test.role}可以为client或者server
+    - 如果查看GC日志的话，${logName}则为gc_client.log或者gc_server.log
     - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/${logName} 这样的形式获取自己的日志
-    - ${teamCode}是选手的唯一识别码之一，${logName}的名称可以为gc.log、{test.role}_${teamCode}_custom_INFO.log、{test.role}_${teamCode}_custom_WARN.log和{test.role}_${teamCode}_custom_ERROR.log三者之一.
-4. 如何获取评测日志： 
-    - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/assessment_${teamCode}_INFO.log 这样的形式获取自己的评测日志
-    - 评测日志中${teamCode}替换成自己的teamCode
+    - 
+
 
 
 
