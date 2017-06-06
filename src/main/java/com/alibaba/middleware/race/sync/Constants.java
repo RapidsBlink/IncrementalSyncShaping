@@ -24,7 +24,7 @@ interface Constants {
 
     // ------------ 正式比赛指定的路径--------------//
     //// 工作主目录
-    String TESTER_HOME = "/home/admin/logs";
+    String TESTER_HOME = "/home/admin";
     //// 赛题数据
     // String DATA_HOME = "/home/admin/canal_data";
     //// 结果文件目录(client端会用到)
