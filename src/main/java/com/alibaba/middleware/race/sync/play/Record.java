@@ -27,6 +27,7 @@ public class Record {
 
     private int curIndex;
 
+    // attention: first `|` is optional
     private String getNextString(String recordStr, StringBuilder stringBuilder) {
         if (recordStr.charAt(curIndex) == SPLIT_CHAR)
             curIndex++;
@@ -48,7 +49,6 @@ public class Record {
         }
     }
 
-    // attention: first `|` is optional
     // overall structure: | binlog id | timestamp | schema | table | ...
     // column structure: column info | prev val | cur val
     Record(String recordStr, boolean isKeepColOrder) {
@@ -75,7 +75,7 @@ public class Record {
             if (recordStr.charAt(curIndex) == SPLIT_CHAR)
                 curIndex++;
 
-            // key_str
+            // field info 1: key_str
             stringBuilder.setLength(0);
             while ((ch = recordStr.charAt(curIndex)) != FIELD_SPLIT_CHAR) {
                 curIndex++;
@@ -88,13 +88,13 @@ public class Record {
                 colOrder.add(key);
             }
 
-            // val_type
+            // field info 2: val_type
             curIndex++;
             stringBuilder.setLength(0);
             stringBuilder.append(recordStr.charAt(curIndex));
             valType = stringBuilder.toString();
 
-            // key_type
+            // field info 3: key_type
             curIndex += 2;
             stringBuilder.setLength(0);
             stringBuilder.append(recordStr.charAt(curIndex));
@@ -105,7 +105,7 @@ public class Record {
             }
             curIndex++;
 
-            // prev val, only fetching for primary key
+            // field prev val, only recording when primary key
             if (keyType.equals(IS_PRIMARY_KEY)) {
                 String prevVal = getNextString(recordStr, stringBuilder);
                 primaryKeyPrevVal = prevVal.equals("NULL") ? -1 : Long.valueOf(prevVal);
@@ -113,15 +113,14 @@ public class Record {
                 skipNextString(recordStr);
             }
 
-            // cur val
+            // field cur val
             value = getNextString(recordStr, stringBuilder);
             if (valType.equals(IS_NUMBER)) {
                 keyValueMap.put(key, Long.valueOf(value));
             } else {
                 keyValueMap.put(key, value);
             }
-
-            // record cur val iff it is primary key
+            // field cur val to class member, iff it is primary key
             if (keyType.equals(IS_PRIMARY_KEY)) {
                 primaryKeyCurrVal = Long.valueOf(value);
             }
