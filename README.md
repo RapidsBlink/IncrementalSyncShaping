@@ -95,7 +95,10 @@ PS：
 4. 生成大量数据的时候请使用canal项目里面的startup.sh里面的JVM参数启动CanalLauncher和SimpleCanalClientTest，避免GC问题
 
 
-选手可以使用如下的存储过程来生成数据：
+为了方便选手测试，也提供了生产好的数据和答案(用的钉钉的网盘)，选手可以下载，其中数据文件可以通过split命令自行分割成10个小文件来测试
+- [测试文件](https://space.dingtalk.com/c/ggHaACQ4Mzc5MDMzMy05NzA1LTRhOWMtYmMyNi1iMjAyNGFiNTg5OTECzhngP1o)
+
+另外选手可以使用如下的存储过程来生成数据：
 
 ```
 CREATE TABLE student(
@@ -345,7 +348,11 @@ $sudo time dd if=/dev/sda5  of=/dev/null bs=8k count=1000000
 16000320inputs+0outputs (1major+362minor)pagefaults 0swaps
 ```
 
-3. CPU信息? 答：24核 2.2GHz
+3. CPU信息? 
+```
+2个CPU,12个物理核，24个逻辑核，2.2GHz
+```
+答：24核 2.2GHz
 
 4. 最大文件打开数是多少？
 
@@ -442,3 +449,8 @@ file locks                      (-x) unlimited
 传输10G的单个大文件，速度在45MB/s
 ```
 
+10. 结果中列的顺序怎样？
+
+```
+第一次插入的时候列信息是完整的，按照第一次插入时候的列顺序来输出即可
+```
