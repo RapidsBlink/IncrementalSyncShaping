@@ -188,7 +188,7 @@ DELIMITER //
 		DECLARE rowid INT DEFAULT 0;
         WHILE rowid < num DO
 			SET rowid = rowid + 1;
-			update student set score=randomNum where id mod 2=0;
+			delete from student where id mod 2=0;
         END WHILE;
     END //
 DELIMITER ;
