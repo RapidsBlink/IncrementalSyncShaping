@@ -226,15 +226,16 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
 7. client端评测程序等待client端程序运行结束(退出JVM)后，到指定目录拿选手的最终结果和标准结果进行比对，并且将结果(结果正确、超时、结果错误)返回给server端评测程序
 8. server端评测程序得到结果，如果结果有效，记录结束时间endTime。如果结果无效则直接将相关错误信息之间返回给天池系统。
 10. server端评测程序强制kill选手的server端进程
-11. server端评测程序将最终的间隔finalTime=(endTime-starttime)上报给天池系统，由天池进行排名
+11. server端评测程序将最终的间隔finalTime=(endTime-starttime)上报给天池系统，由天池进行排名。天池上的costTime单位是毫秒
 
 
 注意点：
 1. 选手的server端程序由server端的评测程序来kill
 2. client端的评测程序需要选手自己控制在得到最终结果后停止，否则会有超时问题
+3. 为了保证server端能正常启动，评测程序会在启动server后强制休眠15秒后再向client端发起请求，因此最终结果是finalTime加上15秒。
 
 # ============================= 如何获取评测日志 ===================================
-1. 超时时间： server端不做超时处理，client端超时时间为10分钟
+1. 超时时间： server端不做超时处理，client端超时时间为5分钟
 2. 日志处理：
     - 请将日志写入指定的日志目录：/home/admin/logs/${teamCode}/，这里的teamCode请替换成自己的唯一teamCode，此外请不要透露自己的teamCode给别人哦。
 3. 如何获取自己运行的日志：
