@@ -37,7 +37,7 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
 
         // 保存channel
         Server.getMap().put(getIPString(ctx), ctx.channel());
-
+        logger.info("HOST IP: " + getIPString(ctx));
         logger.info("com.alibaba.middleware.race.sync.ServerDemoInHandler.channelRead");
         ByteBuf result = (ByteBuf) msg;
         byte[] result1 = new byte[result.readableBytes()];
@@ -51,7 +51,7 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
             // 向客户端发送消息
             String message = (String) getMessage();
             if (message != null) {
-                Channel channel = Server.getMap().get("127.0.0.1");
+                Channel channel = Server.getMap().get("192.168.1.4");
                 ByteBuf byteBuf = Unpooled.wrappedBuffer(message.getBytes());
                 channel.writeAndFlush(byteBuf).addListener(new ChannelFutureListener() {
 
