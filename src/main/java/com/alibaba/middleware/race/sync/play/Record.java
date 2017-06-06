@@ -13,11 +13,11 @@ import static com.alibaba.middleware.race.sync.Constants.*;
  * Created by yche on 6/6/17.
  */
 public class Record {
-    public String schemaStr;
-    public String tableStr;
+    public String schema;
+    public String table;
     public String operationType;
 
-    public String primaryKeyStr;
+    public String primaryKey;
     public Long primaryKeyCurrVal;
     public Long primaryKeyPrevVal;
 
@@ -51,12 +51,11 @@ public class Record {
 
     private void initAllFieldInfo(String recordStr, StringBuilder stringBuilder, boolean isKeepColOrder) {
         char ch;
+        String key;
+        String value;
+        String valType;
+        String keyType;
         for (; curIndex < recordStr.length() - 1; ) {
-            String key;
-            String value;
-            String valType;
-            String keyType;
-
             if (recordStr.charAt(curIndex) == SPLIT_CHAR)
                 curIndex++;
 
@@ -86,7 +85,7 @@ public class Record {
             keyType = stringBuilder.toString();
 
             if (keyType.equals(IS_PRIMARY_KEY)) {
-                primaryKeyStr = key;
+                primaryKey = key;
             }
             curIndex++;
 
@@ -116,7 +115,6 @@ public class Record {
     // column structure: column info | prev val | cur val
     Record(String recordStr, boolean isKeepColOrder) {
         curIndex = 0;
-        char ch;
         StringBuilder stringBuilder = new StringBuilder();
 
         // 1st: skip binlog id, and timestamp
@@ -124,8 +122,8 @@ public class Record {
         skipNextString(recordStr);
 
         // 2nd: get schema and table
-        schemaStr = getNextString(recordStr, stringBuilder);
-        tableStr = getNextString(recordStr, stringBuilder);
+        schema = getNextString(recordStr, stringBuilder);
+        table = getNextString(recordStr, stringBuilder);
         operationType = getNextString(recordStr, stringBuilder);
 
         // 3rd: get all field info and prev/cur values
