@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.sync;
 /**
  * 外部赛示例代码需要的常量 Created by wanshao on 2017/5/25.
  */
-interface Constants {
+public interface Constants {
 
     // ------------ 本地测试可以使用自己的路径--------------//
 
@@ -35,4 +35,8 @@ interface Constants {
     // 结果文件的命名
     // String RESULT_FILE_NAME = "Result.rs";
 
+    char SPLIT_CHAR = '|';
+    char FIELD_SPLIT_CHAR = ':';
+    String IS_PRIMARY_KEY = "1";
+    String IS_INTEGER = "1";
 }
