@@ -240,10 +240,10 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
     - 请将日志写入指定的日志目录：/home/admin/logs/${teamCode}/，这里的teamCode请替换成自己的唯一teamCode，此外请不要透露自己的teamCode给别人哦。
 3. 如何获取自己运行的日志：
     - 选手每次提交的程序运行的gc日志以及符合上面命名规范的日志，评测程序才会将其反馈给选手。
-    - 日志的命名${logName}按照如下命名：${test.role}-${teamCode}-WARN.log和${test.role}-${teamCode}-INFO.log。例如client-teamCode-INFO.log或者server-teamCode-INFO.log。${test.role}可以为client或者server
+    - 日志的命名${logName}按照如下命名：${test.role}-${teamCode}-WARN.log.part和${test.role}-${teamCode}-INFO.log.part。例如client-teamCode-INFO.log.part或者server-teamCode-INFO.log.part。${test.role}可以为client或者server
     - 如果查看GC日志的话，${logName}则为gc_client.log或者gc_server.log
     - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/${logName} 这样的形式获取自己的日志
-    - 
+    - 日志已经做了上传日志行数的限制，server端对INFO、WARN、ERROR取行尾的10、360、10行上传，client端则为10、150、10行上传
 
 
 
