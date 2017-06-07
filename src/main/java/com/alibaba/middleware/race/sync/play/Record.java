@@ -4,6 +4,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -136,5 +137,7 @@ public class Record {
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(record1);
         System.out.println(jsonInString);
+
+        System.out.println(Arrays.toString(record1.colOrder.toArray()));
     }
 }
