@@ -14,4 +14,9 @@ public class RecordUpdate {
     boolean isLastOperationDelete = false;
 
     Map<String, Object> filedUpdateMap = null;
+
+    public RecordUpdate(Long firstKey, Long lastKey) {
+        this.firstKey = firstKey;
+        this.lastKey = lastKey;
+    }
 }
