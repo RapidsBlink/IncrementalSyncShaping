@@ -43,7 +43,7 @@ d. 列信息
 
 e. 列值
  * 主要分为变更前和变更后,NULL代表物理值为NULL(空值),(可不考虑字符串本身为"NULL"的特殊情况)
- * insert变更,只有变更后列值,其变更前列值为<NULL>,会包含所有的列信息
+ * insert变更,只有变更后列值,其变更前列值为NULL,会包含所有的列信息
  * upadate变更,都会有变更前和后的列值,会包含主键和发生变更列的信息(未发生变更过的列不会给出,不是全列信息)
  * delete变革,只有变更前列值,会包含所有的列信息
 
@@ -243,14 +243,14 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
     - 日志的命名${logName}按照如下命名：${test.role}-${teamCode}-WARN.log.part和${test.role}-${teamCode}-INFO.log.part。例如client-teamCode-INFO.log.part或者server-teamCode-INFO.log.part。${test.role}可以为client或者server
     - 如果查看GC日志的话，${logName}则为gc_client.log或者gc_server.log
     - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/${logName} 这样的形式获取自己的日志
-    - 日志已经做了上传日志行数的限制，server端对INFO、WARN、ERROR取行尾的10、360、10行上传，client端则为10、150、10行上传
+    - 日志已经做了上传大小的限制，INFO日志限制10K，WARN和ERROR日志限制大小1K
 
 
 
 
 # ================================= 如何使用Demo ================================
 Demo基于netty实现了简单的客户端和服务端程序。
-1. Server: 负责接收评测系统给其的输入(通过args参数)，并且将解析好的数据交给Client。
+1. Server: 负责接收评测系统给其的输入(通过args参数)，并且将解析好的数据交给Client。每次提交评测会给定4个参数，作为一组输入，保存在main的args对象里
 2. Client: 启动后根据评测系统给其的serverIp来启动，启动后接受Server的信息，并且将最终结果写入到指定结果文件目录
 
 ```
@@ -473,3 +473,14 @@ file locks                      (-x) unlimited
 确定的，主键是数字类型
 ```
 
+14. 预热赛和正式赛有什么区别？
+
+```
+预热赛和正式赛的比赛数据不同。
+```
+
+15. 会不会有原本是查询范围外的主键通过update变成查询范围内的？
+
+```
+会有
+```
