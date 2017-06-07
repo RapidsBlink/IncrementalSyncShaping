@@ -1,8 +1,5 @@
 package com.alibaba.middleware.race.sync.play;
 
-import javafx.util.Pair;
-import org.slf4j.Logger;
-
 import java.util.HashSet;
 
 import static com.alibaba.middleware.race.sync.Constants.SPLIT_CHAR;
