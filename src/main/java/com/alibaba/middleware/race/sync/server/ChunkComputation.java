@@ -26,9 +26,11 @@ public class ChunkComputation {
             recordLazyEval = new RecordLazyEval(fileChunk.get(i), stringBuilder);
 
             if (recordLazyEval.operationType == DELETE_OPERATION) {
-                // must-be last operation for the corresponding record
+                // because it is a delete-operation
+                // => must-be the last operation for the corresponding record
                 deadKeys.put(recordLazyEval.prevPKVal, new RecordUpdate(recordLazyEval.prevPKVal, recordLazyEval.prevPKVal));
             } else {
+
             }
         }
         return null;

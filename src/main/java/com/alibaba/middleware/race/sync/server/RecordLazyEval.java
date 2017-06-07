@@ -1,12 +1,7 @@
 package com.alibaba.middleware.race.sync.server;
 
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.IOException;
 import java.util.AbstractMap;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 
@@ -48,7 +43,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     }
 
     public boolean isPKUpdate() {
-        return prevPKVal == curPKVal;
+        return prevPKVal != curPKVal;
     }
 
     // overall structure: | binlog id | timestamp | schema | table | column structure ...
@@ -79,7 +74,6 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
 
         if (this.operationType == DELETE_OPERATION) {
             this.curPKVal = this.prevPKVal;
-            skipNextString();
         } else {
             this.curPKVal = Long.valueOf(getNextString());
         }
@@ -87,7 +81,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
 
     @Override
     public boolean hasNext() {
-        return curIndex + 1 <= recordStr.length() - 1;
+        return this.operationType != DELETE_OPERATION && curIndex + 1 <= recordStr.length() - 1;
     }
 
     @Override
