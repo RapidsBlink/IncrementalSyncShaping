@@ -42,5 +42,6 @@ public class Client {
         System.setProperty("middleware.test.home", Constants.TESTER_HOME);
         System.setProperty("middleware.teamcode", Constants.TEAMCODE);
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
+        System.setProperty("test.role", Constants.TEST_ROLE[1]);
     }
 }

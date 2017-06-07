@@ -44,6 +44,8 @@ public class Server {
                 readFile(fileName);
             } catch (IOException e) {
                 e.printStackTrace();
+                logger.warn("IOException");
+                logger.warn(e.getMessage());
             }
         }
 
@@ -98,6 +100,7 @@ public class Server {
         System.setProperty("middleware.test.home", Constants.TESTER_HOME);
         System.setProperty("middleware.teamcode", Constants.TEAMCODE);
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
+        System.setProperty("test.role", Constants.TEST_ROLE[0]);
     }
 
 
