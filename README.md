@@ -232,7 +232,7 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
 注意点：
 1. 选手的server端程序由server端的评测程序来kill
 2. client端的评测程序需要选手自己控制在得到最终结果后停止，否则会有超时问题
-3. 为了保证server端能正常启动，评测程序会在启动server后强制休眠15秒后再向client端发起请求，因此最终结果是finalTime加上15秒。
+
 
 # ============================= 如何获取评测日志 ===================================
 1. 超时时间： server端不做超时处理，client端超时时间为5分钟
