@@ -1,7 +1,5 @@
 package com.alibaba.middleware.race.sync.server;
 
-import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
