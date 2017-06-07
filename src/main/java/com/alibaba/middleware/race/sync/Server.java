@@ -1,65 +1,95 @@
 package com.alibaba.middleware.race.sync;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
+import com.alibaba.middleware.race.sync.play.RecordUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
- * 服务器类，负责push消息到client Created by wanshao on 2017/5/25.
+ * Created by will on 6/6/2017.
  */
 public class Server {
 
-    // 保存channel
-    private static Map<String, Channel> map = new ConcurrentHashMap<String, Channel>();
-    // 接收评测程序的三个参数
-    private static String schema;
-    private static Map tableNamePkMap;
+    static Logger logger;
+    static ArrayList<String> dataFiles = new ArrayList<>();
 
-    public static Map<String, Channel> getMap() {
-        return map;
+    static {
+        for (int i = 1; i < 11; i++) {
+            dataFiles.add(i + ".txt");
+        }
     }
 
-    public static void setMap(Map<String, Channel> map) {
-        Server.map = map;
-    }
+    String[] args = null;
 
-    public static void main(String[] args) throws InterruptedException {
+    public Server(String[] args) {
+        this.args = args;
         initProperties();
-        printInput(args);
-        Logger logger = LoggerFactory.getLogger(Client.class);
-        Server server = new Server();
-        logger.info("com.alibaba.middleware.race.sync.Server is running....");
-
-        server.startServer(5527);
+        logger = LoggerFactory.getLogger("Server");
+        printArgs(args);
     }
 
-    /**
-     * 打印赛题输入 赛题输入格式： schemaName tableName startPkId endPkId，例如输入： middleware student 100 200
-     * 上面表示，查询的schema为middleware，查询的表为student,主键的查询范围是(100,200)，注意是开区间 对应DB的SQL为： select * from middleware.student where
-     * id>100 and id<200
-     */
-    private static void printInput(String[] args) {
-        // 第一个参数是Schema Name
-        System.out.println("Schema:" + args[0]);
-        // 第二个参数是Schema Name
-        System.out.println("table:" + args[1]);
-        // 第三个参数是start pk Id
-        System.out.println("start:" + args[2]);
-        // 第四个参数是end pk Id
-        System.out.println("end:" + args[3]);
+    public static void main(String[] args) {
+        new Server(args).start();
+    }
 
+    public void start() {
+        for (String fileName : dataFiles) {
+            try {
+                readFile(fileName);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        logger.info("-----------SCHEMA AND TABLE-----------");
+        for(String pair : RecordUtil.hashSet){
+            logger.info(pair);
+        }
+
+    }
+
+    void readFile(String fileName) throws IOException {
+        String filteredSchema = args[0];
+        String filteredTable = args[1];
+
+        long startTime = System.currentTimeMillis();
+
+        File logFile = new File(Constants.DATA_HOME + File.separator + fileName);
+
+        BufferedReader fileReader = new BufferedReader(new FileReader(logFile));
+        ArrayList<String> strList = new ArrayList<>();
+        String line;
+        int count = 0;
+        while ((line = fileReader.readLine()) != null) {
+            count++;
+            // 1st step: schema, table filter to reduce memory usage
+            if (RecordUtil.isSchemaTableOkay(line, filteredSchema, filteredTable)) {
+                strList.add(line);
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        logger.info("----------" + fileName + "----------");
+        logger.info("all line num:" + count);
+        logger.info("filtered line num:" + strList.size());
+        logger.info("file bytes:" + logFile.length());
+        logger.info("average byte per log:" + (float) logFile.length() / count);
+        logger.info("read time:" + (endTime - startTime) + " ms");
+
+    }
+
+    void printArgs(String[] args) {
+        logger.info(args[0]);
+        logger.info(args[1]);
+        logger.info(args[2]);
+        logger.info(args[3]);
     }
 
     /**
@@ -72,31 +102,4 @@ public class Server {
     }
 
 
-    private void startServer(int port) throws InterruptedException {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-
-                    @Override
-                    public void initChannel(SocketChannel ch) throws Exception {
-                        // 注册handler
-                        ch.pipeline().addLast(new ServerDemoInHandler());
-                        // ch.pipeline().addLast(new ServerDemoOutHandler());
-                    }
-                })
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
-
-            ChannelFuture f = b.bind(port).sync();
-
-            f.channel().closeFuture().sync();
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
-        }
-    }
 }

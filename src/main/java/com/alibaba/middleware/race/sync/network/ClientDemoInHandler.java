@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync;
+package com.alibaba.middleware.race.sync.network;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,7 @@ public class ClientDemoInHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        logger.info("com.alibaba.middleware.race.sync.ClientDemoInHandler.channelRead");
+        logger.info("com.alibaba.middleware.race.sync.network.ClientDemoInHandler.channelRead");
         ByteBuf result = (ByteBuf) msg;
         byte[] result1 = new byte[result.readableBytes()];
         result.readBytes(result1);
@@ -30,7 +30,7 @@ public class ClientDemoInHandler extends ChannelInboundHandlerAdapter {
     // 连接成功后，向server发送消息
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("com.alibaba.middleware.race.sync.ClientDemoInHandler.channelActive");
+        logger.info("com.alibaba.middleware.race.sync.network.ClientDemoInHandler.channelActive");
         String msg = "I am prepared to receive messages";
         ByteBuf encoded = ctx.alloc().buffer(4 * msg.length());
         encoded.writeBytes(msg.getBytes());

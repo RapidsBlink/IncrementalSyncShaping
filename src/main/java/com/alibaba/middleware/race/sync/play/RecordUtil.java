@@ -1,12 +1,19 @@
 package com.alibaba.middleware.race.sync.play;
 
+import javafx.util.Pair;
+import org.slf4j.Logger;
+
+import java.util.HashSet;
+
 import static com.alibaba.middleware.race.sync.Constants.SPLIT_CHAR;
 
 /**
  * Created by yche on 6/7/17.
  */
+
 public class RecordUtil {
-    static boolean isSchemaTableOkay(String recordStr, String schema, String table) {
+    public static HashSet<String> hashSet = new HashSet<>();
+    public static boolean isSchemaTableOkay(String recordStr, String schema, String table) {
         int curIndex = 0;
         char ch;
         for (int i = 0; i < 2; i++) {
@@ -24,9 +31,9 @@ public class RecordUtil {
             curIndex++;
             stringBuilder.append(ch);
         }
-        if (!schema.equals(stringBuilder.toString())) {
-            return false;
-        }
+
+
+        String schemaString = stringBuilder.toString();
 
         // table
         curIndex++;
@@ -34,6 +41,16 @@ public class RecordUtil {
         while ((ch = recordStr.charAt(curIndex)) != SPLIT_CHAR) {
             curIndex++;
             stringBuilder.append(ch);
+        }
+
+        String pair = schemaString + '\t' + stringBuilder.toString();
+
+        if(!hashSet.contains(pair)){
+            hashSet.add(pair);
+        }
+
+        if (!schema.equals(stringBuilder.toString())) {
+            return false;
         }
         return table.equals(stringBuilder.toString());
     }

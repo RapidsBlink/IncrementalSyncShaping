@@ -10,30 +10,30 @@ public interface Constants {
     // 工作主目录
     // String TESTER_HOME = "/Users/wanshao/work/middlewareTester";
     // 赛题数据
-    String DATA_HOME = "/tmp/test/canal_data";
+    //String DATA_HOME = "/tmp/test/canal_data";
     // 结果文件目录
-    String RESULT_HOME = "/tmp/test/user_result";
+    //String RESULT_HOME = "/tmp/test/user_result";
     // teamCode
-    String TEAMCODE = "teamcodetest";
+    String TEAMCODE = "78921g1clv";
     // 日志级别
     String LOG_LEVEL = "INFO";
     // 中间结果目录
-    String MIDDLE_HOME = "/tmp/test/middle";
+    //String MIDDLE_HOME = "/tmp/test/middle";
     // server端口
     Integer SERVER_PORT = 5527;
 
     // ------------ 正式比赛指定的路径--------------//
     //// 工作主目录
-    String TESTER_HOME = "/tmp/test/logs";
+    String TESTER_HOME = "/home/admin/";
     //// 赛题数据
-    // String DATA_HOME = "/home/admin/canal_data";
+    String DATA_HOME = "/home/admin/canal_data";
     //// 结果文件目录(client端会用到)
-    // String RESULT_HOME = "/home/admin/sync_results/${teamcode}";
+    String RESULT_HOME = "/home/admin/sync_results/${teamcode}";
     //// 中间结果目录（client和server都会用到）
-    // String MIDDLE_HOME = "/home/admin/middle/${teamcode}";
+    String MIDDLE_HOME = "/home/admin/middle/${teamcode}";
 
     // 结果文件的命名
-    // String RESULT_FILE_NAME = "Result.rs";
+    String RESULT_FILE_NAME = "Result.rs";
 
     char SPLIT_CHAR = '|';
     char FIELD_SPLIT_CHAR = ':';

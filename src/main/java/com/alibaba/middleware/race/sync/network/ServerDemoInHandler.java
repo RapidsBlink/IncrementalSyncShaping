@@ -1,5 +1,6 @@
-package com.alibaba.middleware.race.sync;
+package com.alibaba.middleware.race.sync.network;
 
+import com.alibaba.middleware.race.sync.DemoServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,9 +37,9 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
         // 保存channel
-        Server.getMap().put(getIPString(ctx), ctx.channel());
+        DemoServer.getMap().put(getIPString(ctx), ctx.channel());
         logger.info("HOST IP: " + getIPString(ctx));
-        logger.info("com.alibaba.middleware.race.sync.ServerDemoInHandler.channelRead");
+        logger.info("com.alibaba.middleware.race.sync.network.ServerDemoInHandler.channelRead");
         ByteBuf result = (ByteBuf) msg;
         byte[] result1 = new byte[result.readableBytes()];
         // msg中存储的是ByteBuf类型的数据，把数据读取到byte[]中
@@ -51,7 +52,7 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
             // 向客户端发送消息
             String message = (String) getMessage();
             if (message != null) {
-                Channel channel = Server.getMap().get("192.168.1.4");
+                Channel channel = DemoServer.getMap().get("192.168.1.4");
                 ByteBuf byteBuf = Unpooled.wrappedBuffer(message.getBytes());
                 channel.writeAndFlush(byteBuf).addListener(new ChannelFutureListener() {
 
