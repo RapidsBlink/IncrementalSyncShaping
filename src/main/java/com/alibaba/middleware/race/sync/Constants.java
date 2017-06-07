@@ -39,4 +39,8 @@ public interface Constants {
     char FIELD_SPLIT_CHAR = ':';
     String IS_PRIMARY_KEY = "1";
     String IS_NUMBER = "1";
+
+    char INSERT_OPERATION = 'I';
+    char DELETE_OPERATION = 'D';
+    char UPDATE_OPERATION = 'U';
 }
