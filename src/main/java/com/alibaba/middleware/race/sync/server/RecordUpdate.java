@@ -44,7 +44,7 @@ public class RecordUpdate {
         this.firstKey = firstKey;
     }
 
-    void addEntryIfNotThere(String key, Object value) {
+    public void addEntryIfNotThere(String key, Object value) {
         if (filedUpdateMap == null) {
             filedUpdateMap = new HashMap<>();
         }

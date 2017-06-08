@@ -42,13 +42,10 @@ public class RecordUtil {
 
         String pair = schemaString + '\t' + stringBuilder.toString();
 
-        if(!hashSet.contains(pair)){
+        if (!hashSet.contains(pair)) {
             hashSet.add(pair);
         }
 
-        if (!schema.equals(schemaString)) {
-            return false;
-        }
-        return table.equals(stringBuilder.toString());
+        return schema.equals(schemaString) && table.equals(stringBuilder.toString());
     }
 }
