@@ -244,6 +244,7 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
     - 如果查看GC日志的话，${logName}则为gc_client.log或者gc_server.log
     - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/${logName} 这样的形式获取自己的日志
     - 日志已经做了上传大小的限制，INFO日志限制10K，WARN和ERROR日志限制大小1K
+    - 评测日志的命名为${test.role}-${teamCode}-assessment-WARN.log，例如
 
 
 
