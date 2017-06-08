@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync;
 
-import com.alibaba.middleware.race.sync.network.ServerDemoInHandler;
+import com.alibaba.middleware.race.sync.network.handlers.ServerDemoInHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

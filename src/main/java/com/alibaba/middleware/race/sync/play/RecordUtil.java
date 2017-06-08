@@ -46,7 +46,7 @@ public class RecordUtil {
             hashSet.add(pair);
         }
 
-        if (!schema.equals(stringBuilder.toString())) {
+        if (!schema.equals(schemaString)) {
             return false;
         }
         return table.equals(stringBuilder.toString());

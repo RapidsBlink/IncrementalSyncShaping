@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.network;
 
-import com.alibaba.middleware.race.sync.Constants;
+import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -32,7 +32,7 @@ public class NettyClient {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ch.pipeline().addLast(new NettyClientHandler());
-                        //ch.pipeline().addLast(new Lz4FrameEncoder(), new Lz4FrameDecoder());
+                        ch.pipeline().addLast(new Lz4FrameEncoder(), new Lz4FrameDecoder());
                     }
                 }).option(ChannelOption.TCP_NODELAY, true);
 
