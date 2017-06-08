@@ -1,23 +1,29 @@
 package com.alibaba.middleware.race.sync.server;
 
-import com.alibaba.middleware.race.sync.play.Record;
-
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
-import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
-import static com.alibaba.middleware.race.sync.Constants.UPDATE_OPERATION;
+import static com.alibaba.middleware.race.sync.Constants.*;
 
 /**
  * Created by yche on 6/7/17.
- * used by a single thread
+ * abstracted as a task, the result of which is a serialized string
+ * lazy evaluation, result be evaluated only call compute()
  */
-public class ChunkComputation {
-    // observation1: at the beginning of this chunk, there is no duplicate primary keys
-    // observation2: at the end of this chunk, there is no duplicate primary keys
+public class ChunkComputationTask {
+    // data
+    private final ArrayList<String> fileChunk;
+    private final int upperIdx;
+    private final int lowerIdx;
+
+    ChunkComputationTask(ArrayList<String> fileChunk, int upperIdx, int lowerIdx) {
+        this.upperIdx = upperIdx;
+        this.lowerIdx = lowerIdx;
+        this.fileChunk = fileChunk;
+    }
+
     private Map<Long, RecordUpdate> activeKeys = new HashMap<>();
     private Map<Long, RecordUpdate> deadKeys = new HashMap<>();
     private ArrayList<RecordUpdate> insertOnlyUpdates = new ArrayList<>();
@@ -88,12 +94,8 @@ public class ChunkComputation {
     }
 
     // used for each chunk computation
-    public ArrayList<RecordUpdate> compute(ArrayList<String> fileChunk, int upper_idx, int lower_idx) {
-        activeKeys.clear();
-        deadKeys.clear();
-        insertOnlyUpdates.clear();
-
-        for (int i = upper_idx; i > lower_idx; i--) {
+    public String compute() {
+        for (int i = upperIdx; i > lowerIdx; i--) {
             recordLazyEval = new RecordLazyEval(fileChunk.get(i), stringBuilder);
 
             if (recordLazyEval.operationType == DELETE_OPERATION) {
@@ -105,10 +107,7 @@ public class ChunkComputation {
             }
         }
 
-        ArrayList<RecordUpdate> myArrayList = new ArrayList<>(deadKeys.size() + activeKeys.size() + insertOnlyUpdates.size());
-        myArrayList.addAll(insertOnlyUpdates);
-        myArrayList.addAll(deadKeys.values());
-        myArrayList.addAll(activeKeys.values());
-        return myArrayList;
+        ChunkMergeResult chunkMergeResult = new ChunkMergeResult(activeKeys, deadKeys, insertOnlyUpdates);
+        return String.valueOf(chunkMergeResult);
     }
 }

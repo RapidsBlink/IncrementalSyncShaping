@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,10 +12,10 @@ import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
  * Created by yche on 6/6/17.
  */
 public class RecordUpdate {
-    long firstKey;
-    final long lastKey;
-    boolean isFirstInsertInChunk;
-    final boolean isLastDeleteInChunk;
+    public long firstKey;
+    public final long lastKey;
+    public boolean isFirstInsertInChunk;
+    public final boolean isLastDeleteInChunk;
 
     // lazy construction
     private Map<String, Object> filedUpdateMap = null;
@@ -39,16 +40,38 @@ public class RecordUpdate {
         }
     }
 
-    public void setFirstKey(long firstKey) {
+    void setFirstKey(long firstKey) {
         this.firstKey = firstKey;
     }
 
-    public void addEntryIfNotThere(String key, Object value) {
+    void addEntryIfNotThere(String key, Object value) {
         if (filedUpdateMap == null) {
             filedUpdateMap = new HashMap<>();
         }
         if (!filedUpdateMap.containsKey(key)) {
             filedUpdateMap.put(key, value);
         }
+    }
+
+    public boolean isKeyChanged() {
+        return firstKey != lastKey;
+    }
+
+    public void mergeAnotherIfPossible(RecordUpdate recordUpdate) {
+        if (recordUpdate.filedUpdateMap != null) {
+            for (Map.Entry<String, Object> entry : recordUpdate.filedUpdateMap.entrySet()) {
+                addEntryIfNotThere(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    public String toOneLineString(ArrayList<String> fieldList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(lastKey).append('\t');
+        for (String field : fieldList) {
+            stringBuilder.append(filedUpdateMap.get(field)).append('\t');
+        }
+        stringBuilder.setLength(stringBuilder.length() - 1);
+        return stringBuilder.toString();
     }
 }
