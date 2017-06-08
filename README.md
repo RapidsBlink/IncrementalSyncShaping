@@ -291,7 +291,7 @@ teamcode是识别选手的唯一标示，评测程序会从选手teamcode相关�
 4. Client和Server的类名必须是"Client"和"Server"，否则评测程序无法正常启动选手的程序
 5. 评测程序给server的参数，第一个参数是schema名字，第二个参数是table名字，第三个参数和第四个参数表征查询的主键范围。具体可以查看Demo
 6. 构建工程必须保证构件名字为sync，最后得到的jar为sync-1.0.jar，建议使用Demo里面的assembly.xml，用mvn clean assembly:assembly -Dmaven.test.skip=true命令打包。
-7. 结果文件的格式可以使用SQL:select * into outfile 'student.txt' from student来获得。默认每一列都是以tab分隔，每一行都以'\n'来换行
+7. 结果文件的格式可以使用SQL:select * into outfile 'student.txt' from student来获得。默认每一列都是以tab分隔，每一行都以'\n'来换行（最后一行不用换行）
 8. 变更信息的10个数据文件命名为： 1.txt、2.txt、3.txt、4.txt、5.txt、6.txt、7.txt、8.txt、9.txt、10.txt
 
 
