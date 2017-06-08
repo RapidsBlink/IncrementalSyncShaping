@@ -5,6 +5,9 @@ package com.alibaba.middleware.race.sync.network;
  */
 public interface NetworkConstant {
     int MAX_CHUNK_SIZE = 100 * 1024 * 1024; // 100MB
+    int SEND_CHUNK_BUFF_SIZE = 4;
     String END_OF_TRANSMISSION = "\r\n";
+
+    char FINISHED_ALL = 0xFF;
     char REQUIRE_ARGS = 0x01;
 }

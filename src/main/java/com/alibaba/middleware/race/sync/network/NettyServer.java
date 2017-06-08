@@ -1,13 +1,11 @@
 package com.alibaba.middleware.race.sync.network;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import com.alibaba.middleware.race.sync.network.handlers.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.buffer.*;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -22,13 +20,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * Created by will on 7/6/2017.
  */
 public class NettyServer {
     static Logger logger;
+    public static boolean finished = false;
     public static String[] args;
+    public static ArrayBlockingQueue<String> sendQueue = new ArrayBlockingQueue<>(NetworkConstant.SEND_CHUNK_BUFF_SIZE);
+
+    public static Channel clientChannel = null;
 
     int port;
     String dataPath;
@@ -83,9 +86,32 @@ public class NettyServer {
     }
 
     public void stop() {
+        NettyServer.finished = true;
+        try {
+            sendQueue.put("E");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            logger.warn("ERROR WHILE PUTTING DATA INTO QUEUE");
+            logger.warn(e.getMessage());
+        }
+        while (!NettyServer.sendQueue.isEmpty()) {
+            //wait here
+        }
         bindFuture.channel().closeFuture();
         logger.info("STOP netty server...");
         workerGroup.shutdownGracefully();
         bossGroup.shutdownGracefully();
+    }
+
+    //send a message, blocking if no space left in send buff
+    public void send(char type, String data) {
+        try {
+            sendQueue.put(NetworkStringMessage.buildMessage(type, data));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            logger.warn("ERROR WHILE PUTTING DATA INTO QUEUE");
+            logger.warn(e.getMessage());
+        }
+
     }
 }

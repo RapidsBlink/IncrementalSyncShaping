@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync.network;
 
 import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -18,10 +17,17 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Created by will on 7/6/2017.
  */
 public class NettyClient {
+
+    public static boolean finished = false;
+    public static ReentrantLock finishedLock = new ReentrantLock();
+    public static Condition finishedConditionWait = finishedLock.newCondition();
 
     public static String[] args;
     public static boolean isArgumentsReceived = false;
@@ -32,12 +38,12 @@ public class NettyClient {
     String ip;
     int port;
 
-    public NettyClient(String ip, int port){
+    public NettyClient(String ip, int port) {
         this.ip = ip;
         this.port = port;
     }
 
-    public void start(){
+    public void start() {
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workGroup).channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
@@ -55,7 +61,20 @@ public class NettyClient {
 
 
     }
-    public void close(){
+
+    public void waitReceiveFinish(){
+        NettyClient.finishedLock.lock();
+        if(!NettyClient.finished){
+            try {
+                NettyClient.finishedConditionWait.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        NettyClient.finishedLock.unlock();
+    }
+
+    public void stop() {
         sendFuture.channel().closeFuture();
         workGroup.shutdownGracefully();
     }
