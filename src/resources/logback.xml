@@ -15,7 +15,7 @@
     <!-- 生成日志文件 -->
     <appender name="FILE_SERVER" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--日志文件输出的文件名 -->
-        <file>/home/admin/logs/81440metjs/server-81440metjs-INFO.log</file>
+        <file>/home/admin/logs/81440metjs/server-custom.log</file>
 
         <!-- 固定数量的日志文件，防止将磁盘占满 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
@@ -41,7 +41,7 @@
 
     <appender name="FILE_CLIENT" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!--日志文件输出的文件名 -->
-        <file>/home/admin//logs/81440metjs/server-81440metjs-INFO.log</file>
+        <file>/home/admin//logs/81440metjs/server-custom.log</file>
 
         <!-- 固定数量的日志文件，防止将磁盘占满 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
