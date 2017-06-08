@@ -2,17 +2,29 @@ package com.alibaba.middleware.race.sync.network;
 
 import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.compression.Lz4FrameDecoder;
-import io.netty.handler.codec.compression.Lz4FrameEncoder;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.compression.SnappyFrameDecoder;
+import io.netty.handler.codec.compression.SnappyFrameEncoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
+import io.netty.util.CharsetUtil;
 
 /**
  * Created by will on 7/6/2017.
  */
 public class NettyClient {
+
+    public static String[] args;
+    public static boolean isArgumentsReceived = false;
 
     EventLoopGroup workGroup = new NioEventLoopGroup(1);
     ChannelFuture sendFuture;
@@ -31,23 +43,20 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast(new SnappyFrameEncoder(), new SnappyFrameDecoder());
+                        ch.pipeline().addLast(new DelimiterBasedFrameDecoder(NetworkConstant.MAX_CHUNK_SIZE,
+                                Unpooled.wrappedBuffer(NetworkConstant.END_OF_TRANSMISSION.getBytes())));
+                        ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8), new StringDecoder(CharsetUtil.UTF_8));
                         ch.pipeline().addLast(new NettyClientHandler());
-                        ch.pipeline().addLast(new Lz4FrameEncoder(), new Lz4FrameDecoder());
                     }
                 }).option(ChannelOption.TCP_NODELAY, true);
 
         sendFuture = bootstrap.connect(ip, port);
 
 
-
     }
     public void close(){
-        try {
-            sendFuture.channel().closeFuture().sync();
-            workGroup.shutdownGracefully();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        sendFuture.channel().closeFuture();
+        workGroup.shutdownGracefully();
     }
 }

@@ -2,29 +2,35 @@ package com.alibaba.middleware.race.sync.network.handlers;
 
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
+import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
+import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Created by will on 7/6/2017.
  */
-public class NettyServerHandler extends SimpleChannelInboundHandler<ByteBuf> {
+public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
     static Logger logger = LoggerFactory.getLogger(NettyServer.class);
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx){
-        logger.info("channel active...");
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        if(msg.readByte() == NetworkConstant.REQUIRE_FILE){
-            logger.info("RECEIVED a REQUIRE_FILE request...");
+    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+        logger.info("RECEIVED a String message......");
+        char TYPE = msg.charAt(0);
+        if(TYPE == NetworkConstant.REQUIRE_ARGS){
+            logger.info("This is a REQUIRE_ARGS request......");
+            ArgumentsPayloadBuilder argsPayload = new ArgumentsPayloadBuilder(NettyServer.args);
+            ChannelFuture f = ctx.writeAndFlush(NetworkStringMessage.buildMessage(NetworkConstant.REQUIRE_ARGS, argsPayload.toString()));
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture future) throws Exception {
+                    logger.info("REQUIRE_ARGS reply has sent......");
+                }
+            });
         }
     }
+
+
 }

@@ -3,16 +3,17 @@ package com.alibaba.middleware.race.sync.network.TransferClass;
 /**
  * Created by will on 8/6/2017.
  */
-public class NetworkArguments {
-    public String[] args = new String[4];
+public class ArgumentsPayloadBuilder {
+    public String[] args;
 
     private char SPLIT = '\t';
 
-    public NetworkArguments(String[] args){
+    public ArgumentsPayloadBuilder(String[] args){
        this.args = args;
     }
 
-    public NetworkArguments(String argsString){
+    public ArgumentsPayloadBuilder(String argsString){
+        args = new String[4];
         int currentIndex = 0;
         StringBuilder sb = new StringBuilder();
         for(int i = 0 ; i < argsString.length(); i++){

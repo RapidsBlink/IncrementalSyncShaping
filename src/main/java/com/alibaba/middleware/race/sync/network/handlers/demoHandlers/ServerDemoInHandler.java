@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.network.handlers;
+package com.alibaba.middleware.race.sync.network.handlers.demoHandlers;
 
 import com.alibaba.middleware.race.sync.DemoServer;
 import io.netty.buffer.ByteBuf;
@@ -34,7 +34,7 @@ public class ServerDemoInHandler extends ChannelInboundHandlerAdapter {
         // 保存channel
         DemoServer.getMap().put(getIPString(ctx), ctx.channel());
         logger.info("HOST IP: " + getIPString(ctx));
-        logger.info("com.alibaba.middleware.race.sync.network.handlers.ServerDemoInHandler.channelRead");
+        logger.info("com.alibaba.middleware.race.sync.network.handlers.demoHandlers.ServerDemoInHandler.channelRead");
         ByteBuf result = (ByteBuf) msg;
         byte[] result1 = new byte[result.readableBytes()];
         // msg中存储的是ByteBuf类型的数据，把数据读取到byte[]中
