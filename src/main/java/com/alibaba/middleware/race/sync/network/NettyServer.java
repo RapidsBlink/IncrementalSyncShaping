@@ -28,6 +28,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class NettyServer {
     static Logger logger;
     public static boolean finished = false;
+    public static boolean sendFinished = false;
     public static String[] args;
     public static ArrayBlockingQueue<String> sendQueue = new ArrayBlockingQueue<>(NetworkConstant.SEND_CHUNK_BUFF_SIZE);
 
@@ -87,14 +88,7 @@ public class NettyServer {
 
     public void stop() {
         NettyServer.finished = true;
-        try {
-            sendQueue.put("E");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            logger.warn("ERROR WHILE PUTTING DATA INTO QUEUE");
-            logger.warn(e.getMessage());
-        }
-        while (!NettyServer.sendQueue.isEmpty()) {
+        while (!NettyServer.sendFinished) {
             //wait here
         }
         bindFuture.channel().closeFuture();
