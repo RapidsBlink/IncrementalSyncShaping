@@ -1,7 +1,7 @@
 package com.alibaba.middleware.race.sync.network;
 
-import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.network.handlers.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -9,12 +9,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.compression.Lz4FrameDecoder;
 import io.netty.handler.codec.compression.Lz4FrameEncoder;
-import io.netty.handler.codec.compression.ZlibDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.concurrent.Future;
 
 /**
  * Created by will on 7/6/2017.
@@ -54,7 +52,7 @@ public class NettyServer {
                     public void initChannel(SocketChannel ch) throws Exception {
                         // 注册handler
                         ch.pipeline().addLast(new NettyServerHandler());
-                        //ch.pipeline().addLast(new Lz4FrameEncoder(), new Lz4FrameDecoder());
+                        ch.pipeline().addLast(new Lz4FrameEncoder(), new Lz4FrameDecoder());
                     }
 
         }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
