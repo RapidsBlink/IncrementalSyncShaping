@@ -26,7 +26,7 @@ public class Client {
 
     public Client(String ip){
         initProperties();
-        logger = LoggerFactory.getLogger("Client");
+        logger = LoggerFactory.getLogger(Client.class);
         nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
         nettyClient.start();
 

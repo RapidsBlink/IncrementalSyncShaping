@@ -36,7 +36,7 @@ public class NettyClient {
     public static String[] args;
     public static boolean isArgumentsReceived = false;
 
-    EventLoopGroup workGroup = new NioEventLoopGroup(1);
+    EventLoopGroup workGroup = new NioEventLoopGroup(Constants.CLIENT_THREADS_NUMBER);
     ChannelFuture sendFuture;
 
     String ip;
