@@ -41,13 +41,8 @@ public class FileStatistics {
         String filteredSchema = "middleware3";
         String filteredTable = "student";
         ArrayList<String> fileChunk = readFile(fileName, filteredSchema, filteredTable);
-
-        long startTime = System.currentTimeMillis();
         SequentialImpl sequentialImpl = new SequentialImpl(fileChunk, fileChunk.size() - 1, -1);
         sequentialImpl.compute();
-        long endTime = System.currentTimeMillis();
-
-        System.out.println("computation time:" + (endTime - startTime) + " ms");
     }
 
     public static void main(String[] args) throws IOException {

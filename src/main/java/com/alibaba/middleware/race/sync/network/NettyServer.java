@@ -87,6 +87,7 @@ public class NettyServer {
     }
 
     public void stop() {
+        send(NetworkConstant.FINISHED_ALL, "");
         NettyServer.finished = true;
         while (!NettyServer.sendFinished) {
             //wait here

@@ -42,7 +42,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
             NettyClient.args = new ArgumentsPayloadBuilder(msg.substring(1)).args;
             logger.info(Arrays.toString(NettyClient.args));
 
-        }
+        }else
         if(TYPE == NetworkConstant.FINISHED_ALL){
             logger.info("Received all chunks, finished......");
             NettyClient.finishedLock.lock();
@@ -50,6 +50,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
             NettyClient.finishedConditionWait.signalAll();
             NettyClient.finishedLock.unlock();
         }
+        
     }
 
 }
