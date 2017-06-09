@@ -47,29 +47,15 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 
     private void checkQueueAndSendData() {
         while (!NettyServer.finished) {
-            while (!NettyServer.sendQueue.isEmpty()) {
                 try {
                     String message = NettyServer.sendQueue.take();
                     logger.info("send a message to client......");
-                    ChannelFuture f = NettyServer.clientChannel.writeAndFlush(message);
-                    if(message.charAt(0) == NetworkConstant.FINISHED_ALL){
-                        f.addListener(new ChannelFutureListener() {
-                            @Override
-                            public void operationComplete(ChannelFuture future) throws Exception {
-                                NettyServer.sendFinished = true;
-                                NettyServer.clientChannel.close().sync();
-                            }
-                        });
-                        f.channel().close().sync();
-                        logger.info("Channel closed....");
-                        break;
-                    }
+                    NettyServer.clientChannel.writeAndFlush(message);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     logger.warn("ERROR WHILE TAKE MESSAGE FROM sendQueue......");
                     logger.warn(e.getMessage());
                 }
-            }
         }
     }
     @Override

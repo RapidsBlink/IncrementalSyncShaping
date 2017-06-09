@@ -66,7 +66,7 @@ public class Server {
 //        }
         System.out.println("Send finish all package......");
         nserver.finish();
-        nserver.stop();
+        //nserver.stop();
 
     }
 

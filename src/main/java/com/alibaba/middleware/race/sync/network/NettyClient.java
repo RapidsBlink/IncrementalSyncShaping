@@ -79,8 +79,8 @@ public class NettyClient {
     }
 
     public void stop() {
+        sendFuture.channel().closeFuture();
         try {
-            sendFuture.channel().closeFuture().sync();
             workGroup.shutdownGracefully().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
