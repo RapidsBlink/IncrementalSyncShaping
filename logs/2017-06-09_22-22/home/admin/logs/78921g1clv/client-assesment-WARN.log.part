@@ -1,0 +1,7 @@
+[WARN ] [19:20:48] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [WARN ] [19:20:48] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 10.101.73.27 /home/admin/logs/78921g1clv/gc_client.log  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [19:20:48] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序失败 TIMED_OUT
+ [ERROR] [19:20:48] com.alibaba.middleware.race.TesterHttpServer - 运行时间超时，请检查您的代码。此次评测消耗评测机会1次
+ [WARN ] [22:14:34] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [WARN ] [22:21:54] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ 
