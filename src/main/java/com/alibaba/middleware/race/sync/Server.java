@@ -4,21 +4,17 @@ package com.alibaba.middleware.race.sync;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.play.GlobalComputation;
-import com.alibaba.middleware.race.sync.play.RecordUtil;
 import com.alibaba.middleware.race.sync.play.SequentialRestore;
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.locks.Condition;
 
 /**
  * Created by will on 6/6/2017.

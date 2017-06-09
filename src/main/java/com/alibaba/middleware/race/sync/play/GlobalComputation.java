@@ -15,34 +15,27 @@ public class GlobalComputation {
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
-    public static boolean isInit = false;
-    public static long pkLowerBound;
-    public static long pkUpperBound;
+    private static long pkLowerBound;
+    private static long pkUpperBound;
 
     public static void initRange(long lowerBound, long upperBound) {
         pkLowerBound = lowerBound;
         pkUpperBound = upperBound;
-        isInit = true;
     }
 
-//    static {
-//        initRange(600, 700);
-//    }
-
-    public static boolean isKeyInRange(long key) {
+    static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
-    public static long extractPK(String str){
+    public static long extractPK(String str) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0 ; i < str.length(); i++){
-            if(str.charAt(i) == '\t'){
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) == '\t') {
                 break;
             }
             sb.append(str.charAt(i));
         }
         return Long.parseLong(sb.toString());
-
     }
 }
 
