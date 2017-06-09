@@ -21,7 +21,7 @@ public class FileStatistics {
     private static void OneRound(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
 
-        ReversedLinesFileReader reversedLinesFileReader = new ReversedLinesFileReader(new File(fileName), 1024 * 1024, Charset.defaultCharset());
+        ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
         while ((line = reversedLinesFileReader.readLine()) != null) {
             sequentialRestore.compute(line);
