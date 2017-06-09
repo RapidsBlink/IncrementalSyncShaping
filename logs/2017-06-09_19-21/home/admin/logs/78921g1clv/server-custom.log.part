@@ -1,0 +1,13 @@
+[2017-06-09 19:14:28.552] INFO  c.a.m.r.sync.Server -middleware
+[2017-06-09 19:14:28.555] INFO  c.a.m.r.sync.Server -student
+[2017-06-09 19:14:28.555] INFO  c.a.m.r.sync.Server -1500
+[2017-06-09 19:14:28.555] INFO  c.a.m.r.sync.Server -1600
+[2017-06-09 19:15:08.784] INFO  c.a.m.r.sync.Server -has result, send to client.....
+[2017-06-09 19:15:18.584] INFO  c.a.m.r.sync.Server -computation time:49831
+[2017-06-09 19:16:01.401] INFO  c.a.m.r.sync.Server -computation time:42816
+[2017-06-09 19:16:46.870] INFO  c.a.m.r.sync.Server -computation time:45468
+[2017-06-09 19:17:32.768] INFO  c.a.m.r.sync.Server -computation time:45898
+[2017-06-09 19:18:20.754] INFO  c.a.m.r.sync.Server -computation time:47986
+[2017-06-09 19:19:03.498] INFO  c.a.m.r.sync.Server -computation time:42744
+[2017-06-09 19:19:47.834] INFO  c.a.m.r.sync.Server -computation time:44336
+[2017-06-09 19:20:30.036] INFO  c.a.m.r.sync.Server -computation time:42201
