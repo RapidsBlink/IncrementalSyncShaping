@@ -43,7 +43,7 @@ d. 列信息
 
 e. 列值
  * 主要分为变更前和变更后,NULL代表物理值为NULL(空值),(可不考虑字符串本身为"NULL"的特殊情况)
- * insert变更,只有变更后列值,其变更前列值为<NULL>,会包含所有的列信息
+ * insert变更,只有变更后列值,其变更前列值为NULL,会包含所有的列信息
  * upadate变更,都会有变更前和后的列值,会包含主键和发生变更列的信息(未发生变更过的列不会给出,不是全列信息)
  * delete变革,只有变更前列值,会包含所有的列信息
 
@@ -96,7 +96,7 @@ PS：
 
 
 为了方便选手测试，也提供了生产好的数据和答案(用的钉钉的网盘)，选手可以下载，其中数据文件可以通过split命令自行分割成10个小文件来测试
-- [测试文件](https://space.dingtalk.com/c/ggHaACQ4Mzc5MDMzMy05NzA1LTRhOWMtYmMyNi1iMjAyNGFiNTg5OTECzhngP1o)
+- [测试文件](https://space.dingtalk.com/c/ggHaACQwZmE1ZDc3MC03MzcwLTQ1NjAtYWI4Mi00MTU4YjBlMTQxNDUCzhn0eXw)
 
 另外选手可以使用如下的存储过程来生成数据：
 
@@ -226,31 +226,33 @@ java $JAVA_OPS -cp $jarPath com.alibaba.middleware.race.sync.Client
 7. client端评测程序等待client端程序运行结束(退出JVM)后，到指定目录拿选手的最终结果和标准结果进行比对，并且将结果(结果正确、超时、结果错误)返回给server端评测程序
 8. server端评测程序得到结果，如果结果有效，记录结束时间endTime。如果结果无效则直接将相关错误信息之间返回给天池系统。
 10. server端评测程序强制kill选手的server端进程
-11. server端评测程序将最终的间隔finalTime=(endTime-starttime)上报给天池系统，由天池进行排名
+11. server端评测程序将最终的间隔finalTime=(endTime-starttime)上报给天池系统，由天池进行排名。天池上的costTime单位是毫秒
 
 
 注意点：
 1. 选手的server端程序由server端的评测程序来kill
 2. client端的评测程序需要选手自己控制在得到最终结果后停止，否则会有超时问题
 
+
 # ============================= 如何获取评测日志 ===================================
-1. 超时时间： server端不做超时处理，client端超时时间为10分钟
+1. 超时时间： server端不做超时处理，client端超时时间为5分钟
 2. 日志处理：
-    - 请将日志写入指定的日志目录：/home/admin/logs/${teamCode}/，这里的teamCode请替换成自己的唯一teamCode，此外请不要透露自己的teamCode给别人哦。
-    - 日志的命名按照如下命名：${test.role}_${teamCode}_custom_WARN.log和${test.role}_${teamCode}_custom_INFO.log。
+    - 请将日志写入指定的日志目录：/home/admin/logs/${teamCode}/，这里的teamCode请替换成自己的唯一teamCode，此外请不要透露自己的teamCode给别人哦。teamCode目录服务器会自己建，自己不用再创建。
 3. 如何获取自己运行的日志：
     - 选手每次提交的程序运行的gc日志以及符合上面命名规范的日志，评测程序才会将其反馈给选手。
-    - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/${logName} 这样的形式获取自己的日志
-    - ${teamCode}是选手的唯一识别码之一，${logName}的名称可以为gc.log、{test.role}_${teamCode}_custom_INFO.log、{test.role}_${teamCode}_custom_WARN.log和{test.role}_${teamCode}_custom_ERROR.log三者之一.
-4. 如何获取评测日志： 
-    - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/assessment_${teamCode}_INFO.log 这样的形式获取自己的评测日志
-    - 评测日志中${teamCode}替换成自己的teamCode
+    - 选手的日志请命名为server-custom.log和client-custom.log，否则不会上传到OSS
+    - GC日志的名称为：gc_client.log或者gc_server.log
+    - 评测日志名称为：server-assesment-INFO.log或者client-assessment-INFO.log
+    - 选手可以通过地址：http://middle2017.oss-cn-shanghai.aliyuncs.com/${teamCode}/server.log.tar.gz或者client.log.tar.gz来获取日志
+    - 日志已经做了上传大小的限制，限制为10K
+
+
 
 
 
 # ================================= 如何使用Demo ================================
 Demo基于netty实现了简单的客户端和服务端程序。
-1. Server: 负责接收评测系统给其的输入(通过args参数)，并且将解析好的数据交给Client。
+1. Server: 负责接收评测系统给其的输入(通过args参数)，并且将解析好的数据交给Client。每次提交评测会给定4个参数，作为一组输入，保存在main的args对象里
 2. Client: 启动后根据评测系统给其的serverIp来启动，启动后接受Server的信息，并且将最终结果写入到指定结果文件目录
 
 ```
@@ -289,7 +291,7 @@ teamcode是识别选手的唯一标示，评测程序会从选手teamcode相关�
 4. Client和Server的类名必须是"Client"和"Server"，否则评测程序无法正常启动选手的程序
 5. 评测程序给server的参数，第一个参数是schema名字，第二个参数是table名字，第三个参数和第四个参数表征查询的主键范围。具体可以查看Demo
 6. 构建工程必须保证构件名字为sync，最后得到的jar为sync-1.0.jar，建议使用Demo里面的assembly.xml，用mvn clean assembly:assembly -Dmaven.test.skip=true命令打包。
-7. 结果文件的格式可以使用SQL:select * into outfile 'student.txt' from student来获得。默认每一列都是以tab分隔，每一行都以'\n'来换行
+7. 结果文件的格式可以使用SQL:select * into outfile 'student.txt' from student来获得。默认每一列都是以tab分隔，每一行都以'\n'来换行（包括最后一行）
 8. 变更信息的10个数据文件命名为： 1.txt、2.txt、3.txt、4.txt、5.txt、6.txt、7.txt、8.txt、9.txt、10.txt
 
 
@@ -453,4 +455,34 @@ file locks                      (-x) unlimited
 
 ```
 第一次插入的时候列信息是完整的，按照第一次插入时候的列顺序来输出即可
+```
+
+11. 是否可以针对数据集的特征做优化？
+
+```
+已知公开条件均可以利用，可以利用有限的日志信息做一些数据特征探索。
+```
+
+12. 比赛的输入会换吗?
+
+```
+会的，比赛有多套输入，会随机选择
+```
+
+13. 主键是数字类型确定吗?
+
+```
+确定的，主键是数字类型
+```
+
+14. 预热赛和正式赛有什么区别？
+
+```
+预热赛和正式赛的比赛数据不同。
+```
+
+15. 会不会有原本是查询范围外的主键通过update变成查询范围内的？
+
+```
+会有
 ```
