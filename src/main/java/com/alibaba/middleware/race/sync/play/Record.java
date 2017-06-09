@@ -100,14 +100,16 @@ public class Record {
 
             // field cur val
             value = getNextString(recordStr, stringBuilder);
-            if (valType.equals(IS_NUMBER)) {
-                keyValueMap.put(key, Long.valueOf(value));
-            } else {
-                keyValueMap.put(key, value);
-            }
+
             // field cur val to class member, iff it is primary key
             if (keyType.equals(IS_PRIMARY_KEY)) {
                 primaryKeyCurrVal = Long.valueOf(value);
+            } else {
+                if (valType.equals(IS_NUMBER)) {
+                    keyValueMap.put(key, Long.valueOf(value));
+                } else {
+                    keyValueMap.put(key, value);
+                }
             }
         }
     }
@@ -129,6 +131,7 @@ public class Record {
 
         // 3rd: get all field info and prev/cur values
         initAllFieldInfo(recordStr, stringBuilder, isKeepColOrder);
+        colOrder.remove(0);
     }
 
     public static void main(String[] args) throws IOException {

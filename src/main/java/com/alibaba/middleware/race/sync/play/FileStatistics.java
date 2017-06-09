@@ -43,19 +43,13 @@ public class FileStatistics {
         ArrayList<String> fileChunk = readFile(fileName, filteredSchema, filteredTable);
         SequentialImpl sequentialImpl = new SequentialImpl(fileChunk, fileChunk.size() - 1, -1);
         sequentialImpl.compute();
-
-        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
-            System.out.println(entry.getValue());
-        }
     }
 
     public static void main(String[] args) throws IOException {
-//        OneRound();
-        String storePath = "/tmp";
-        String folderString = "test";
-        File[] files = new File(storePath + File.separator + folderString).listFiles();
-        for(File file:files){
-            System.out.println(file.getName());
+        OneRound("/tmp/canal.txt");
+        System.out.println(GlobalComputation.filedList);
+        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
+            System.out.println(entry.getValue());
         }
     }
 }
