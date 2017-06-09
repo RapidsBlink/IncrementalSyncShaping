@@ -4,7 +4,6 @@ import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 import com.alibaba.middleware.race.sync.server.RecordUpdate;
 
 import java.util.AbstractMap;
-import java.util.ArrayList;
 
 import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
@@ -13,21 +12,18 @@ import static com.alibaba.middleware.race.sync.play.GlobalComputation.*;
 /**
  * Created by yche on 6/8/17.
  */
-public class SequentialImpl {
+public class SequentialRestore {
     // data
-    private final ArrayList<String> fileChunk;
-    private final int upperIdx;
-    private final int lowerIdx;
-    private int i;
-
-    SequentialImpl(ArrayList<String> fileChunk, int upperIdx, int lowerIdx) {
-        this.upperIdx = upperIdx;
-        this.lowerIdx = lowerIdx;
-        this.fileChunk = fileChunk;
-    }
-
+    private String recordStr;
     private RecordLazyEval recordLazyEval;
     private StringBuilder stringBuilder = new StringBuilder();
+
+    private void initFieldListIfFirstTime() {
+        if (filedList.size() == 0) {
+            Record record = new Record(recordStr, true);
+            filedList = record.colOrder;
+        }
+    }
 
     private void updateOtherFieldContents(RecordUpdate recordUpdate) {
         // update contents if possible
@@ -39,14 +35,10 @@ public class SequentialImpl {
 
     private void actForDelete() {
         deadKeys.add(recordLazyEval.prevPKVal);
-
     }
 
     private void actForInsert() {
-        if (filedList.size() == 0) {
-            Record record = new Record(fileChunk.get(i), true);
-            filedList = record.colOrder;
-        }
+        initFieldListIfFirstTime();
 
         if (deadKeys.contains(recordLazyEval.curPKVal)) {
             // insert-delete
@@ -60,12 +52,12 @@ public class SequentialImpl {
             updateOtherFieldContents(prevUpdate);
             inRangeActiveKeys.remove(recordLazyEval.curPKVal);
 
-            // write string to tree map
+            // write recordStr to tree map
             inRangeRecord.put(prevUpdate.lastKey, prevUpdate.toOneLineString(filedList));
         } else {
             // first-time appearing
             if (isKeyInRange(recordLazyEval.curPKVal)) {
-                // write string to skip list
+                // write recordStr to skip list
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
                 updateOtherFieldContents(recordUpdate);
                 inRangeRecord.put(recordUpdate.lastKey, recordUpdate.toOneLineString(filedList));
@@ -109,9 +101,10 @@ public class SequentialImpl {
         }
     }
 
-    public void compute() {
-        for (i = upperIdx; i > lowerIdx; i--) {
-            recordLazyEval = new RecordLazyEval(fileChunk.get(i), stringBuilder);
+    public void compute(String another) {
+        recordStr = another;
+        recordLazyEval = new RecordLazyEval(recordStr, stringBuilder);
+        if (recordLazyEval.isSchemaTableValid()) {
             if (recordLazyEval.operationType == DELETE_OPERATION) {
                 actForDelete();
             } else if (recordLazyEval.operationType == INSERT_OPERATION) {

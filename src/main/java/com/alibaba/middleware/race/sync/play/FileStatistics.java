@@ -1,55 +1,45 @@
 package com.alibaba.middleware.race.sync.play;
 
-import java.io.BufferedReader;
+import com.alibaba.middleware.race.sync.server.RecordLazyEval;
+import org.apache.commons.io.input.ReversedLinesFileReader;
+
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 /**
  * Created by yche on 6/6/17.
  */
 public class FileStatistics {
-    private static ArrayList<String> readFile(String fileName, String schema, String table) throws IOException {
+    private static SequentialRestore sequentialRestore = new SequentialRestore();
+
+    private static void OneRound(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
 
-        File logFile = new File(fileName);
-        BufferedReader fileReader = new BufferedReader(new FileReader(fileName));
-        ArrayList<String> strList = new ArrayList<>();
+        ReversedLinesFileReader reversedLinesFileReader = new ReversedLinesFileReader(new File(fileName), 1024 * 1024, Charset.defaultCharset());
         String line;
-        int count = 0;
-        while ((line = fileReader.readLine()) != null) {
-            count++;
-            // 1st step: schema, table filter to reduce memory usage
-            if (RecordUtil.isSchemaTableOkay(line, schema, table)) {
-                strList.add(line);
-            }
+        while ((line = reversedLinesFileReader.readLine()) != null) {
+            sequentialRestore.compute(line);
         }
 
         long endTime = System.currentTimeMillis();
-
-        System.out.println("all line num:" + count);
-        System.out.println("filtered line num:" + strList.size());
-        System.out.println("file bytes:" + logFile.length());
-        System.out.println("average byte per log:" + (float) logFile.length() / count);
-        System.out.println("read time:" + (endTime - startTime) + " ms");
-        return strList;
-    }
-
-    private static void OneRound(String fileName) throws IOException {
-        String filteredSchema = "middleware3";
-        String filteredTable = "student";
-        ArrayList<String> fileChunk = readFile(fileName, filteredSchema, filteredTable);
-        SequentialImpl sequentialImpl = new SequentialImpl(fileChunk, fileChunk.size() - 1, -1);
-        sequentialImpl.compute();
+        System.out.println("computation time:" + (endTime - startTime));
     }
 
     public static void main(String[] args) throws IOException {
+        RecordLazyEval.schema = "middleware3";
+        RecordLazyEval.table = "student";
         OneRound("/tmp/canal.txt");
         System.out.println(GlobalComputation.filedList);
+
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("/tmp/yche.rs"));
         for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
-            System.out.println(entry.getValue());
+            bufferedWriter.write(entry.getValue());
+            bufferedWriter.newLine();
         }
+        bufferedWriter.close();
     }
 }

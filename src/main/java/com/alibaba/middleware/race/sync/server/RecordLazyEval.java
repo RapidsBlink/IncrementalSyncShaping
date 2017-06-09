@@ -10,14 +10,23 @@ import static com.alibaba.middleware.race.sync.Constants.*;
  * provides iterator for lazy evaluation of updated entries except primary key
  */
 public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, Object>> {
+    public static String schema;
+    public static String table;
+
     private final String recordStr;
     private final StringBuilder stringBuilder;
     private int curIndex;
 
+    private boolean isSchemaTableValid = true;
+
     // eager evaluation
-    public final char operationType;
-    public final long curPKVal;
-    public final long prevPKVal;
+    public char operationType;
+    public long curPKVal;
+    public long prevPKVal;
+
+    public boolean isSchemaTableValid() {
+        return isSchemaTableValid;
+    }
 
     // end at '|'
     private String getNextString() {
@@ -53,9 +62,23 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
         this.stringBuilder = stringBuilder;
         this.recordStr = recordStr;
 
-        // 1st: skip: binlog id, and timestamp, schema and table
-        for (int i = 0; i < 4; i++) {
+        // 1st: skip: binlog id, and timestamp
+        for (int i = 0; i < 2; i++) {
             skipNextString();
+        }
+
+        // check schema and table
+        String schema = getNextString();
+
+        if (!schema.equals(RecordLazyEval.schema)) {
+            this.isSchemaTableValid = false;
+            return;
+        }
+
+        String table = getNextString();
+        if (!table.equals(RecordLazyEval.table)) {
+            this.isSchemaTableValid = false;
+            return;
         }
 
         // 2nd: eager evaluate: operation type, primary key
@@ -119,4 +142,6 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     @Override
     public void remove() {
     }
+
+
 }
