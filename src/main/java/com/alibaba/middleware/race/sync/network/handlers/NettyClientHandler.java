@@ -38,27 +38,30 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         logger.info("Received a message, decoding...");
         char TYPE = msg.charAt(0);
-        logger.info("received type: "+ (int)TYPE);
         if (TYPE == NetworkConstant.REQUIRE_ARGS) {
             logger.info("Received a REQUIRE_ARGS reply.....");
             NettyClient.args = new ArgumentsPayloadBuilder(msg.substring(1)).args;
             logger.info(Arrays.toString(NettyClient.args));
 
-        }else
+        }
         if(TYPE == NetworkConstant.FINISHED_ALL){
             logger.info("Received all chunks, finished......");
             NettyClient.finishedLock.lock();
             NettyClient.finished = true;
             NettyClient.finishedConditionWait.signalAll();
             NettyClient.finishedLock.unlock();
-        }else
+        }
         if(TYPE == NetworkConstant.LINE_RECORD){
-            logger.info("Received a result......");
+            logger.info("Received a line record.....");
             String data = msg.substring(1);
             long pk = GlobalComputation.extractPK(data);
             NettyClient.resultMap.put(pk, data);
         }
-
     }
 
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
 }

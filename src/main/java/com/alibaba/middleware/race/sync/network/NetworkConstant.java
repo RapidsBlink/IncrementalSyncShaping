@@ -8,7 +8,7 @@ public interface NetworkConstant {
     int SEND_CHUNK_BUFF_SIZE = 4;
     String END_OF_TRANSMISSION = "\r\n";
 
-    char FINISHED_ALL = 0xFF;
-    char REQUIRE_ARGS = 0x01;
-    char LINE_RECORD = 0x02;
+    char FINISHED_ALL = 'F';
+    char REQUIRE_ARGS = 'A';
+    char LINE_RECORD = 'B';
 }

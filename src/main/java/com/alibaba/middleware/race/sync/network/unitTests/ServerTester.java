@@ -16,6 +16,7 @@ public class ServerTester {
         for (int i = 0; i < 100000; i++) {
             ns.send(NetworkConstant.REQUIRE_ARGS, new ArgumentsPayloadBuilder(args).toString());
         }
+        ns.finish();
         ns.stop();
     }
 }

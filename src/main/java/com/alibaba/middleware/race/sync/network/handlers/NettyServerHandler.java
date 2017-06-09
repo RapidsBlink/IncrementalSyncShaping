@@ -57,10 +57,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
                                 NettyServer.sendFinished = true;
-                                logger.info("FINISHED_ALL package has been sent...");
+                                NettyServer.clientChannel.close().sync();
                             }
                         });
                         f.channel().close().sync();
+                        logger.info("Channel closed....");
                         break;
                     }
                 } catch (InterruptedException e) {
@@ -71,6 +72,10 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
             }
         }
     }
-
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        cause.printStackTrace();
+        ctx.close();
+    }
 
 }

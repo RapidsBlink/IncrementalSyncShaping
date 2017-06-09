@@ -64,12 +64,12 @@ public class Server {
             OneRound(Constants.DATA_HOME + File.separator + dataFiles.get(i-1));
         }
 
-        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
-            System.out.println(entry.getValue());
-        }
+//        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
+//            System.out.println(entry.getValue());
+//        }
         System.out.println("Send finish all package......");
-        nserver.send(NetworkConstant.FINISHED_ALL, "");
-        //nserver.stop();
+        nserver.finish();
+        nserver.stop();
 
     }
 

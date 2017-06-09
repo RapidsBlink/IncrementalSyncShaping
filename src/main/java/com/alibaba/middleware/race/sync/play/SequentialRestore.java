@@ -54,10 +54,10 @@ public class SequentialRestore {
             inRangeActiveKeys.remove(recordLazyEval.curPKVal);
 
             // write recordStr to tree map
-            System.out.println("in actForInsert");
+            //System.out.println("in actForInsert");
             inRangeRecord.put(prevUpdate.lastKey, prevUpdate.toOneLineString(filedList));
             result = prevUpdate.toOneLineString(filedList);
-            System.out.println(result);
+            //System.out.println(result);
         } else {
             // first-time appearing
             if (isKeyInRange(recordLazyEval.curPKVal)) {
@@ -66,8 +66,8 @@ public class SequentialRestore {
                 updateOtherFieldContents(recordUpdate);
                 inRangeRecord.put(recordUpdate.lastKey, recordUpdate.toOneLineString(filedList));
                 result = recordUpdate.toOneLineString(filedList);
-                System.out.println(result);
-                System.out.println("in actForInsert");
+                //System.out.println(result);
+                //System.out.println("in actForInsert");
             }
             // else do nothing
         }

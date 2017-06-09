@@ -35,6 +35,8 @@ public class NettyServer {
     public static Channel clientChannel = null;
 
     int port;
+    String dataPath;
+    ArrayList<String> fileNames = new ArrayList<>();
 
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
@@ -46,7 +48,12 @@ public class NettyServer {
 
         logger = logger = LoggerFactory.getLogger("NettyServer");
         logger.info(Arrays.toString(args));
+        this.dataPath = dataPath;
         this.port = port;
+
+        for (int i = 1; i <= 10; i++) {
+            fileNames.add(i + ".txt");
+        }
 
     }
 
@@ -79,16 +86,24 @@ public class NettyServer {
         logger.info("Bind done.");
     }
 
-    public void stop() {
+    public void finish(){
         send(NetworkConstant.FINISHED_ALL, "");
+    }
+
+    public void stop() {
         NettyServer.finished = true;
         while (!NettyServer.sendFinished) {
             //wait here
         }
-        bindFuture.channel().closeFuture();
+        try {
+            bindFuture.channel().closeFuture().sync();
+            workerGroup.shutdownGracefully().sync();
+            bossGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         logger.info("STOP netty server...");
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+
     }
 
     //send a message, blocking if no space left in send buff

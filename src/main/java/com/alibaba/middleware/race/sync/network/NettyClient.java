@@ -79,7 +79,11 @@ public class NettyClient {
     }
 
     public void stop() {
-        sendFuture.channel().closeFuture();
-        workGroup.shutdownGracefully();
+        try {
+            sendFuture.channel().closeFuture().sync();
+            workGroup.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
