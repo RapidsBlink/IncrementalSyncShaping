@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race.sync.network;
 
+import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
@@ -17,6 +18,8 @@ import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -28,6 +31,7 @@ public class NettyClient {
     public static boolean finished = false;
     public static ReentrantLock finishedLock = new ReentrantLock();
     public static Condition finishedConditionWait = finishedLock.newCondition();
+    public static ConcurrentMap<Long, String> resultMap = new ConcurrentSkipListMap<>();
 
     public static String[] args;
     public static boolean isArgumentsReceived = false;

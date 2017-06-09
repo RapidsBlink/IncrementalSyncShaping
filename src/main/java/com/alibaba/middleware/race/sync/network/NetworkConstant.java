@@ -10,4 +10,5 @@ public interface NetworkConstant {
 
     char FINISHED_ALL = 0xFF;
     char REQUIRE_ARGS = 0x01;
+    char LINE_RECORD = 0x02;
 }

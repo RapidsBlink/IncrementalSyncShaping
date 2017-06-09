@@ -13,7 +13,7 @@ public class GlobalComputation {
     final static Set<Long> deadKeys = new HashSet<>();
 
     static ArrayList<String> filedList = new ArrayList<>();
-    final static Map<Long, String> inRangeRecord = new TreeMap<>();
+    public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
     public static boolean isInit = false;
     public static long pkLowerBound;
@@ -25,12 +25,24 @@ public class GlobalComputation {
         isInit = true;
     }
 
-    static {
-        initRange(600, 700);
-    }
+//    static {
+//        initRange(600, 700);
+//    }
 
     public static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
+    }
+
+    public static long extractPK(String str){
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0 ; i < str.length(); i++){
+            if(str.charAt(i) == '\t'){
+                break;
+            }
+            sb.append(str.charAt(i));
+        }
+        return Long.parseLong(sb.toString());
+
     }
 }
 

@@ -11,7 +11,7 @@ import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBu
 public class ServerTester {
     public static void main(String[] args) {
         Server.initProperties();
-        NettyServer ns = new NettyServer(args, 8080, "/tmp/test/canal_data");
+        NettyServer ns = new NettyServer(args, 8080);
         ns.start();
         for (int i = 0; i < 100000; i++) {
             ns.send(NetworkConstant.REQUIRE_ARGS, new ArgumentsPayloadBuilder(args).toString());

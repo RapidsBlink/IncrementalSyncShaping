@@ -1,7 +1,14 @@
 package com.alibaba.middleware.race.sync;
 
+import com.alibaba.middleware.race.sync.network.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by will on 6/6/2017.
@@ -11,28 +18,36 @@ public class Client {
     static Logger logger;
 
     private final static int port = Constants.SERVER_PORT;
-
+    static NettyClient nettyClient= null;
 
     public static void main(String[] args){
-        new Client().start();
+        new Client(args[0]).start();
     }
 
-    public Client(){
+    public Client(String ip){
         initProperties();
         logger = LoggerFactory.getLogger("Client");
+        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
+        nettyClient.start();
 
     }
 
     public void start(){
+        nettyClient.waitReceiveFinish();
+        nettyClient.stop();
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-        while(true) {
-            logger.info("Client goes to sleep...");
-            try {
-                Thread.sleep(1000 * 5);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for(String value : NettyClient.resultMap.values()){
+                bw.write(value);
+                bw.newLine();
             }
+            bw.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
 
     }
     /**

@@ -5,6 +5,7 @@ import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
+import com.alibaba.middleware.race.sync.play.GlobalComputation;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,6 +38,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
         logger.info("Received a message, decoding...");
         char TYPE = msg.charAt(0);
+        logger.info("received type: "+ (int)TYPE);
         if (TYPE == NetworkConstant.REQUIRE_ARGS) {
             logger.info("Received a REQUIRE_ARGS reply.....");
             NettyClient.args = new ArgumentsPayloadBuilder(msg.substring(1)).args;
@@ -49,8 +51,14 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
             NettyClient.finished = true;
             NettyClient.finishedConditionWait.signalAll();
             NettyClient.finishedLock.unlock();
+        }else
+        if(TYPE == NetworkConstant.LINE_RECORD){
+            logger.info("Received a result......");
+            String data = msg.substring(1);
+            long pk = GlobalComputation.extractPK(data);
+            NettyClient.resultMap.put(pk, data);
         }
-        
+
     }
 
 }

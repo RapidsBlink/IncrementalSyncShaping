@@ -35,25 +35,18 @@ public class NettyServer {
     public static Channel clientChannel = null;
 
     int port;
-    String dataPath;
-    ArrayList<String> fileNames = new ArrayList<>();
 
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
     ChannelFuture bindFuture;
 
-    public NettyServer(String[] args, int port, String dataPath) {
+    public NettyServer(String[] args, int port) {
         Server.initProperties();
         NettyServer.args = args;
 
         logger = logger = LoggerFactory.getLogger("NettyServer");
         logger.info(Arrays.toString(args));
-        this.dataPath = dataPath;
         this.port = port;
-
-        for (int i = 1; i <= 10; i++) {
-            fileNames.add(i + ".txt");
-        }
 
     }
 

@@ -17,6 +17,7 @@ public class SequentialRestore {
     private String recordStr;
     private RecordLazyEval recordLazyEval;
     private StringBuilder stringBuilder = new StringBuilder();
+    private String result = null;
 
     private void initFieldListIfFirstTime() {
         if (filedList.size() == 0) {
@@ -53,7 +54,10 @@ public class SequentialRestore {
             inRangeActiveKeys.remove(recordLazyEval.curPKVal);
 
             // write recordStr to tree map
+            System.out.println("in actForInsert");
             inRangeRecord.put(prevUpdate.lastKey, prevUpdate.toOneLineString(filedList));
+            result = prevUpdate.toOneLineString(filedList);
+            System.out.println(result);
         } else {
             // first-time appearing
             if (isKeyInRange(recordLazyEval.curPKVal)) {
@@ -61,6 +65,9 @@ public class SequentialRestore {
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
                 updateOtherFieldContents(recordUpdate);
                 inRangeRecord.put(recordUpdate.lastKey, recordUpdate.toOneLineString(filedList));
+                result = recordUpdate.toOneLineString(filedList);
+                System.out.println(result);
+                System.out.println("in actForInsert");
             }
             // else do nothing
         }
@@ -101,7 +108,8 @@ public class SequentialRestore {
         }
     }
 
-    public void compute(String another) {
+    public String compute(String another) {
+        String ret = null;
         recordStr = another;
         recordLazyEval = new RecordLazyEval(recordStr, stringBuilder);
         if (recordLazyEval.isSchemaTableValid()) {
@@ -109,9 +117,12 @@ public class SequentialRestore {
                 actForDelete();
             } else if (recordLazyEval.operationType == INSERT_OPERATION) {
                 actForInsert();
+                ret = result;
+                result = null;
             } else {
                 actForUpdate();
             }
         }
+        return ret;
     }
 }

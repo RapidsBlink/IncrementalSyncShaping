@@ -1,7 +1,13 @@
 package com.alibaba.middleware.race.sync;
 
 
+import com.alibaba.middleware.race.sync.network.NettyServer;
+import com.alibaba.middleware.race.sync.network.NetworkConstant;
+import com.alibaba.middleware.race.sync.play.GlobalComputation;
 import com.alibaba.middleware.race.sync.play.RecordUtil;
+import com.alibaba.middleware.race.sync.play.SequentialRestore;
+import com.alibaba.middleware.race.sync.server.RecordLazyEval;
+import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +15,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.locks.Condition;
 
 /**
  * Created by will on 6/6/2017.
@@ -18,6 +27,8 @@ public class Server {
 
     static Logger logger;
     static ArrayList<String> dataFiles = new ArrayList<>();
+    static NettyServer nserver = null;
+    private static SequentialRestore sequentialRestore = new SequentialRestore();
 
     static {
         for (int i = 1; i < 11; i++) {
@@ -32,58 +43,52 @@ public class Server {
         initProperties();
         logger = LoggerFactory.getLogger("Server");
         printArgs(args);
+        nserver = new NettyServer(args, Constants.SERVER_PORT);
+        nserver.start();
     }
 
     public static void main(String[] args) {
-        new Server(args).start();
+        RecordLazyEval.schema = args[0];
+        RecordLazyEval.table = args[1];
+        GlobalComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
+        try {
+            new Server(args).start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void start() {
-        for (String fileName : dataFiles) {
-            try {
-                readFile(fileName);
-            } catch (IOException e) {
-                e.printStackTrace();
-                logger.warn("IOException");
-                logger.warn(e.getMessage());
-            }
+    public void start() throws IOException {
+        for(int i = 10 ; i >0; i--){
+            System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i-1));
+            OneRound(Constants.DATA_HOME + File.separator + dataFiles.get(i-1));
         }
 
-        logger.info("-----------SCHEMA AND TABLE-----------");
-        for(String pair : RecordUtil.hashSet){
-            logger.info(pair);
+        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
+            System.out.println(entry.getValue());
         }
+        System.out.println("Send finish all package......");
+        nserver.send(NetworkConstant.FINISHED_ALL, "");
+        //nserver.stop();
 
     }
 
-    void readFile(String fileName) throws IOException {
-        String filteredSchema = args[0];
-        String filteredTable = args[1];
-
+    private static void OneRound(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
-
-        File logFile = new File(Constants.DATA_HOME + File.separator + fileName);
-
-        BufferedReader fileReader = new BufferedReader(new FileReader(logFile));
-        ArrayList<String> strList = new ArrayList<>();
+        ReversedLinesFileReader reversedLinesFileReader = new ReversedLinesFileReader(new File(fileName), 1024 * 1024, Charset.defaultCharset());
         String line;
-        int count = 0;
-        while ((line = fileReader.readLine()) != null) {
-            count++;
-            // 1st step: schema, table filter to reduce memory usage
-            if (RecordUtil.isSchemaTableOkay(line, filteredSchema, filteredTable)) {
-                strList.add(line);
+        String result;
+        while ((line = reversedLinesFileReader.readLine()) != null) {
+            result = sequentialRestore.compute(line);
+            if(result != null){
+                logger.info("has result, send to client.....");
+                nserver.send(NetworkConstant.LINE_RECORD, result);
             }
         }
+
 
         long endTime = System.currentTimeMillis();
-        logger.info("----------" + fileName + "----------");
-        logger.info("all line num:" + count);
-        logger.info("filtered line num:" + strList.size());
-        logger.info("file bytes:" + logFile.length());
-        logger.info("average byte per log:" + (float) logFile.length() / count);
-        logger.info("read time:" + (endTime - startTime) + " ms");
-
+        logger.info("computation time:" + (endTime - startTime));
     }
 
     void printArgs(String[] args) {

@@ -57,6 +57,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
                             @Override
                             public void operationComplete(ChannelFuture future) throws Exception {
                                 NettyServer.sendFinished = true;
+                                logger.info("FINISHED_ALL package has been sent...");
                             }
                         });
                         f.channel().close().sync();

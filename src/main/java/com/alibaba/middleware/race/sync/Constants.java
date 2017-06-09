@@ -15,6 +15,9 @@ public interface Constants {
     // 结果文件的命名
     String RESULT_FILE_NAME = "Result.rs";
 
+    //Client threads number
+    Integer CLIENT_THREADS_NUMBER = 1;
+
     // ------------ 本地测试可以使用自己的路径--------------//
     //%%%%%%%%%%%%%%%%% change bellow %%%%%%%%%%%%%%%%%
     // 工作主目录

@@ -31,6 +31,7 @@ public class GlobalComputation {
         isInit = true;
     }
 
+
     public static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
