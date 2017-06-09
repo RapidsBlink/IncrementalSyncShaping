@@ -26,7 +26,7 @@ public class GlobalComputation {
     }
 
     static {
-        initRange(600, 699);
+        initRange(600, 700);
     }
 
     public static boolean isKeyInRange(long key) {
