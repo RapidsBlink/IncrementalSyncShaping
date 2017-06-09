@@ -19,6 +19,6 @@ cd logs/$folderName
 wget -c "$baseUrl$teamCode/$serverLog"
 wget -c "$baseUrl$teamCode/$clientLog"
 
-tar xvzf ${serverLog}
-tar xvzf ${clientLog}
+tar xvzf ${serverLog} -C .
+tar xvzf ${clientLog} -C .
 

@@ -4,6 +4,7 @@ package com.alibaba.middleware.race.sync;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.play.GlobalComputation;
+import com.alibaba.middleware.race.sync.play.ReversedLinesDirectReader;
 import com.alibaba.middleware.race.sync.play.SequentialRestore;
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 import org.apache.commons.io.input.ReversedLinesFileReader;
@@ -71,7 +72,7 @@ public class Server {
 
     private static void OneRound(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
-        ReversedLinesFileReader reversedLinesFileReader = new ReversedLinesFileReader(new File(fileName), 1024 * 1024, Charset.defaultCharset());
+        ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
         String result;
         while ((line = reversedLinesFileReader.readLine()) != null) {
