@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NettyClient;
+import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ public class Client {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
             for(String value : NettyClient.resultMap.values()){
+                logger.info(value);
                 bw.write(value);
                 bw.newLine();
             }
@@ -47,8 +49,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
     /**
      * 初始化系统属性
