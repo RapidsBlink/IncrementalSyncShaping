@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.play;
+package com.alibaba.middleware.race.sync.unused;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -23,7 +23,6 @@ public class Record {
     public Long primaryKeyPrevVal;
 
     public final Map<String, Object> keyValueMap = new HashMap<>();
-
     public final ArrayList<String> colOrder = new ArrayList<>();
 
     private int curIndex;
@@ -116,7 +115,7 @@ public class Record {
 
     // overall structure: | binlog id | timestamp | schema | table | ...
     // column structure: column info | prev val | cur val
-    Record(String recordStr, boolean isKeepColOrder) {
+    public Record(String recordStr, boolean isKeepColOrder) {
         curIndex = 0;
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -140,7 +139,6 @@ public class Record {
         ObjectMapper mapper = new ObjectMapper();
         String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(record1);
         System.out.println(jsonInString);
-
         System.out.println(Arrays.toString(record1.colOrder.toArray()));
     }
 }

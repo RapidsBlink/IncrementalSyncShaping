@@ -3,9 +3,6 @@ package com.alibaba.middleware.race.sync.play;
 import com.alibaba.middleware.race.sync.server.RecordUpdate;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by yche on 6/8/17.

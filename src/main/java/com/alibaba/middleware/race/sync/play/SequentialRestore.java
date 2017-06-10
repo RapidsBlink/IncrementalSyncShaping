@@ -1,9 +1,8 @@
 package com.alibaba.middleware.race.sync.play;
 
+import com.alibaba.middleware.race.sync.server.RecordFields;
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 import com.alibaba.middleware.race.sync.server.RecordUpdate;
-
-import java.util.AbstractMap;
 
 import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
@@ -21,7 +20,7 @@ public class SequentialRestore {
 
     private void initFieldListIfFirstTime() {
         if (filedList.size() == 0) {
-            Record record = new Record(recordStr, true);
+            RecordFields record = new RecordFields(recordStr);
             filedList = record.colOrder;
         }
     }

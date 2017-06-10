@@ -142,6 +142,4 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     @Override
     public void remove() {
     }
-
-
 }
