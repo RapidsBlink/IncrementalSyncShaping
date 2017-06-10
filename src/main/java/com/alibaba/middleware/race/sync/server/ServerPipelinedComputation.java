@@ -4,10 +4,7 @@ import com.alibaba.middleware.race.sync.Server;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -37,12 +34,12 @@ public class ServerPipelinedComputation {
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
     // io and computation sync related
-    private final static int fullNum = 5000000;
-    private final static int closeEmptyNum = 1000000;
+//    private final static int fullNum = 5000000;
+//    private final static int closeEmptyNum = 1000000;
 //    private final static ReentrantLock isFullLock = new ReentrantLock();
 //    private final static Condition isFull = isFullLock.newCondition();
-    private final static BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(fullNum);
-    private final static ThreadPoolExecutor pool = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, taskQueue);
+//    private final static BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(fullNum);
+      private final static ExecutorService pool = Executors.newSingleThreadExecutor();
 //    private static boolean isOthersAwakeMe = false;
 //    private static boolean isDirectReaderSleep = false;
 
@@ -106,7 +103,7 @@ public class ServerPipelinedComputation {
 //            }
 //            isDirectReaderSleep = false;
 //            isOthersAwakeMe = false;
-//            pool.execute(new SingleComputationTask(line, findResultListener));
+            pool.execute(new SingleComputationTask(line, findResultListener));
             lineCount += line.length();
         }
         long endTime = System.currentTimeMillis();
