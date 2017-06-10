@@ -22,6 +22,11 @@ public class ServerPipelinedComputation {
         pkUpperBound = upperBound;
     }
 
+    public static void initSchemaTable(String schema, String table) {
+        RecordLazyEval.schema = schema;
+        RecordLazyEval.table = table;
+    }
+
     // computation
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
@@ -92,7 +97,11 @@ public class ServerPipelinedComputation {
             isOthersAwakeMe = false;
             pool.execute(new SingleComputationTask(line));
         }
+        long endTime = System.currentTimeMillis();
+        System.out.println("computation time:" + (endTime - startTime));
+    }
 
+    public static void JoinComputationThread() {
         // update pool states
         pool.shutdown();
 
@@ -102,9 +111,6 @@ public class ServerPipelinedComputation {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("computation time:" + (endTime - startTime));
     }
 }
 

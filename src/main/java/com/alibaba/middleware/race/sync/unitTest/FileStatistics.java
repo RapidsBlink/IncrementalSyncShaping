@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.play;
+package com.alibaba.middleware.race.sync.unitTest;
 
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
@@ -8,19 +8,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRound;
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.initRange;
+import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.*;
 
 /**
  * Created by yche on 6/6/17.
  */
 public class FileStatistics {
     public static void main(String[] args) throws IOException {
-        RecordLazyEval.schema = "middleware3";
-        RecordLazyEval.table = "student";
+        // 1st: init
+        initSchemaTable("middleware3", "student");
         initRange(600, 700);
+
+        // 2nd: computations
         OneRound("/tmp/canal.txt");
 
+        // 3rd: join computation thread
+        JoinComputationThread();
+
+        // 4th: write results
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("/tmp/yche.rs"));
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
             bufferedWriter.write(entry.getValue());
