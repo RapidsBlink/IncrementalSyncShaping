@@ -89,7 +89,7 @@ public class ServerPipelinedComputation {
         long startTime = System.currentTimeMillis();
         ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
-
+        long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
 //            if (taskQueue.size() >= fullNum) {
 //                while (!isOthersAwakeMe) {
@@ -106,12 +106,15 @@ public class ServerPipelinedComputation {
 //            }
 //            isDirectReaderSleep = false;
 //            isOthersAwakeMe = false;
-            pool.execute(new SingleComputationTask(line, findResultListener));
+//            pool.execute(new SingleComputationTask(line, findResultListener));
+            lineCount += line.length();
         }
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
-        if (Server.logger != null)
+        if (Server.logger != null) {
             Server.logger.info("computation time:" + (endTime - startTime));
+            Server.logger.info("Byte count: " + lineCount);
+        }
     }
 
     public static void JoinComputationThread() {
