@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.unitTest;
 
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
-import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -20,7 +19,12 @@ public class FileStatistics {
         initRange(600, 700);
 
         // 2nd: computations
-        OneRound("/tmp/canal.txt");
+        OneRoundComputation("/tmp/canal.txt", new FindResultListener() {
+            @Override
+            public void sendToClient(String result) {
+                System.out.println(result);
+            }
+        });
 
         // 3rd: join computation thread
         JoinComputationThread();

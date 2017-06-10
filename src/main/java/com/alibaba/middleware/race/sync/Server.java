@@ -4,9 +4,6 @@ package com.alibaba.middleware.race.sync;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
-import com.alibaba.middleware.race.sync.server.ReversedLinesDirectReader;
-import com.alibaba.middleware.race.sync.server.SequentialRestore;
-import com.alibaba.middleware.race.sync.server.RecordLazyEval;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,15 +12,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.JoinComputationThread;
+import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRoundComputation;
+
 /**
  * Created by will on 6/6/2017.
  */
 public class Server {
-
-    static Logger logger;
-    static ArrayList<String> dataFiles = new ArrayList<>();
-    static NettyServer nserver = null;
-    private static SequentialRestore sequentialRestore = new SequentialRestore();
+    public static Logger logger;
+    private static ArrayList<String> dataFiles = new ArrayList<>();
+    private static NettyServer nserver = null;
 
     static {
         for (int i = 1; i < 11; i++) {
@@ -31,7 +29,7 @@ public class Server {
         }
     }
 
-    String[] args = null;
+    private String[] args = null;
 
     public Server(String[] args) {
         this.args = args;
@@ -43,8 +41,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        RecordLazyEval.schema = args[0];
-        RecordLazyEval.table = args[1];
+        ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         try {
             new Server(args).start();
@@ -54,36 +51,25 @@ public class Server {
     }
 
     public void start() throws IOException {
-        for(int i = 10 ; i >0; i--){
-            System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i-1));
-            OneRound(Constants.DATA_HOME + File.separator + dataFiles.get(i-1));
+        // pipelined computation
+        for (int i = 10; i > 0; i--) {
+            System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+            OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1), new ServerPipelinedComputation.FindResultListener() {
+                @Override
+                public void sendToClient(String result) {
+                    logger.info("has result, send to client.....");
+                    nserver.send(NetworkConstant.LINE_RECORD, result);
+                }
+            });
         }
+        // join computation thread
+        JoinComputationThread();
 
         nserver.finish();
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
             logger.info(entry.getValue());
         }
         System.out.println("Send finish all package......");
-        //nserver.stop();
-
-    }
-
-    private static void OneRound(String fileName) throws IOException {
-        long startTime = System.currentTimeMillis();
-        ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
-        String line;
-        String result;
-        while ((line = reversedLinesFileReader.readLine()) != null) {
-            result = sequentialRestore.compute(line);
-            if(result != null){
-                logger.info("has result, send to client.....");
-                nserver.send(NetworkConstant.LINE_RECORD, result);
-            }
-        }
-
-
-        long endTime = System.currentTimeMillis();
-        logger.info("computation time:" + (endTime - startTime));
     }
 
     void printArgs(String[] args) {
@@ -102,6 +88,4 @@ public class Server {
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
         System.setProperty("test.role", Constants.TEST_ROLE[0]);
     }
-
-
 }

@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server;
 
+import com.alibaba.middleware.race.sync.Server;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,6 +29,10 @@ public class ServerPipelinedComputation {
         RecordLazyEval.table = table;
     }
 
+    static boolean isKeyInRange(long key) {
+        return pkLowerBound < key && key < pkUpperBound;
+    }
+
     // computation
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
@@ -49,15 +55,17 @@ public class ServerPipelinedComputation {
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
-    static boolean isKeyInRange(long key) {
-        return pkLowerBound < key && key < pkUpperBound;
+    public static interface FindResultListener {
+        public void sendToClient(String result);
     }
 
     private static class SingleComputationTask implements Runnable {
         private String line;
+        private FindResultListener findResultListener;
 
-        SingleComputationTask(String line) {
+        SingleComputationTask(String line, FindResultListener findResultListener) {
             this.line = line;
+            this.findResultListener = findResultListener;
         }
 
         @Override
@@ -70,11 +78,14 @@ public class ServerPipelinedComputation {
                 }
                 isFullLock.unlock();
             }
-            sequentialRestore.compute(line);
+            String result = sequentialRestore.compute(line);
+            if (result != null) {
+                findResultListener.sendToClient(result);
+            }
         }
     }
 
-    public static void OneRound(String fileName) throws IOException {
+    public static void OneRoundComputation(String fileName, FindResultListener findResultListener) throws IOException {
         long startTime = System.currentTimeMillis();
         ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
@@ -95,10 +106,12 @@ public class ServerPipelinedComputation {
             }
             isDirectReaderSleep = false;
             isOthersAwakeMe = false;
-            pool.execute(new SingleComputationTask(line));
+            pool.execute(new SingleComputationTask(line, findResultListener));
         }
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
+        if (Server.logger != null)
+            Server.logger.info("computation time:" + (endTime - startTime));
     }
 
     public static void JoinComputationThread() {
