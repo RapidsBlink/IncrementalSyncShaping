@@ -3,17 +3,15 @@ package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
-import com.alibaba.middleware.race.sync.play.GlobalComputation;
-import com.alibaba.middleware.race.sync.play.ReversedLinesDirectReader;
-import com.alibaba.middleware.race.sync.play.SequentialRestore;
+import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
+import com.alibaba.middleware.race.sync.server.ReversedLinesDirectReader;
+import com.alibaba.middleware.race.sync.server.SequentialRestore;
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
-import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -47,7 +45,7 @@ public class Server {
     public static void main(String[] args) {
         RecordLazyEval.schema = args[0];
         RecordLazyEval.table = args[1];
-        GlobalComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
+        ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         try {
             new Server(args).start();
         } catch (IOException e) {
@@ -62,7 +60,7 @@ public class Server {
         }
 
         nserver.finish();
-        for (Map.Entry<Long, String> entry : GlobalComputation.inRangeRecord.entrySet()) {
+        for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
             logger.info(entry.getValue());
         }
         System.out.println("Send finish all package......");

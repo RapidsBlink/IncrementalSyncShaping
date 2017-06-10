@@ -1,11 +1,11 @@
 package com.alibaba.middleware.race.sync.network.handlers;
 
+import com.alibaba.middleware.race.sync.client.ClientComputation;
 import com.alibaba.middleware.race.sync.network.NettyClient;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
-import com.alibaba.middleware.race.sync.play.GlobalComputation;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -44,17 +44,17 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
             logger.info(Arrays.toString(NettyClient.args));
 
         }
-        if(TYPE == NetworkConstant.FINISHED_ALL){
+        if (TYPE == NetworkConstant.FINISHED_ALL) {
             logger.info("Received all chunks, finished......");
             NettyClient.finishedLock.lock();
             NettyClient.finished = true;
             NettyClient.finishedConditionWait.signalAll();
             NettyClient.finishedLock.unlock();
         }
-        if(TYPE == NetworkConstant.LINE_RECORD){
+        if (TYPE == NetworkConstant.LINE_RECORD) {
             logger.info("Received a line record.....");
             String data = msg.substring(1);
-            long pk = GlobalComputation.extractPK(data);
+            long pk = ClientComputation.extractPK(data);
             NettyClient.resultMap.put(pk, data);
         }
     }

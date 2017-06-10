@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.play;
+package com.alibaba.middleware.race.sync.server;
 
 import java.io.File;
 import java.io.IOException;

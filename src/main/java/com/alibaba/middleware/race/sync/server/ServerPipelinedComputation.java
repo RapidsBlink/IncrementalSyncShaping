@@ -1,6 +1,4 @@
-package com.alibaba.middleware.race.sync.play;
-
-import com.alibaba.middleware.race.sync.server.RecordUpdate;
+package com.alibaba.middleware.race.sync.server;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,9 +12,20 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by yche on 6/8/17.
  */
-public class GlobalComputation {
+public class ServerPipelinedComputation {
+    // input parameters
+    private static long pkLowerBound;
+    private static long pkUpperBound;
+
+    public static void initRange(long lowerBound, long upperBound) {
+        pkLowerBound = lowerBound;
+        pkUpperBound = upperBound;
+    }
+
+    // computation
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
+    // io and computation sync related
     private final static int fullNum = 5000000;
     private final static int closeEmptyNum = 1000000;
     private final static ReentrantLock isFullLock = new ReentrantLock();
@@ -26,41 +35,23 @@ public class GlobalComputation {
     private static boolean isOthersAwakeMe = false;
     private static boolean isDirectReaderSleep = false;
 
+    // intermediate result
     final static Map<Long, RecordUpdate> inRangeActiveKeys = new HashMap<>();
     final static Set<Long> outOfRangeActiveKeys = new HashSet<>();
     final static Set<Long> deadKeys = new HashSet<>();
 
+    // final result
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
-
-    private static long pkLowerBound;
-    private static long pkUpperBound;
-
-    public static void initRange(long lowerBound, long upperBound) {
-        pkLowerBound = lowerBound;
-        pkUpperBound = upperBound;
-    }
 
     static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
-    public static long extractPK(String str) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) == '\t') {
-                break;
-            }
-            sb.append(str.charAt(i));
-        }
-        return Long.parseLong(sb.toString());
-    }
-
-
-    private static class SingleTask implements Runnable {
+    private static class SingleComputationTask implements Runnable {
         private String line;
 
-        SingleTask(String line) {
+        SingleComputationTask(String line) {
             this.line = line;
         }
 
@@ -99,11 +90,13 @@ public class GlobalComputation {
             }
             isDirectReaderSleep = false;
             isOthersAwakeMe = false;
-            pool.execute(new SingleTask(line));
+            pool.execute(new SingleComputationTask(line));
         }
 
+        // update pool states
         pool.shutdown();
 
+        // join threads
         try {
             pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {

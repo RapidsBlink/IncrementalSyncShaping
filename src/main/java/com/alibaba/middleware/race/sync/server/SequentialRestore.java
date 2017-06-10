@@ -1,12 +1,8 @@
-package com.alibaba.middleware.race.sync.play;
-
-import com.alibaba.middleware.race.sync.server.RecordFields;
-import com.alibaba.middleware.race.sync.server.RecordLazyEval;
-import com.alibaba.middleware.race.sync.server.RecordUpdate;
+package com.alibaba.middleware.race.sync.server;
 
 import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
-import static com.alibaba.middleware.race.sync.play.GlobalComputation.*;
+import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.*;
 
 /**
  * Created by yche on 6/8/17.
