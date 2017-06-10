@@ -1,13 +1,10 @@
 package com.alibaba.middleware.race.sync.play;
 
 import com.alibaba.middleware.race.sync.server.RecordLazyEval;
-import org.apache.commons.io.input.ReversedLinesFileReader;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Map;
 
 import static com.alibaba.middleware.race.sync.play.GlobalComputation.initRange;

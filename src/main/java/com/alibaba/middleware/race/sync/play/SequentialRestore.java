@@ -26,14 +26,6 @@ public class SequentialRestore {
         }
     }
 
-    private void updateOtherFieldContents(RecordUpdate recordUpdate) {
-        // update contents if possible
-        while (recordLazyEval.hasNext()) {
-            AbstractMap.SimpleEntry<String, Object> entry = recordLazyEval.next();
-            recordUpdate.addEntryIfNotThere(entry.getKey(), entry.getValue());
-        }
-    }
-
     private void actForDelete() {
         deadKeys.add(recordLazyEval.prevPKVal);
     }
@@ -50,24 +42,20 @@ public class SequentialRestore {
         } else if (inRangeActiveKeys.containsKey(recordLazyEval.curPKVal)) {
             // insert-update in-range
             RecordUpdate prevUpdate = inRangeActiveKeys.get(recordLazyEval.curPKVal);
-            updateOtherFieldContents(prevUpdate);
+            prevUpdate.addEntriesIfNotThere(recordLazyEval);
             inRangeActiveKeys.remove(recordLazyEval.curPKVal);
 
             // write recordStr to tree map
-            //System.out.println("in actForInsert");
             inRangeRecord.put(prevUpdate.lastKey, prevUpdate.toOneLineString(filedList));
             result = prevUpdate.toOneLineString(filedList);
-            //System.out.println(result);
         } else {
             // first-time appearing
             if (isKeyInRange(recordLazyEval.curPKVal)) {
                 // write recordStr to skip list
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
-                updateOtherFieldContents(recordUpdate);
+                recordUpdate.addEntriesIfNotThere(recordLazyEval);
                 inRangeRecord.put(recordUpdate.lastKey, recordUpdate.toOneLineString(filedList));
                 result = recordUpdate.toOneLineString(filedList);
-                //System.out.println(result);
-                //System.out.println("in actForInsert");
             }
             // else do nothing
         }
@@ -89,7 +77,7 @@ public class SequentialRestore {
         } else if (inRangeActiveKeys.containsKey(recordLazyEval.curPKVal)) {
             // update-update in-range
             RecordUpdate prevUpdate = inRangeActiveKeys.get(recordLazyEval.curPKVal);
-            updateOtherFieldContents(prevUpdate);
+            prevUpdate.addEntriesIfNotThere(recordLazyEval);
             if (recordLazyEval.isPKUpdate()) {
                 inRangeActiveKeys.remove(recordLazyEval.curPKVal);
                 inRangeActiveKeys.put(recordLazyEval.prevPKVal, prevUpdate);
@@ -99,7 +87,7 @@ public class SequentialRestore {
             if (isKeyInRange(recordLazyEval.curPKVal)) {
                 // add to inRangeActiveKeys
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
-                updateOtherFieldContents(recordUpdate);
+                recordUpdate.addEntriesIfNotThere(recordLazyEval);
                 inRangeActiveKeys.put(recordLazyEval.prevPKVal, recordUpdate);
             } else {
                 // add to outOfRangeActiveKeys

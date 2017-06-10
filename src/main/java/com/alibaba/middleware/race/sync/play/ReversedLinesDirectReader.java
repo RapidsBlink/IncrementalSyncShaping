@@ -13,7 +13,7 @@ import java.nio.channels.FileChannel;
  * Created by yche on 6/9/17.
  */
 public class ReversedLinesDirectReader {
-    private static int CHUNK_SIZE = 32 * 1024 * 1024;
+    private static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static byte LINE_SPLITTER = 0x0a;   // \n
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;

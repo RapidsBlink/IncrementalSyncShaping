@@ -40,7 +40,7 @@ public class RecordUpdate {
         }
     }
 
-    void setFirstKey(long firstKey) {
+    public void setFirstKey(long firstKey) {
         this.firstKey = firstKey;
     }
 
@@ -50,6 +50,18 @@ public class RecordUpdate {
         }
         if (!filedUpdateMap.containsKey(key)) {
             filedUpdateMap.put(key, value);
+        }
+    }
+
+    public void addEntriesIfNotThere(RecordLazyEval recordLazyEval) {
+        if (filedUpdateMap == null) {
+            filedUpdateMap = new HashMap<>();
+        }
+        while (recordLazyEval.hasNext()) {
+            Map.Entry<String, Object> entry = recordLazyEval.next();
+            if (!filedUpdateMap.containsKey(entry.getKey())) {
+                filedUpdateMap.put(entry.getKey(), entry.getValue());
+            }
         }
     }
 
