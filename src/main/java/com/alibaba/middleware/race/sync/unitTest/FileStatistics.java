@@ -17,7 +17,7 @@ public class FileStatistics {
         Thread.sleep(5000);
         // 1st: init
         initSchemaTable("middleware3", "student");
-        initRange(600, 700);
+        initRange(600, 70000000);
 
         // 2nd: computations
         OneRoundComputation("/tmp/canal.txt", new FindResultListener() {

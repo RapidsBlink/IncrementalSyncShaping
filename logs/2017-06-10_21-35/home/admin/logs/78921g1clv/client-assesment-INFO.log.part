@@ -1,0 +1,57 @@
+[INFO ] [21:33:42] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/cleanCache.sh 
+ [INFO ] [21:33:42] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [21:33:52] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh , execute status is SUCCESS Script execute output: 开始清空系统的缓存
+vm.drop_caches = 3
+success
+
+ [INFO ] [21:33:52] com.alibaba.middleware.race.TesterHttpServer - 成功清除系统缓存(运行前清理)
+ [INFO ] [21:33:52] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 10.101.167.122 /home/admin/logs/78921g1clv/gc_client.log 
+ [INFO ] [21:33:52] com.alibaba.middleware.race.TesterHttpServer - 开始运行选手的程序，此时设定的超时时间为（单位秒）：360
+ [INFO ] [21:33:52] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：360000
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 10.101.167.122 /home/admin/logs/78921g1clv/gc_client.log , execute status is SUCCESS Script execute output: gcLogPath的路径为/home/admin/logs/78921g1clv/gc_client.log
+21:33:52,492 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.groovy]
+21:33:52,492 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+21:33:52,492 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml]
+21:33:52,512 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@767de91 - URL [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml] is not of type file
+21:33:52,643 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+21:33:52,647 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [STDOUT]
+21:33:52,731 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+21:33:52,733 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_SERVER]
+21:33:52,757 |-INFO in ch.qos.logback.core.rolling.FixedWindowRollingPolicy@1aaf3cb - Will use gz compression
+21:33:52,768 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_SERVER] - Active log file name: /home/admin/logs/wanshao_test/server-custom.log
+21:33:52,768 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_SERVER] - File property is set to [/home/admin/logs/wanshao_test/server-custom.log]
+21:33:52,770 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+21:33:52,770 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_CLIENT]
+21:33:52,773 |-INFO in ch.qos.logback.core.rolling.FixedWindowRollingPolicy@cd7bef6 - Will use gz compression
+21:33:52,776 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_CLIENT] - Active log file name: /home/admin/logs/wanshao_test/client-custom.log
+21:33:52,776 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_CLIENT] - File property is set to [/home/admin/logs/wanshao_test/client-custom.log]
+21:33:52,777 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Server] to false
+21:33:52,778 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Server level set to INFO
+21:33:52,778 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_SERVER] to Logger[com.alibaba.middleware.race.sync.Server]
+21:33:52,779 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Client] to false
+21:33:52,779 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Client level set to INFO
+21:33:52,779 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_CLIENT] to Logger[com.alibaba.middleware.race.sync.Client]
+21:33:52,779 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to INFO
+21:33:52,780 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [STDOUT] to Logger[ROOT]
+21:33:52,780 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+21:33:52,781 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@626ddb07 - Registering current configuration as safe fallback point
+[2017-06-10 21:33:53]  INFO  ClientDemoInHandler - com.alibaba.middleware.race.sync.ClientDemoInHandler.channelActive
+success
+
+ [WARN ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [INFO ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - 运行选手的JAVA程序结束，耗时为（单位毫秒）：4455
+ [INFO ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - 此时设定的超时时间为（单位秒）：0
+ [ERROR] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ [INFO ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - tsar信息时间点信息为：10/06/17-21:33
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 10/06/17-21:33 
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 10/06/17-21:33 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 10-06-17-21-33 
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [21:33:56] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 10-06-17-21-33 , execute status is SUCCESS Script execute output: 已经存在选手归档目录，开始归档结果文件
+success
+
+ [INFO ] [21:33:56] com.alibaba.middleware.race.TesterHttpServer - 归档结果文件成功
+ 

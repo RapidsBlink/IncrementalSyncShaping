@@ -1,0 +1,7 @@
+[2017-06-10 21:33:23.450] INFO  c.a.m.r.sync.Server -middleware2
+[2017-06-10 21:33:23.456] INFO  c.a.m.r.sync.Server -teacher
+[2017-06-10 21:33:23.456] INFO  c.a.m.r.sync.Server -120000
+[2017-06-10 21:33:23.456] INFO  c.a.m.r.sync.Server -120100
+[2017-06-10 21:33:40.771] INFO  c.a.m.r.sync.Server -has result, send to client.....
+[2017-06-10 21:33:48.020] INFO  c.a.m.r.sync.Server -computation time:24197
+[2017-06-10 21:33:48.020] INFO  c.a.m.r.sync.Server -Byte count: 1043882915
