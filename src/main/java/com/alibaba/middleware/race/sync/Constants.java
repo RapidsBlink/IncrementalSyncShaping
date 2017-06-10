@@ -21,13 +21,13 @@ public interface Constants {
     // ------------ 本地测试可以使用自己的路径--------------//
     //%%%%%%%%%%%%%%%%% change bellow %%%%%%%%%%%%%%%%%
     // 工作主目录
-    //String TESTER_HOME = "/tmp/test";
-    // 赛题数据
-    //String DATA_HOME = "/tmp/test/canal_data";
-    // 结果文件目录
-    //String RESULT_HOME = "/tmp/test/user_result";
-    // 中间结果目录
-    //String MIDDLE_HOME = "/tmp/test/middle";
+//    String TESTER_HOME = "/tmp/test";
+//    // 赛题数据
+//    String DATA_HOME = "/tmp/test/canal_data";
+//    // 结果文件目录
+//    String RESULT_HOME = "/tmp/test/user_result";
+//    // 中间结果目录
+//    String MIDDLE_HOME = "/tmp/test/middle";
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
 
