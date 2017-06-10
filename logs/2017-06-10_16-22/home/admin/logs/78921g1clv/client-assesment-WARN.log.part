@@ -1,0 +1,3 @@
+[WARN ] [16:22:07] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [ERROR] [16:22:07] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ 

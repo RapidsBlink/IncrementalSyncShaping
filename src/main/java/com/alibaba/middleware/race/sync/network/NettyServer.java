@@ -46,7 +46,7 @@ public class NettyServer {
         Server.initProperties();
         NettyServer.args = args;
 
-        logger = logger = LoggerFactory.getLogger("NettyServer");
+        logger = logger = LoggerFactory.getLogger(NettyServer.class);
         logger.info(Arrays.toString(args));
         this.dataPath = dataPath;
         this.port = port;

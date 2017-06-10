@@ -19,7 +19,7 @@ import java.util.Arrays;
  * Created by will on 7/6/2017.
  */
 public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
-    static Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    static Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {

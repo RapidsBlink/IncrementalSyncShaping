@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * Created by will on 7/6/2017.
  */
 public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
-    static Logger logger = LoggerFactory.getLogger(NettyServer.class);
+    static Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
