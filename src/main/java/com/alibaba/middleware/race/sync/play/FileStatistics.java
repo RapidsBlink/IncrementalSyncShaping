@@ -7,27 +7,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.alibaba.middleware.race.sync.play.GlobalComputation.OneRound;
 import static com.alibaba.middleware.race.sync.play.GlobalComputation.initRange;
 
 /**
  * Created by yche on 6/6/17.
  */
 public class FileStatistics {
-    private static SequentialRestore sequentialRestore = new SequentialRestore();
-
-    private static void OneRound(String fileName) throws IOException {
-        long startTime = System.currentTimeMillis();
-
-        ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
-        String line;
-        while ((line = reversedLinesFileReader.readLine()) != null) {
-            sequentialRestore.compute(line);
-        }
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("computation time:" + (endTime - startTime));
-    }
-
     public static void main(String[] args) throws IOException {
         RecordLazyEval.schema = "middleware3";
         RecordLazyEval.table = "student";
