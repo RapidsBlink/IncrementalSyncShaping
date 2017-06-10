@@ -4,9 +4,9 @@ import com.alibaba.middleware.race.sync.Server;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by yche on 6/8/17.
@@ -33,18 +33,18 @@ public class ServerPipelinedComputation {
     // computation
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
-//    private final static ExecutorService pool = Executors.newSingleThreadExecutor();
+    private final static ExecutorService pool = Executors.newSingleThreadExecutor();
 
     // io and computation sync related
-    private final static int fullNum = 5000000;
-    private final static int closeEmptyNum = 2000000;
-    private final static ReentrantLock isFullLock = new ReentrantLock();
-    private final static Condition isFull = isFullLock.newCondition();
-    private final static BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(fullNum);
-    private final static ExecutorService pool = new ThreadPoolExecutor(1, 1,
-            0L, TimeUnit.MILLISECONDS, taskQueue);
-    private static boolean isOthersAwakeMe = false;
-    private static boolean isDirectReaderSleep = false;
+//    private final static int fullNum = 5000000;
+//    private final static int closeEmptyNum = 2000000;
+//    private final static ReentrantLock isFullLock = new ReentrantLock();
+//    private final static Condition isFull = isFullLock.newCondition();
+//    private final static BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(fullNum);
+//    private final static ExecutorService pool = new ThreadPoolExecutor(1, 1,
+//            0L, TimeUnit.MILLISECONDS, taskQueue);
+//    private static boolean isOthersAwakeMe = false;
+//    private static boolean isDirectReaderSleep = false;
 
     // intermediate result
     final static Map<Long, RecordUpdate> inRangeActiveKeys = new HashMap<>();
@@ -70,14 +70,14 @@ public class ServerPipelinedComputation {
 
         @Override
         public void run() {
-            if (isDirectReaderSleep && taskQueue.size() <= closeEmptyNum) {
-                isFullLock.lock();
-                if (isDirectReaderSleep) {
-                    isOthersAwakeMe = true;
-                    isFull.signal();
-                }
-                isFullLock.unlock();
-            }
+//            if (isDirectReaderSleep && taskQueue.size() <= closeEmptyNum) {
+//                isFullLock.lock();
+//                if (isDirectReaderSleep) {
+//                    isOthersAwakeMe = true;
+//                    isFull.signal();
+//                }
+//                isFullLock.unlock();
+//            }
             String result = sequentialRestore.compute(line);
             if (result != null) {
                 findResultListener.sendToClient(result);
@@ -91,21 +91,21 @@ public class ServerPipelinedComputation {
         String line;
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
-            if (taskQueue.size() >= fullNum) {
-                while (!isOthersAwakeMe) {
-                    isFullLock.lock();
-                    try {
-                        isDirectReaderSleep = true;
-                        isFull.await();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } finally {
-                        isFullLock.unlock();
-                    }
-                }
-            }
-            isDirectReaderSleep = false;
-            isOthersAwakeMe = false;
+//            if (taskQueue.size() >= fullNum) {
+//                while (!isOthersAwakeMe) {
+//                    isFullLock.lock();
+//                    try {
+//                        isDirectReaderSleep = true;
+//                        isFull.await();
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    } finally {
+//                        isFullLock.unlock();
+//                    }
+//                }
+//            }
+//            isDirectReaderSleep = false;
+//            isOthersAwakeMe = false;
             pool.execute(new SingleComputationTask(line, findResultListener));
 
             lineCount += line.length();

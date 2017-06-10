@@ -13,7 +13,8 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
  * Created by yche on 6/6/17.
  */
 public class FileStatistics {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Thread.sleep(5000);
         // 1st: init
         initSchemaTable("middleware3", "student");
         initRange(600, 700);

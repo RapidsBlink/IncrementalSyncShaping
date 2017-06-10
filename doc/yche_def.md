@@ -38,5 +38,6 @@ dead keys:
 
 criteria for last-operation categorization: 
 
-not active in in-range inspectors, out-of-range inspectors and dead inspectors, 
+- if it is a delete, definitely the last operation for a record
+- else if it is not active in in-range inspectors, out-of-range inspectors and dead inspectors, 
 then it is the last operation for a record.
