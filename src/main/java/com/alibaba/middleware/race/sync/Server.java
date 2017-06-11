@@ -48,6 +48,8 @@ public class Server {
         try {
             ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
         } catch (IOException e) {
+            logger.info("preload file failed...");
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
         ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
