@@ -9,7 +9,6 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
  */
 public class SequentialRestore {
     // data
-    private String recordStr;
     private RecordLazyEval recordLazyEval;
     private String result = null;
 
@@ -89,24 +88,6 @@ public class SequentialRestore {
             }
         }
     }
-
-//    public String compute(String another) {
-//        String ret = null;
-//        recordStr = another;
-//        recordLazyEval = new RecordLazyEval(recordStr, stringBuilder);
-//        if (recordLazyEval.isSchemaTableValid()) {
-//            if (recordLazyEval.operationType == DELETE_OPERATION) {
-//                actForDelete();
-//            } else if (recordLazyEval.operationType == INSERT_OPERATION) {
-//                actForInsert();
-//                ret = result;
-//                result = null;
-//            } else {
-//                actForUpdate();
-//            }
-//        }
-//        return ret;
-//    }
 
     public String compute(RecordLazyEval recordLazyEval) {
         String ret = null;

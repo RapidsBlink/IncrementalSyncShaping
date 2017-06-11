@@ -44,14 +44,8 @@ public class ServerPipelinedComputation {
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
     private final static ExecutorService mediatorPool = Executors.newSingleThreadExecutor();
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 16;
+    private final static int TRANSFORM_WORKER_NUM = 8;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-
-    private static StringTaskBuffer strTaskBuffer = new StringTaskBuffer();
-
-    public interface FindResultListener {
-        void sendToClient(String result);
-    }
 
     public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
         pageCachePool.execute(new Runnable() {
@@ -143,11 +137,15 @@ public class ServerPipelinedComputation {
         }
     }
 
+    public interface FindResultListener {
+        void sendToClient(String result);
+    }
+
     private static class ComputationTask implements Runnable {
         private RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer;
         private FindResultListener findResultListener;
 
-        public ComputationTask(RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer, FindResultListener findResultListener) {
+        ComputationTask(RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer, FindResultListener findResultListener) {
             this.recordLazyEvalTaskBuffer = recordLazyEvalTaskBuffer;
             this.findResultListener = findResultListener;
         }
@@ -208,12 +206,13 @@ public class ServerPipelinedComputation {
         }
     }
 
-    public static void OneRoundComputation(String fileName, FindResultListener findResultListener) throws IOException {
+    public static void OneRoundComputation(String fileName, final FindResultListener findResultListener) throws IOException {
         long startTime = System.currentTimeMillis();
 
         ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
         long lineCount = 0;
+        StringTaskBuffer strTaskBuffer = new StringTaskBuffer();
         while ((line = reversedLinesFileReader.readLine()) != null) {
             if (strTaskBuffer.isFull()) {
                 mediatorPool.execute(new MediatorTask(strTaskBuffer, findResultListener));
@@ -223,6 +222,12 @@ public class ServerPipelinedComputation {
             lineCount += line.length();
         }
         mediatorPool.execute(new MediatorTask(strTaskBuffer, findResultListener));
+        mediatorPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                MediatorTask.syncConsumeReadyJobs(findResultListener);
+            }
+        });
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
@@ -230,7 +235,6 @@ public class ServerPipelinedComputation {
             Server.logger.info("computation time:" + (endTime - startTime));
             Server.logger.info("Byte count: " + lineCount);
         }
-        MediatorTask.syncConsumeReadyJobs(findResultListener);
     }
 
     public static void JoinComputationThread() {
