@@ -36,6 +36,7 @@ public class Server {
         initProperties();
         logger = LoggerFactory.getLogger(Server.class);
         printArgs(args);
+        logger.info(Constants.CODE_VERSION);
         nserver = new NettyServer(args, Constants.SERVER_PORT);
         nserver.start();
     }

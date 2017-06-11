@@ -5,6 +5,8 @@ package com.alibaba.middleware.race.sync;
  */
 public interface Constants {
 
+    String CODE_VERSION = "Version_0.1";
+
     String[] TEST_ROLE = {"server", "client"};
     // teamCode
     String TEAMCODE = "78921g1clv";
