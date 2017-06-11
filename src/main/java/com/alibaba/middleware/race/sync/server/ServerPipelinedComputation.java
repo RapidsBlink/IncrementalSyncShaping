@@ -30,13 +30,6 @@ public class ServerPipelinedComputation {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
-    // computation
-    private static SequentialRestore sequentialRestore = new SequentialRestore();
-
-    private final static ExecutorService pool = Executors.newSingleThreadExecutor();
-
-    // io and computation sync related
-
     // intermediate result
     final static Map<Long, RecordUpdate> inRangeActiveKeys = new HashMap<>();
     final static Set<Long> outOfRangeActiveKeys = new HashSet<>();
@@ -46,39 +39,76 @@ public class ServerPipelinedComputation {
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
+    // computation
+    private static SequentialRestore sequentialRestore = new SequentialRestore();
+
+    // io and computation sync related
+    private final static ExecutorService pool = Executors.newSingleThreadExecutor();
+    private static TaskBuffer taskBuffer = new TaskBuffer();
+
     public interface FindResultListener {
         void sendToClient(String result);
     }
 
+    private static class TaskBuffer {
+        static int MAX_SIZE = 100000;
+        String[] stringArr = new String[MAX_SIZE];    // 1MB
+        private int nextIndex = 0;
+
+        private void addData(String line) {
+            stringArr[nextIndex] = line;
+            nextIndex++;
+        }
+
+        public boolean isFull() {
+            return nextIndex >= MAX_SIZE;
+        }
+
+        public int length() {
+            return nextIndex;
+        }
+
+        public String get(int idx) {
+            return stringArr[idx];
+        }
+    }
+
     private static class SingleComputationTask implements Runnable {
-        private String line;
+        private TaskBuffer taskBuffer;
         private FindResultListener findResultListener;
 
-        SingleComputationTask(String line, FindResultListener findResultListener) {
-            this.line = line;
+        SingleComputationTask(TaskBuffer taskBuffer, FindResultListener findResultListener) {
+            this.taskBuffer = taskBuffer;
             this.findResultListener = findResultListener;
         }
 
         @Override
         public void run() {
-            String result = sequentialRestore.compute(line);
-            if (result != null) {
-                findResultListener.sendToClient(result);
+            for (int i = 0; i < taskBuffer.length(); i++) {
+                String result = sequentialRestore.compute(taskBuffer.get(i));
+                if (result != null) {
+                    findResultListener.sendToClient(result);
+                }
             }
         }
     }
 
     public static void OneRoundComputation(String fileName, FindResultListener findResultListener) throws IOException {
         long startTime = System.currentTimeMillis();
+
         ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
         String line;
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
-//            pool.execute(new SingleComputationTask(line, findResultListener));
-//            sequentialRestore.compute(line);
-            new SingleComputationTask(line, findResultListener).run();
+            if (taskBuffer.isFull()) {
+                pool.execute(new SingleComputationTask(taskBuffer, findResultListener));
+                taskBuffer = new TaskBuffer();
+            }
+            taskBuffer.addData(line);
             lineCount += line.length();
         }
+        pool.execute(new SingleComputationTask(taskBuffer, findResultListener));
+
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
         if (Server.logger != null) {

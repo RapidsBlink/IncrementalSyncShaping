@@ -17,13 +17,13 @@ public class FileStatistics {
         Thread.sleep(5000);
         // 1st: init
         initSchemaTable("middleware3", "student");
-        initRange(600, 700000000);
+        initRange(600, 700);
 
         // 2nd: computations
         OneRoundComputation("/tmp/canal.txt", new FindResultListener() {
             @Override
             public void sendToClient(String result) {
-                System.out.println(result);
+//                System.out.println(result);
             }
         });
 
