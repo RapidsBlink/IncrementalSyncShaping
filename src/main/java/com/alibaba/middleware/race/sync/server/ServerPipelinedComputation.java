@@ -145,11 +145,11 @@ public class ServerPipelinedComputation {
     public static void JoinComputationThread() {
         // update computationPool states
         computationPool.shutdown();
-        pageCachePool.shutdown();
+       // pageCachePool.shutdown();
         // join threads
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+           // pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

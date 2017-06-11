@@ -11,7 +11,7 @@ public interface Constants {
     // 日志级别
     String LOG_LEVEL = "INFO";
     // server端口
-    Integer SERVER_PORT = 5527;
+    Integer SERVER_PORT = 35527;
     // 结果文件的命名
     String RESULT_FILE_NAME = "Result.rs";
 

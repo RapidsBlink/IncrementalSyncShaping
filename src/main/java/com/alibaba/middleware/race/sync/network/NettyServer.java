@@ -88,6 +88,7 @@ public class NettyServer {
 
     public void finish(){
         send(NetworkConstant.FINISHED_ALL, "");
+        logger.info("NettyServer finished...");
     }
 
     public void stop() {
