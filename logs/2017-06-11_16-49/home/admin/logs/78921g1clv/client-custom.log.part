@@ -1,0 +1,62 @@
+[2017-06-11 16:47:18.676] INFO  c.a.m.r.sync.Client -Client wait to receive all data.....
+[2017-06-11 16:47:18.717] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:19.719] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:20.720] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:21.722] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:22.724] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:23.726] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:24.729] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:25.731] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:47:26.733] INFO  c.a.m.r.sync.Client -Reconnect......
+[2017-06-11 16:48:41.558] INFO  c.a.m.r.sync.Client -Client awake.....
+[2017-06-11 16:48:41.558] INFO  c.a.m.r.sync.Client -Client finished, start to write file.....
+[2017-06-11 16:48:43.763] INFO  c.a.m.r.sync.Client -170001	徐	京闵	男	79
+[2017-06-11 16:48:43.763] INFO  c.a.m.r.sync.Client -170002	张	刘	男	336
+[2017-06-11 16:48:43.763] INFO  c.a.m.r.sync.Client -170005	钱	名丙	男	336
+[2017-06-11 16:48:43.763] INFO  c.a.m.r.sync.Client -170007	徐	骏	女	336
+[2017-06-11 16:48:43.763] INFO  c.a.m.r.sync.Client -170009	阮	景骏	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170011	郑	我	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170013	徐	敏兲	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170015	钱	励立	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170017	吴	七立	男	35
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170019	徐	乙五	女	79
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170021	陈	黎立	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170023	邹	军	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170025	徐	五天	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170027	张	甲	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170029	江	京	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170031	徐	敏三	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170033	阮	城	女	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170035	钱	甜	男	336
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170037	徐	军莉	女	79
+[2017-06-11 16:48:43.764] INFO  c.a.m.r.sync.Client -170039	高	力一	男	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170041	侯	刚	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170043	徐	四立	男	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170045	钱	京	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170047	杨	八	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170049	徐	明	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170051	陈	甲静	男	35
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170053	张	俊	男	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170055	徐	七	男	79
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170057	侯	依	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170059	柳	君敏	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170061	徐	我	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170063	钱	晶	男	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170065	钱	丁	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170067	徐	兲兲	男	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170069	邹	依	女	336
+[2017-06-11 16:48:43.765] INFO  c.a.m.r.sync.Client -170071	邹	兲三	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170073	徐	他	女	79
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170075	钱	敏	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170077	孙	五九	女	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170079	徐	一	女	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170081	李	天	女	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170083	江	丁	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170085	徐	励	女	35
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170087	徐	骏十	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170089	钱	甲励	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170091	徐	上	男	79
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170093	陈	京二	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170095	钱	五田	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170097	徐	君军	男	336
+[2017-06-11 16:48:43.766] INFO  c.a.m.r.sync.Client -170099	徐	天	女	336

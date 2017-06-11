@@ -37,6 +37,7 @@ public class Server {
         logger = LoggerFactory.getLogger(Server.class);
         printArgs(args);
         logger.info(Constants.CODE_VERSION);
+        logger.info("Current server time:" + System.currentTimeMillis());
         nserver = new NettyServer(args, Constants.SERVER_PORT);
         nserver.start();
     }

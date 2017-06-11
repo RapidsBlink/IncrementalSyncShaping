@@ -23,6 +23,7 @@ public class Client {
 
     public static void main(String[] args){
         new Client(args[0]).start();
+        logger.info("Current client time:" + System.currentTimeMillis());
     }
 
     public Client(String ip){
