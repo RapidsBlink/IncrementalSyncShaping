@@ -46,7 +46,6 @@ public class ServerPipelinedComputation {
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
     private static TaskBuffer taskBuffer = new TaskBuffer();
-    private final static ArrayList<String> fileList = new ArrayList<>();
 
     public interface FindResultListener {
         void sendToClient(String result);
@@ -76,8 +75,8 @@ public class ServerPipelinedComputation {
     }
 
     private static class TaskBuffer {
-        static int MAX_SIZE = 100000;
-        String[] stringArr = new String[MAX_SIZE];    // 1MB
+        static int MAX_SIZE = 100000; // 0.1M
+        private String[] stringArr = new String[MAX_SIZE];    // 100B*0.1M=10MB
         private int nextIndex = 0;
 
         private void addData(String line) {
@@ -85,7 +84,7 @@ public class ServerPipelinedComputation {
             nextIndex++;
         }
 
-        public boolean isFull() {
+        boolean isFull() {
             return nextIndex >= MAX_SIZE;
         }
 
@@ -145,11 +144,11 @@ public class ServerPipelinedComputation {
     public static void JoinComputationThread() {
         // update computationPool states
         computationPool.shutdown();
-        //pageCachePool.shutdown();
+        pageCachePool.shutdown();
         // join threads
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            //pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -5,7 +5,6 @@ import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -18,12 +17,13 @@ public class FileStatistics {
     private static ArrayList<String> myFiles = new ArrayList<>();
 
     static {
-        for(int i = 10; i > 0 ; i--)
-            myFiles.add("/home/will/Workspace/test/canal_data/" + i + ".txt");
+//        for(int i = 10; i > 0 ; i--)
+//            myFiles.add("/home/will/Workspace/test/canal_data/" + i + ".txt");
+        myFiles.add("/tmp/canal.txt");
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        //Thread.sleep(5000);
+        Thread.sleep(5000);
         long programStart = System.currentTimeMillis();
 
         readFilesIntoPageCache(myFiles);
@@ -33,13 +33,13 @@ public class FileStatistics {
         initRange(600, 700);
 
         // 2nd: computations
-        for (String name:myFiles)
+        for (String name : myFiles)
             OneRoundComputation(name, new FindResultListener() {
-            @Override
-            public void sendToClient(String result) {
+                @Override
+                public void sendToClient(String result) {
 //                System.out.println(result);
-            }
-        });
+                }
+            });
 
         // 3rd: join computation thread
         JoinComputationThread();
