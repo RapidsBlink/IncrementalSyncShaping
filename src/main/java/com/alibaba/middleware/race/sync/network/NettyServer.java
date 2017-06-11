@@ -59,7 +59,7 @@ public class NettyServer {
 
     public void start() {
         bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(2);
 
         ServerBootstrap bootstrap = new ServerBootstrap();
 
@@ -87,8 +87,9 @@ public class NettyServer {
     }
 
     public void finish(){
+        //for(int i = 0 ; i < 10; i++)
         send(NetworkConstant.FINISHED_ALL, "");
-        logger.info("NettyServer finished...");
+        logger.info("NettyServer FINISHED_ALL instruction added to the queue...");
     }
 
     public void stop() {

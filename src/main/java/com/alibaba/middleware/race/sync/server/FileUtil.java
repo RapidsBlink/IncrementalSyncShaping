@@ -36,12 +36,12 @@ final class FileUtil {
         mappedByteBuffer.load();
         unmap(mappedByteBuffer);
         for (int i = maxIndex-1; i >=0; i--) {
-            System.out.println(i);
+            //System.out.println(i);
             mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, i * CHUNK_SIZE, CHUNK_SIZE);
             mappedByteBuffer.load();
             unmap(mappedByteBuffer);
         }
-        System.out.println(maxIndex);
+        //System.out.println(maxIndex);
 
     }
 }

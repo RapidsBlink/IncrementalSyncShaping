@@ -19,10 +19,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        //save client channel for further pushing
-        if (NettyServer.clientChannel == null || !NettyServer.clientChannel.isActive()) {
-            NettyServer.clientChannel = ctx.channel();
-        }
+        logger.info("there comes one connection...");
     }
 
     @Override
@@ -30,6 +27,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
         logger.info("RECEIVED a String message......");
         char TYPE = msg.charAt(0);
         if (TYPE == NetworkConstant.REQUIRE_ARGS) {
+            //save client channel for further pushing
+            if (NettyServer.clientChannel == null || !NettyServer.clientChannel.isActive()) {
+                NettyServer.clientChannel = ctx.channel();
+            }
+
             logger.info("This is a REQUIRE_ARGS request......");
             ArgumentsPayloadBuilder argsPayload = new ArgumentsPayloadBuilder(NettyServer.args);
             ChannelFuture f = ctx.writeAndFlush(NetworkStringMessage.buildMessage(NetworkConstant.REQUIRE_ARGS, argsPayload.toString()));
@@ -39,33 +41,32 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
                     logger.info("REQUIRE_ARGS reply has sent......");
                 }
             });
+            checkQueueAndSendData(ctx);
         }
-
-        checkQueueAndSendData();
-
     }
 
-    private void checkQueueAndSendData() {
-        while (!NettyServer.finished) {
-                try {
-                    String message = NettyServer.sendQueue.take();
-                    logger.info("send a message to client......");
-                    ChannelFuture f = NettyServer.clientChannel.writeAndFlush(message);
-                    if(message.charAt(0) == NetworkConstant.FINISHED_ALL){
-                        f.addListener(new ChannelFutureListener() {
-                            @Override
-                            public void operationComplete(ChannelFuture future) throws Exception {
-                                logger.info("Server send FINISHED_ALL package ..." );
-                            }
-                        });
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    logger.warn("ERROR WHILE TAKE MESSAGE FROM sendQueue......");
-                    logger.warn(e.getMessage());
+    private void checkQueueAndSendData(ChannelHandlerContext ctx) {
+        while (true) {
+            try {
+                String message = NettyServer.sendQueue.take();
+                logger.info("send a message to client......");
+                ChannelFuture f = ctx.writeAndFlush(message);
+                if (message.charAt(0) == NetworkConstant.FINISHED_ALL) {
+                    f.addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            logger.info("Server send FINISHED_ALL package ...");
+                        }
+                    });
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                logger.warn("ERROR WHILE TAKE MESSAGE FROM sendQueue......");
+                logger.warn(e.getMessage());
+            }
         }
     }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();

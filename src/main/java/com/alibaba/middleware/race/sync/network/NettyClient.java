@@ -1,13 +1,11 @@
 package com.alibaba.middleware.race.sync.network;
 
+import com.alibaba.middleware.race.sync.Client;
 import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -19,6 +17,8 @@ import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Future;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.Condition;
@@ -49,7 +49,7 @@ public class NettyClient {
     }
 
     public void start() {
-        Bootstrap bootstrap = new Bootstrap();
+        final Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workGroup).channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -62,21 +62,44 @@ public class NettyClient {
                     }
                 }).option(ChannelOption.TCP_NODELAY, true);
 
-        sendFuture = bootstrap.connect(ip, port);
 
+
+        sendFuture = bootstrap.connect(ip, port);
+        sendFuture.addListener(new ChannelFutureListener() {
+            @Override
+            public void operationComplete(ChannelFuture future) throws Exception {
+                if(!future.isSuccess()){
+                    Client.logger.info("Reconnect......");
+                    Thread.sleep(1000,0);
+                    sendFuture = bootstrap.connect(ip, port);
+                    sendFuture.addListener(this);
+                }
+            }
+        });
 
     }
 
+
     public void waitReceiveFinish(){
-        NettyClient.finishedLock.lock();
-        if(!NettyClient.finished){
-            try {
-                NettyClient.finishedConditionWait.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        Client.logger.info("Client wait to receive all data.....");
+        while(!NettyClient.finished) {
+            NettyClient.finishedLock.lock();
+            if (!NettyClient.finished) {
+                try {
+                    NettyClient.finishedConditionWait.await();
+                    Client.logger.info("Client awake.....");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Client.logger.info(e.getMessage());
+                }
+                finally {
+                    NettyClient.finishedLock.unlock();
+                }
+            }else {
+                NettyClient.finishedLock.unlock();
             }
         }
-        NettyClient.finishedLock.unlock();
+        Client.logger.info("Client finished, start to write file.....");
     }
 
     public void stop() {

@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class Client {
 
-    static Logger logger;
+    public static Logger logger;
 
     private final static int port = Constants.SERVER_PORT;
     static NettyClient nettyClient= null;
