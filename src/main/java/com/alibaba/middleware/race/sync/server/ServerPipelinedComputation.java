@@ -42,6 +42,7 @@ public class ServerPipelinedComputation {
 
     // io and computation sync related
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
+    private final static ExecutorService mediatorPool = Executors.newSingleThreadExecutor();
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
     private final static int TRANSFORM_WORKER_NUM = 8;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
@@ -76,8 +77,8 @@ public class ServerPipelinedComputation {
     }
 
     private static class StringTaskBuffer {
-        static int MAX_SIZE = 400000; // 0.4M
-        private String[] stringArr = new String[MAX_SIZE];    // 100B*0.1M=40MB
+        static int MAX_SIZE = 100000; // 0.1M
+        private String[] stringArr = new String[MAX_SIZE];    // 100B*0.1M=10MB
         private int nextIndex = 0;
 
         private void addData(String line) {
@@ -125,7 +126,7 @@ public class ServerPipelinedComputation {
         private int startIdx; // inclusive
         private int endIdx;   // exclusive
 
-        public TransformTask(StringTaskBuffer taskBuffer, int startIdx, int endIdx) {
+        TransformTask(StringTaskBuffer taskBuffer, int startIdx, int endIdx) {
             this.taskBuffer = taskBuffer;
             this.startIdx = startIdx;
             this.endIdx = endIdx;
@@ -142,43 +143,40 @@ public class ServerPipelinedComputation {
         }
     }
 
-    private static class ComputationTask implements Runnable {
+    private static class MediatorTask implements Runnable {
         private StringTaskBuffer taskBuffer;
         private FindResultListener findResultListener;
 
-        ComputationTask(StringTaskBuffer taskBuffer, FindResultListener findResultListener) {
+        MediatorTask(StringTaskBuffer taskBuffer, FindResultListener findResultListener) {
             this.taskBuffer = taskBuffer;
             this.findResultListener = findResultListener;
         }
 
         @Override
         public void run() {
-            Future<RecordLazyEvalTaskBuffer>[] futureArr = new Future[TRANSFORM_WORKER_NUM];
-            int avgTaskNum = taskBuffer.length() / TRANSFORM_WORKER_NUM;
-            int startIndex;
-            int endIndex;
-            for (int i = 0; i < TRANSFORM_WORKER_NUM; i++) {
-                startIndex = i * avgTaskNum;
-                endIndex = (i == TRANSFORM_WORKER_NUM - 1) ? taskBuffer.length() : (i + 1) * avgTaskNum;
-                futureArr[i] = transformPool.submit(new TransformTask(taskBuffer, startIndex, endIndex));
-            }
-            for (int i = 0; i < TRANSFORM_WORKER_NUM; i++) {
-                RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
-                while (recordLazyEvalTaskBuffer == null) {
-                    try {
-                        recordLazyEvalTaskBuffer = futureArr[i].get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
+            Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = transformPool.submit(new TransformTask(taskBuffer, 0, taskBuffer.length()));
 
-                for (int j = 0; j < recordLazyEvalTaskBuffer.length(); j++) {
-                    String result = sequentialRestore.compute(recordLazyEvalTaskBuffer.get(j));
-                    if (result != null) {
-                        findResultListener.sendToClient(result);
-                    }
+            RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
+            while (recordLazyEvalTaskBuffer == null) {
+                try {
+                    recordLazyEvalTaskBuffer = recordLazyEvalTaskBufferFuture.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
             }
+
+            final RecordLazyEvalTaskBuffer finalRecordLazyEvalTaskBuffer = recordLazyEvalTaskBuffer;
+            computationPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    for (int j = 0; j < finalRecordLazyEvalTaskBuffer.length(); j++) {
+                        String result = sequentialRestore.compute(finalRecordLazyEvalTaskBuffer.get(j));
+                        if (result != null) {
+                            findResultListener.sendToClient(result);
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -190,13 +188,13 @@ public class ServerPipelinedComputation {
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
             if (strTaskBuffer.isFull()) {
-                computationPool.execute(new ComputationTask(strTaskBuffer, findResultListener));
+                mediatorPool.execute(new MediatorTask(strTaskBuffer, findResultListener));
                 strTaskBuffer = new StringTaskBuffer();
             }
             strTaskBuffer.addData(line);
             lineCount += line.length();
         }
-        computationPool.execute(new ComputationTask(strTaskBuffer, findResultListener));
+        mediatorPool.execute(new MediatorTask(strTaskBuffer, findResultListener));
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
@@ -207,7 +205,15 @@ public class ServerPipelinedComputation {
     }
 
     public static void JoinComputationThread() {
-        // update computationPool states
+        // join page cache
+        pageCachePool.shutdown();
+        try {
+            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // join transform states
         transformPool.shutdown();
         try {
             transformPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -215,12 +221,18 @@ public class ServerPipelinedComputation {
             e.printStackTrace();
         }
 
+        // join mediator
+        mediatorPool.shutdown();
+        try {
+            mediatorPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // join computation
         computationPool.shutdown();
-        pageCachePool.shutdown();
-        // join threads
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
