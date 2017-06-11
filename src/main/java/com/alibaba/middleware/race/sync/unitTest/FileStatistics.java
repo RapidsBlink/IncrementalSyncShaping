@@ -5,6 +5,7 @@ import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -14,12 +15,16 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
  * Created by yche on 6/6/17.
  */
 public class FileStatistics {
+    private static ArrayList<String> myFiles = new ArrayList<>();
+
+    static {
+        myFiles.add("/tmp/canal.txt");
+    }
+
     public static void main(String[] args) throws IOException, InterruptedException {
         Thread.sleep(5000);
         long programStart = System.currentTimeMillis();
 
-        ArrayList<String> myFiles = new ArrayList<>();
-        myFiles.add("/tmp/canal.txt");
         readFilesIntoPageCache(myFiles);
 
         // 1st: init
