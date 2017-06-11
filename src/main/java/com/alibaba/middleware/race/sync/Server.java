@@ -41,6 +41,15 @@ public class Server {
     }
 
     public static void main(String[] args) {
+        ArrayList<String> reverseOrderFiles = new ArrayList<>();
+        for (int i = 10; i > 0; i--) {
+            reverseOrderFiles.add(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+        }
+        try {
+            ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         try {

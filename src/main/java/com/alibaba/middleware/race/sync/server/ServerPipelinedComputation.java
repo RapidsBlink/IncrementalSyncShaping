@@ -2,6 +2,8 @@ package com.alibaba.middleware.race.sync.server;
 
 import com.alibaba.middleware.race.sync.Server;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -43,11 +45,34 @@ public class ServerPipelinedComputation {
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
     // io and computation sync related
-    private final static ExecutorService pool = Executors.newSingleThreadExecutor();
+    private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
+    private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
     private static TaskBuffer taskBuffer = new TaskBuffer();
+    private final static ArrayList<String> fileList = new ArrayList<>();
 
     public interface FindResultListener {
         void sendToClient(String result);
+    }
+
+    public static void readFilesIntoPageCache(ArrayList<String> fileList) throws IOException {
+        long startTime = System.currentTimeMillis();
+
+        String line;
+        long byteCount = 0L;
+        long lineCount = 0L;
+        for (String filePath : fileList) {
+            BufferedReader fileReader = new BufferedReader(new FileReader(filePath));
+            while ((line = fileReader.readLine()) != null) {
+                byteCount += line.length();
+                lineCount++;
+            }
+        }
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms , byte count:" + byteCount + " , line count:" + lineCount);
+        if (Server.logger != null) {
+            Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms , byte count:" + byteCount + " , line count:" + lineCount);
+        }
     }
 
     private static class TaskBuffer {
@@ -101,13 +126,13 @@ public class ServerPipelinedComputation {
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
             if (taskBuffer.isFull()) {
-                pool.execute(new SingleComputationTask(taskBuffer, findResultListener));
+                computationPool.execute(new SingleComputationTask(taskBuffer, findResultListener));
                 taskBuffer = new TaskBuffer();
             }
             taskBuffer.addData(line);
             lineCount += line.length();
         }
-        pool.execute(new SingleComputationTask(taskBuffer, findResultListener));
+        computationPool.execute(new SingleComputationTask(taskBuffer, findResultListener));
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
@@ -118,12 +143,13 @@ public class ServerPipelinedComputation {
     }
 
     public static void JoinComputationThread() {
-        // update pool states
-        pool.shutdown();
-
+        // update computationPool states
+        computationPool.shutdown();
+        pageCachePool.shutdown();
         // join threads
         try {
-            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
