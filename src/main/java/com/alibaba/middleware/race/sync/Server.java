@@ -29,20 +29,19 @@ public class Server {
         }
     }
 
-    private String[] args = null;
-
     public Server(String[] args) {
-        this.args = args;
         initProperties();
-        logger = LoggerFactory.getLogger(Server.class);
+        logger.info("Current server time:" + System.currentTimeMillis());
         printArgs(args);
         logger.info(Constants.CODE_VERSION);
-        logger.info("Current server time:" + System.currentTimeMillis());
         nserver = new NettyServer(args, Constants.SERVER_PORT);
         nserver.start();
     }
 
     public static void main(String[] args) {
+        logger = LoggerFactory.getLogger(Server.class);
+        logger.info("Current server time:" + System.currentTimeMillis());
+
         ArrayList<String> reverseOrderFiles = new ArrayList<>();
         for (int i = 10; i > 0; i--) {
             reverseOrderFiles.add(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
@@ -85,7 +84,7 @@ public class Server {
         System.out.println("Send finish all package......");
     }
 
-    void printArgs(String[] args) {
+    private void printArgs(String[] args) {
         logger.info(args[0]);
         logger.info(args[1]);
         logger.info(args[2]);
