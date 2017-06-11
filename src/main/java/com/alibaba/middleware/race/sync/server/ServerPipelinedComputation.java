@@ -36,15 +36,6 @@ public class ServerPipelinedComputation {
     private final static ExecutorService pool = Executors.newSingleThreadExecutor();
 
     // io and computation sync related
-//    private final static int fullNum = 5000000;
-//    private final static int closeEmptyNum = 2000000;
-//    private final static ReentrantLock isFullLock = new ReentrantLock();
-//    private final static Condition isFull = isFullLock.newCondition();
-//    private final static BlockingQueue<Runnable> taskQueue = new ArrayBlockingQueue<>(fullNum);
-//    private final static ExecutorService pool = new ThreadPoolExecutor(1, 1,
-//            0L, TimeUnit.MILLISECONDS, taskQueue);
-//    private static boolean isOthersAwakeMe = false;
-//    private static boolean isDirectReaderSleep = false;
 
     // intermediate result
     final static Map<Long, RecordUpdate> inRangeActiveKeys = new HashMap<>();
@@ -55,8 +46,8 @@ public class ServerPipelinedComputation {
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
-    public static interface FindResultListener {
-        public void sendToClient(String result);
+    public interface FindResultListener {
+        void sendToClient(String result);
     }
 
     private static class SingleComputationTask implements Runnable {
@@ -70,14 +61,6 @@ public class ServerPipelinedComputation {
 
         @Override
         public void run() {
-//            if (isDirectReaderSleep && taskQueue.size() <= closeEmptyNum) {
-//                isFullLock.lock();
-//                if (isDirectReaderSleep) {
-//                    isOthersAwakeMe = true;
-//                    isFull.signal();
-//                }
-//                isFullLock.unlock();
-//            }
             String result = sequentialRestore.compute(line);
             if (result != null) {
                 findResultListener.sendToClient(result);
@@ -91,23 +74,9 @@ public class ServerPipelinedComputation {
         String line;
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
-//            if (taskQueue.size() >= fullNum) {
-//                while (!isOthersAwakeMe) {
-//                    isFullLock.lock();
-//                    try {
-//                        isDirectReaderSleep = true;
-//                        isFull.await();
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    } finally {
-//                        isFullLock.unlock();
-//                    }
-//                }
-//            }
-//            isDirectReaderSleep = false;
-//            isOthersAwakeMe = false;
-            pool.execute(new SingleComputationTask(line, findResultListener));
-
+//            pool.execute(new SingleComputationTask(line, findResultListener));
+//            sequentialRestore.compute(line);
+            new SingleComputationTask(line, findResultListener).run();
             lineCount += line.length();
         }
         long endTime = System.currentTimeMillis();
