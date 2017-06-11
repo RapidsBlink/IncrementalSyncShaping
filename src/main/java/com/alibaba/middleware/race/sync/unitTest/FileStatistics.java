@@ -37,7 +37,7 @@ public class FileStatistics {
             OneRoundComputation(name, new FindResultListener() {
                 @Override
                 public void sendToClient(String result) {
-//                System.out.println(result);
+                    System.out.println(result);
                 }
             });
 

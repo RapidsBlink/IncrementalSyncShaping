@@ -143,40 +143,68 @@ public class ServerPipelinedComputation {
         }
     }
 
+    private static class ComputationTask implements Runnable {
+        private RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer;
+        private FindResultListener findResultListener;
+
+        public ComputationTask(RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer, FindResultListener findResultListener) {
+            this.recordLazyEvalTaskBuffer = recordLazyEvalTaskBuffer;
+            this.findResultListener = findResultListener;
+        }
+
+        @Override
+        public void run() {
+            for (int j = 0; j < recordLazyEvalTaskBuffer.length(); j++) {
+                String result = sequentialRestore.compute(recordLazyEvalTaskBuffer.get(j));
+                if (result != null) {
+                    findResultListener.sendToClient(result);
+                }
+            }
+        }
+    }
+
     private static class MediatorTask implements Runnable {
         private StringTaskBuffer taskBuffer;
         private FindResultListener findResultListener;
+        private static Queue<Future<RecordLazyEvalTaskBuffer>> lazyEvalTaskQueue = new LinkedList<>();
 
         MediatorTask(StringTaskBuffer taskBuffer, FindResultListener findResultListener) {
             this.taskBuffer = taskBuffer;
             this.findResultListener = findResultListener;
         }
 
-        @Override
-        public void run() {
-            Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = transformPool.submit(new TransformTask(taskBuffer, 0, taskBuffer.length()));
-
-            RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
-            while (recordLazyEvalTaskBuffer == null) {
-                try {
-                    recordLazyEvalTaskBuffer = recordLazyEvalTaskBufferFuture.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            final RecordLazyEvalTaskBuffer finalRecordLazyEvalTaskBuffer = recordLazyEvalTaskBuffer;
-            computationPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    for (int j = 0; j < finalRecordLazyEvalTaskBuffer.length(); j++) {
-                        String result = sequentialRestore.compute(finalRecordLazyEvalTaskBuffer.get(j));
-                        if (result != null) {
-                            findResultListener.sendToClient(result);
-                        }
+        static void syncConsumeReadyJobs(final FindResultListener findResultListener) {
+            while (!lazyEvalTaskQueue.isEmpty()) {
+                Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = lazyEvalTaskQueue.poll();
+                RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
+                while (recordLazyEvalTaskBuffer == null) {
+                    try {
+                        recordLazyEvalTaskBuffer = recordLazyEvalTaskBufferFuture.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
                     }
                 }
-            });
+                computationPool.execute(new ComputationTask(recordLazyEvalTaskBuffer, findResultListener));
+            }
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (lazyEvalTaskQueue.size() > 0) {
+                    Future<RecordLazyEvalTaskBuffer> futureWork = lazyEvalTaskQueue.peek();
+                    if (futureWork.isDone()) {
+                        computationPool.execute(new ComputationTask(futureWork.get(), findResultListener));
+                        lazyEvalTaskQueue.poll();
+                    } else {
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = transformPool.submit(new TransformTask(taskBuffer, 0, taskBuffer.length()));
+            lazyEvalTaskQueue.add(recordLazyEvalTaskBufferFuture);
         }
     }
 
@@ -202,6 +230,7 @@ public class ServerPipelinedComputation {
             Server.logger.info("computation time:" + (endTime - startTime));
             Server.logger.info("Byte count: " + lineCount);
         }
+        MediatorTask.syncConsumeReadyJobs(findResultListener);
     }
 
     public static void JoinComputationThread() {
