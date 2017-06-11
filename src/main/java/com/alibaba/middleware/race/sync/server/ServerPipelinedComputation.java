@@ -52,18 +52,27 @@ public class ServerPipelinedComputation {
         void sendToClient(String result);
     }
 
-    public static void readFilesIntoPageCache(ArrayList<String> fileList) throws IOException {
-        long startTime = System.currentTimeMillis();
+    public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
+        pageCachePool.execute(new Runnable() {
+            @Override
+            public void run() {
+                long startTime = System.currentTimeMillis();
 
-        for (String filePath : fileList) {
-            FileUtil.readFileIntoPageCache(filePath);
-        }
+                for (String filePath : fileList) {
+                    try {
+                        FileUtil.readFileIntoPageCache(filePath);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
 
-        long endTime = System.currentTimeMillis();
-        System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms");
-        if (Server.logger != null) {
-            Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms");
-        }
+                long endTime = System.currentTimeMillis();
+                System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms");
+                if (Server.logger != null) {
+                    Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms");
+                }
+            }
+        });
     }
 
     private static class TaskBuffer {
@@ -136,11 +145,11 @@ public class ServerPipelinedComputation {
     public static void JoinComputationThread() {
         // update computationPool states
         computationPool.shutdown();
-        // pageCachePool.shutdown();
+        //pageCachePool.shutdown();
         // join threads
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            // pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            //pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

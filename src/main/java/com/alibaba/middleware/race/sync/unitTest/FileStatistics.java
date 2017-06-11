@@ -18,11 +18,12 @@ public class FileStatistics {
     private static ArrayList<String> myFiles = new ArrayList<>();
 
     static {
-        myFiles.add("/tmp/canal.txt");
+        for(int i = 10; i > 0 ; i--)
+            myFiles.add("/home/will/Workspace/test/canal_data/" + i + ".txt");
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        Thread.sleep(5000);
+        //Thread.sleep(5000);
         long programStart = System.currentTimeMillis();
 
         readFilesIntoPageCache(myFiles);
@@ -32,7 +33,8 @@ public class FileStatistics {
         initRange(600, 700);
 
         // 2nd: computations
-        OneRoundComputation("/tmp/canal.txt", new FindResultListener() {
+        for (String name:myFiles)
+            OneRoundComputation(name, new FindResultListener() {
             @Override
             public void sendToClient(String result) {
 //                System.out.println(result);
