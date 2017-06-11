@@ -44,7 +44,7 @@ public class ServerPipelinedComputation {
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
     private final static ExecutorService mediatorPool = Executors.newSingleThreadExecutor();
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 8;
+    private final static int TRANSFORM_WORKER_NUM = 16;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
     private static StringTaskBuffer strTaskBuffer = new StringTaskBuffer();
