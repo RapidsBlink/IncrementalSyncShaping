@@ -13,7 +13,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public static String schema;
     public static String table;
 
-    private final String recordStr;
+    public final String recordStr;
     private final StringBuilder stringBuilder;
     private int curIndex;
 
@@ -23,6 +23,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public char operationType;
     public long curPKVal;
     public long prevPKVal;
+
 
     public boolean isSchemaTableValid() {
         return isSchemaTableValid;

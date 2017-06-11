@@ -4,9 +4,7 @@ import com.alibaba.middleware.race.sync.Server;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by yche on 6/8/17.
@@ -45,7 +43,10 @@ public class ServerPipelinedComputation {
     // io and computation sync related
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
-    private static TaskBuffer taskBuffer = new TaskBuffer();
+    private final static int TRANSFORM_WORKER_NUM = 8;
+    private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
+
+    private static StringTaskBuffer strTaskBuffer = new StringTaskBuffer();
 
     public interface FindResultListener {
         void sendToClient(String result);
@@ -74,9 +75,9 @@ public class ServerPipelinedComputation {
         });
     }
 
-    private static class TaskBuffer {
-        static int MAX_SIZE = 100000; // 0.1M
-        private String[] stringArr = new String[MAX_SIZE];    // 100B*0.1M=10MB
+    private static class StringTaskBuffer {
+        static int MAX_SIZE = 400000; // 0.4M
+        private String[] stringArr = new String[MAX_SIZE];    // 100B*0.1M=40MB
         private int nextIndex = 0;
 
         private void addData(String line) {
@@ -97,21 +98,85 @@ public class ServerPipelinedComputation {
         }
     }
 
-    private static class SingleComputationTask implements Runnable {
-        private TaskBuffer taskBuffer;
+    private static class RecordLazyEvalTaskBuffer {
+        final private RecordLazyEval[] recordLazyEvals;    // 100B*0.1M=10MB
+        int nextIndex = 0;
+
+        RecordLazyEvalTaskBuffer(int taskSize) {
+            this.recordLazyEvals = new RecordLazyEval[taskSize];
+        }
+
+        void addData(RecordLazyEval recordLazyEval) {
+            recordLazyEvals[nextIndex] = recordLazyEval;
+            nextIndex++;
+        }
+
+        public int length() {
+            return nextIndex;
+        }
+
+        public RecordLazyEval get(int idx) {
+            return recordLazyEvals[idx];
+        }
+    }
+
+    private static class TransformTask implements Callable<RecordLazyEvalTaskBuffer> {
+        private StringTaskBuffer taskBuffer;
+        private int startIdx; // inclusive
+        private int endIdx;   // exclusive
+
+        public TransformTask(StringTaskBuffer taskBuffer, int startIdx, int endIdx) {
+            this.taskBuffer = taskBuffer;
+            this.startIdx = startIdx;
+            this.endIdx = endIdx;
+        }
+
+        @Override
+        public RecordLazyEvalTaskBuffer call() throws Exception {
+            StringBuilder stringBuilder = new StringBuilder();
+            RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = new RecordLazyEvalTaskBuffer(endIdx - startIdx);
+            for (int i = startIdx; i < endIdx; i++) {
+                recordLazyEvalTaskBuffer.addData(new RecordLazyEval(taskBuffer.get(i), stringBuilder));
+            }
+            return recordLazyEvalTaskBuffer;
+        }
+    }
+
+    private static class ComputationTask implements Runnable {
+        private StringTaskBuffer taskBuffer;
         private FindResultListener findResultListener;
 
-        SingleComputationTask(TaskBuffer taskBuffer, FindResultListener findResultListener) {
+        ComputationTask(StringTaskBuffer taskBuffer, FindResultListener findResultListener) {
             this.taskBuffer = taskBuffer;
             this.findResultListener = findResultListener;
         }
 
         @Override
         public void run() {
-            for (int i = 0; i < taskBuffer.length(); i++) {
-                String result = sequentialRestore.compute(taskBuffer.get(i));
-                if (result != null) {
-                    findResultListener.sendToClient(result);
+            Future<RecordLazyEvalTaskBuffer>[] futureArr = new Future[TRANSFORM_WORKER_NUM];
+            int avgTaskNum = taskBuffer.length() / TRANSFORM_WORKER_NUM;
+            int startIndex;
+            int endIndex;
+            for (int i = 0; i < TRANSFORM_WORKER_NUM; i++) {
+                startIndex = i * avgTaskNum;
+                endIndex = (i == TRANSFORM_WORKER_NUM - 1) ? taskBuffer.length() : (i + 1) * avgTaskNum;
+                futureArr[i] = transformPool.submit(new TransformTask(taskBuffer, startIndex, endIndex));
+            }
+            for (int i = 0; i < TRANSFORM_WORKER_NUM; i++) {
+                RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
+                while (recordLazyEvalTaskBuffer == null) {
+                    try {
+                        recordLazyEvalTaskBuffer = futureArr[i].get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                for (int j = 0; j < recordLazyEvalTaskBuffer.length(); j++) {
+                    String result = sequentialRestore.compute(recordLazyEvalTaskBuffer.get(j));
+                    if (result != null) {
+                        findResultListener.sendToClient(result);
+                    }
                 }
             }
         }
@@ -124,14 +189,14 @@ public class ServerPipelinedComputation {
         String line;
         long lineCount = 0;
         while ((line = reversedLinesFileReader.readLine()) != null) {
-            if (taskBuffer.isFull()) {
-                computationPool.execute(new SingleComputationTask(taskBuffer, findResultListener));
-                taskBuffer = new TaskBuffer();
+            if (strTaskBuffer.isFull()) {
+                computationPool.execute(new ComputationTask(strTaskBuffer, findResultListener));
+                strTaskBuffer = new StringTaskBuffer();
             }
-            taskBuffer.addData(line);
+            strTaskBuffer.addData(line);
             lineCount += line.length();
         }
-        computationPool.execute(new SingleComputationTask(taskBuffer, findResultListener));
+        computationPool.execute(new ComputationTask(strTaskBuffer, findResultListener));
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
@@ -143,6 +208,13 @@ public class ServerPipelinedComputation {
 
     public static void JoinComputationThread() {
         // update computationPool states
+        transformPool.shutdown();
+        try {
+            transformPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         computationPool.shutdown();
         pageCachePool.shutdown();
         // join threads

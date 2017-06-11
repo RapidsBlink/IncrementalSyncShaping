@@ -11,12 +11,11 @@ public class SequentialRestore {
     // data
     private String recordStr;
     private RecordLazyEval recordLazyEval;
-    private StringBuilder stringBuilder = new StringBuilder();
     private String result = null;
 
     private void initFieldListIfFirstTime() {
         if (filedList.size() == 0) {
-            RecordFields record = new RecordFields(recordStr);
+            RecordFields record = new RecordFields(recordLazyEval.recordStr);
             filedList = record.colOrder;
         }
     }
@@ -91,10 +90,27 @@ public class SequentialRestore {
         }
     }
 
-    public String compute(String another) {
+//    public String compute(String another) {
+//        String ret = null;
+//        recordStr = another;
+//        recordLazyEval = new RecordLazyEval(recordStr, stringBuilder);
+//        if (recordLazyEval.isSchemaTableValid()) {
+//            if (recordLazyEval.operationType == DELETE_OPERATION) {
+//                actForDelete();
+//            } else if (recordLazyEval.operationType == INSERT_OPERATION) {
+//                actForInsert();
+//                ret = result;
+//                result = null;
+//            } else {
+//                actForUpdate();
+//            }
+//        }
+//        return ret;
+//    }
+
+    public String compute(RecordLazyEval recordLazyEval) {
         String ret = null;
-        recordStr = another;
-        recordLazyEval = new RecordLazyEval(recordStr, stringBuilder);
+        this.recordLazyEval = recordLazyEval;
         if (recordLazyEval.isSchemaTableValid()) {
             if (recordLazyEval.operationType == DELETE_OPERATION) {
                 actForDelete();
