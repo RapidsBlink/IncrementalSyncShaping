@@ -2,8 +2,6 @@ package com.alibaba.middleware.race.sync.server;
 
 import com.alibaba.middleware.race.sync.Server;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -57,21 +55,14 @@ public class ServerPipelinedComputation {
     public static void readFilesIntoPageCache(ArrayList<String> fileList) throws IOException {
         long startTime = System.currentTimeMillis();
 
-        String line;
-        long byteCount = 0L;
-        long lineCount = 0L;
         for (String filePath : fileList) {
-            BufferedReader fileReader = new BufferedReader(new FileReader(filePath));
-            while ((line = fileReader.readLine()) != null) {
-                byteCount += line.length();
-                lineCount++;
-            }
+            FileUtil.readFileIntoPageCache(filePath);
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms , byte count:" + byteCount + " , line count:" + lineCount);
+        System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms");
         if (Server.logger != null) {
-            Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms , byte count:" + byteCount + " , line count:" + lineCount);
+            Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms");
         }
     }
 
@@ -145,11 +136,11 @@ public class ServerPipelinedComputation {
     public static void JoinComputationThread() {
         // update computationPool states
         computationPool.shutdown();
-       // pageCachePool.shutdown();
+        // pageCachePool.shutdown();
         // join threads
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-           // pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            // pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

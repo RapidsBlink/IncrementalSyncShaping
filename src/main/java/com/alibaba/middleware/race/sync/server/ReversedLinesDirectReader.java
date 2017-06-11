@@ -3,11 +3,11 @@ package com.alibaba.middleware.race.sync.server;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+
+import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
 
 /**
  * Created by yche on 6/9/17.
@@ -47,17 +47,6 @@ public class ReversedLinesDirectReader {
 
         this.nextIndex = this.maxIndex;
         initMappedByteBuffer();
-    }
-
-    private static void unmap(MappedByteBuffer mbb) {
-        try {
-            Method cleaner = mbb.getClass().getMethod("cleaner");
-            cleaner.setAccessible(true);
-            Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
-            clean.invoke(cleaner.invoke(mbb));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     private void findFirstValidChar() {
