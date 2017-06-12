@@ -1,6 +1,6 @@
-package com.alibaba.middleware.race.sync.seedUtils.unitTest;
+package com.alibaba.middleware.race.sync.unused.seedUtils.unitTest;
 
-import com.alibaba.middleware.race.sync.seedUtils.Fastu;
+import com.alibaba.middleware.race.sync.unused.seedUtils.Fastu;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;

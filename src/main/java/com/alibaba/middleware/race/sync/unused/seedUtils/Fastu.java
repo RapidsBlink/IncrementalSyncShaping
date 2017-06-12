@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.seedUtils;
+package com.alibaba.middleware.race.sync.unused.seedUtils;
 //https://github.com/xetorthio/fastu
 public class Fastu {
     public static String decode(byte[] data) {
