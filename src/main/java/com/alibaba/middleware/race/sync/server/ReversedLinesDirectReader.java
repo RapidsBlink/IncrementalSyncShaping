@@ -70,6 +70,11 @@ public class ReversedLinesDirectReader {
     }
 
     public String readLine() throws IOException {
+        byte[] bytes = readLineBytes();
+        return bytes == null ? null : new String(bytes);
+    }
+
+    public byte[] readLineBytes() throws IOException {
         findFirstValidChar();
 
         if (inChunkIndex < 0) {
@@ -89,6 +94,6 @@ public class ReversedLinesDirectReader {
             bytes[byteBuffer.limit() - 1 - i] = byteBuffer.get(i);
         }
 
-        return new String(bytes);
+        return bytes;
     }
 }
