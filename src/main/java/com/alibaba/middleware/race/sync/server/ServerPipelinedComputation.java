@@ -37,24 +37,23 @@ public class ServerPipelinedComputation {
     static ArrayList<String> filedList = new ArrayList<>();
     public final static Map<Long, String> inRangeRecord = new TreeMap<>();
 
-    // computation
+    // sequential computation model
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
-    // io and computation sync related
-    private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
-
-    // decode
+    // type1 pool: decode
     private final static ExecutorService decodeDispatchMediatorPool = Executors.newSingleThreadExecutor();
     private final static int DECODE_WORKER_NUM = 8;
     private final static ExecutorService decodePool = Executors.newFixedThreadPool(DECODE_WORKER_NUM);
 
-    // transform and computation
+    // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
     private final static int TRANSFORM_WORKER_NUM = 8;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
-    // co-routine
+    // co-routine: read files into page cache
+    private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
+
     public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
         pageCachePool.execute(new Runnable() {
             @Override
@@ -78,7 +77,7 @@ public class ServerPipelinedComputation {
         });
     }
 
-    // Task Buffer
+    // task buffer: ByteArrTaskBuffer, StringTaskBuffer, RecordLazyEvalTaskBuffer
     public static class ByteArrTaskBuffer {
         static int MAX_SIZE = 100000; // 0.1M
         private byte[][] byteArrArr = new byte[MAX_SIZE][];    // 100B*0.1M=10MB
@@ -125,7 +124,7 @@ public class ServerPipelinedComputation {
     }
 
     public static class RecordLazyEvalTaskBuffer {
-        final private RecordLazyEval[] recordLazyEvals;    // 100B*0.1M=10MB
+        final private RecordLazyEval[] recordLazyEvals;
         int nextIndex = 0;
 
         RecordLazyEvalTaskBuffer(int taskSize) {
@@ -146,7 +145,8 @@ public class ServerPipelinedComputation {
         }
     }
 
-    // Tasks
+    // tasks type1: DecodeDispatchTask, DecodeTask,
+    // tasks type2: TransCompMediatorTask, TransformTask, ComputationTask
     private static class DecodeDispatchTask implements Runnable {
         private ByteArrTaskBuffer taskBuffer;
         private FindResultListener findResultListener;
