@@ -24,6 +24,12 @@ public class ServerPipelinedComputation {
         RecordLazyEval.table = table;
     }
 
+    private static FindResultListener findResultListener;
+
+    public static void initFindResultListener(FindResultListener findResultListener) {
+        ServerPipelinedComputation.findResultListener = findResultListener;
+    }
+
     static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
@@ -149,15 +155,13 @@ public class ServerPipelinedComputation {
     // tasks type2: TransCompMediatorTask, TransformTask, ComputationTask
     private static class DecodeDispatchTask implements Runnable {
         private ByteArrTaskBuffer taskBuffer;
-        private FindResultListener findResultListener;
         private static Queue<Future<StringTaskBuffer>> stringTaskQueue = new LinkedList<>();
 
-        DecodeDispatchTask(ByteArrTaskBuffer taskBuffer, FindResultListener findResultListener) {
+        DecodeDispatchTask(ByteArrTaskBuffer taskBuffer) {
             this.taskBuffer = taskBuffer;
-            this.findResultListener = findResultListener;
         }
 
-        static void syncConsumeReadyJobs(final FindResultListener findResultListener) {
+        static void syncConsumeReadyJobs() {
             while (!stringTaskQueue.isEmpty()) {
                 Future<StringTaskBuffer> stringTaskBufferFuture = stringTaskQueue.poll();
                 StringTaskBuffer strTaskBuffer = null;
@@ -168,13 +172,13 @@ public class ServerPipelinedComputation {
                         e.printStackTrace();
                     }
                 }
-                transCompMediatorPool.execute(new TransCompMediatorTask(strTaskBuffer, findResultListener));
+                transCompMediatorPool.execute(new TransCompMediatorTask(strTaskBuffer));
             }
 
             transCompMediatorPool.execute(new Runnable() {
                 @Override
                 public void run() {
-                    TransCompMediatorTask.syncConsumeReadyJobs(findResultListener);
+                    TransCompMediatorTask.syncConsumeReadyJobs();
                 }
             });
         }
@@ -185,7 +189,7 @@ public class ServerPipelinedComputation {
                 while (stringTaskQueue.size() > 0) {
                     Future<StringTaskBuffer> futureWork = stringTaskQueue.peek();
                     if (futureWork.isDone()) {
-                        transCompMediatorPool.execute(new TransCompMediatorTask(futureWork.get(), findResultListener));
+                        transCompMediatorPool.execute(new TransCompMediatorTask(futureWork.get()));
                         stringTaskQueue.poll();
                     } else {
                         break;
@@ -218,15 +222,13 @@ public class ServerPipelinedComputation {
 
     private static class TransCompMediatorTask implements Runnable {
         private StringTaskBuffer taskBuffer;
-        private FindResultListener findResultListener;
         private static Queue<Future<RecordLazyEvalTaskBuffer>> lazyEvalTaskQueue = new LinkedList<>();
 
-        TransCompMediatorTask(StringTaskBuffer taskBuffer, FindResultListener findResultListener) {
+        TransCompMediatorTask(StringTaskBuffer taskBuffer) {
             this.taskBuffer = taskBuffer;
-            this.findResultListener = findResultListener;
         }
 
-        static void syncConsumeReadyJobs(final FindResultListener findResultListener) {
+        static void syncConsumeReadyJobs() {
             while (!lazyEvalTaskQueue.isEmpty()) {
                 Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = lazyEvalTaskQueue.poll();
                 RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
@@ -237,7 +239,7 @@ public class ServerPipelinedComputation {
                         e.printStackTrace();
                     }
                 }
-                computationPool.execute(new ComputationTask(recordLazyEvalTaskBuffer, findResultListener));
+                computationPool.execute(new ComputationTask(recordLazyEvalTaskBuffer));
             }
         }
 
@@ -247,7 +249,7 @@ public class ServerPipelinedComputation {
                 while (lazyEvalTaskQueue.size() > 0) {
                     Future<RecordLazyEvalTaskBuffer> futureWork = lazyEvalTaskQueue.peek();
                     if (futureWork.isDone()) {
-                        computationPool.execute(new ComputationTask(futureWork.get(), findResultListener));
+                        computationPool.execute(new ComputationTask(futureWork.get()));
                         lazyEvalTaskQueue.poll();
                     } else {
                         break;
@@ -289,11 +291,9 @@ public class ServerPipelinedComputation {
 
     private static class ComputationTask implements Runnable {
         private RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer;
-        private FindResultListener findResultListener;
 
-        ComputationTask(RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer, FindResultListener findResultListener) {
+        ComputationTask(RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer) {
             this.recordLazyEvalTaskBuffer = recordLazyEvalTaskBuffer;
-            this.findResultListener = findResultListener;
         }
 
         @Override
@@ -307,7 +307,7 @@ public class ServerPipelinedComputation {
         }
     }
 
-    public static void OneRoundComputation(String fileName, final FindResultListener findResultListener) throws IOException {
+    public static void OneRoundComputation(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
 
         ReversedLinesDirectReader reversedLinesFileReader = new ReversedLinesDirectReader(fileName);
@@ -317,17 +317,17 @@ public class ServerPipelinedComputation {
         ByteArrTaskBuffer byteArrTaskBuffer = new ByteArrTaskBuffer();
         while ((line = reversedLinesFileReader.readLineBytes()) != null) {
             if (byteArrTaskBuffer.isFull()) {
-                decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer, findResultListener));
+                decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer));
                 byteArrTaskBuffer = new ByteArrTaskBuffer();
             }
             byteArrTaskBuffer.addData(line);
             lineCount += line.length;
         }
-        decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer, findResultListener));
+        decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer));
         decodeDispatchMediatorPool.execute(new Runnable() {
             @Override
             public void run() {
-                DecodeDispatchTask.syncConsumeReadyJobs(findResultListener);
+                DecodeDispatchTask.syncConsumeReadyJobs();
             }
         });
 

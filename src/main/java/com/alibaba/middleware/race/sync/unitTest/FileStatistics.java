@@ -31,15 +31,16 @@ public class FileStatistics {
         // 1st: init
         initSchemaTable("middleware3", "student");
         initRange(600, 700);
+        initFindResultListener(new FindResultListener() {
+            @Override
+            public void sendToClient(String result) {
+                System.out.println(result);
+            }
+        });
 
         // 2nd: computations
         for (String name : myFiles)
-            OneRoundComputation(name, new FindResultListener() {
-                @Override
-                public void sendToClient(String result) {
-                    System.out.println(result);
-                }
-            });
+            OneRoundComputation(name);
 
         // 3rd: join computation thread
         JoinComputationThread();
