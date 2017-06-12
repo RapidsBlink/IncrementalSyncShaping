@@ -53,7 +53,4 @@ public interface Constants {
     char INSERT_OPERATION = 'I';
     char DELETE_OPERATION = 'D';
     char UPDATE_OPERATION = 'U';
-
-    final static int CHUNK_SIZE = 8 * 1024;
-
 }

@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.network.handlers.demoHandlers;
 
-import com.alibaba.middleware.race.sync.DemoServer;
+import com.alibaba.middleware.race.sync.unused.DemoServer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;

@@ -1,5 +1,6 @@
-package com.alibaba.middleware.race.sync;
+package com.alibaba.middleware.race.sync.unused;
 
+import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.network.handlers.demoHandlers.ServerDemoInHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;

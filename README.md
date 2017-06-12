@@ -1,3 +1,11 @@
+## Pre-processing
+
+clear page cache
+
+```zsh
+echo 3 > /proc/sys/vm/drop_caches
+```
+
 > 写在前面
 1. 赛题答疑联系人(可通过旺旺联系)：万少
 2. 开始Coding前请仔细阅读以下内容
