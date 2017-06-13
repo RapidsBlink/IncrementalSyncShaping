@@ -48,11 +48,6 @@ public class ServerPipelinedComputation {
     // sequential computation model
     private static SequentialRestore sequentialRestore = new SequentialRestore();
 
-    // type1 pool: decode
-    private final static ExecutorService decodeDispatchMediatorPool = Executors.newSingleThreadExecutor();
-    private final static int DECODE_WORKER_NUM = 8;
-    private final static ExecutorService decodePool = Executors.newFixedThreadPool(DECODE_WORKER_NUM);
-
     // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
     private final static int TRANSFORM_WORKER_NUM = 8;
@@ -122,28 +117,6 @@ public class ServerPipelinedComputation {
         }
     }
 
-    public static class StringTaskBuffer {
-        private String[] stringArr;
-        private int nextIndex = 0;
-
-        StringTaskBuffer(int size) {
-            stringArr = new String[size];
-        }
-
-        private void addData(String line) {
-            stringArr[nextIndex] = line;
-            nextIndex++;
-        }
-
-        public int length() {
-            return nextIndex;
-        }
-
-        public String get(int idx) {
-            return stringArr[idx];
-        }
-    }
-
     public static class RecordLazyEvalTaskBuffer {
         final private RecordLazyEval[] recordLazyEvals;
         int nextIndex = 0;
@@ -205,78 +178,12 @@ public class ServerPipelinedComputation {
 
     // tasks type1: DecodeDispatchTask, DecodeTask,
     // tasks type2: TransCompMediatorTask, TransformTask, ComputationTask
-    private static class DecodeDispatchTask implements Runnable {
-        private ByteArrTaskBuffer taskBuffer;
-        private static Queue<Future<StringTaskBuffer>> stringTaskQueue = new LinkedList<>();
-
-        DecodeDispatchTask(ByteArrTaskBuffer taskBuffer) {
-            this.taskBuffer = taskBuffer;
-        }
-
-        static void syncConsumeReadyJobs() {
-            while (!stringTaskQueue.isEmpty()) {
-                Future<StringTaskBuffer> stringTaskBufferFuture = stringTaskQueue.poll();
-                StringTaskBuffer strTaskBuffer = null;
-                while (strTaskBuffer == null) {
-                    try {
-                        strTaskBuffer = stringTaskBufferFuture.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-                transCompMediatorPool.execute(new TransCompMediatorTask(strTaskBuffer));
-            }
-
-            transCompMediatorPool.execute(new Runnable() {
-                @Override
-                public void run() {
-                    TransCompMediatorTask.syncConsumeReadyJobs();
-                }
-            });
-        }
-
-        @Override
-        public void run() {
-            try {
-                while (stringTaskQueue.size() > 0) {
-                    Future<StringTaskBuffer> futureWork = stringTaskQueue.peek();
-                    if (futureWork.isDone()) {
-                        transCompMediatorPool.execute(new TransCompMediatorTask(futureWork.get()));
-                        stringTaskQueue.poll();
-                    } else {
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            Future<StringTaskBuffer> strTaskBufferFuture = decodePool.submit(new DecodeTask(taskBuffer));
-            stringTaskQueue.add(strTaskBufferFuture);
-        }
-    }
-
-    private static class DecodeTask implements Callable<StringTaskBuffer> {
-        private ByteArrTaskBuffer byteArrTaskBuffer;
-
-        DecodeTask(ByteArrTaskBuffer byteArrTaskBuffer) {
-            this.byteArrTaskBuffer = byteArrTaskBuffer;
-        }
-
-        @Override
-        public StringTaskBuffer call() throws Exception {
-            StringTaskBuffer stringTaskBuffer = new StringTaskBuffer(byteArrTaskBuffer.length());
-            for (int i = 0; i < byteArrTaskBuffer.length(); i++) {
-                stringTaskBuffer.addData(new String(byteArrTaskBuffer.get(i)));
-            }
-            return stringTaskBuffer;
-        }
-    }
 
     private static class TransCompMediatorTask implements Runnable {
-        private StringTaskBuffer taskBuffer;
+        private ByteArrTaskBuffer taskBuffer;
         private static Queue<Future<RecordLazyEvalTaskBuffer>> lazyEvalTaskQueue = new LinkedList<>();
 
-        TransCompMediatorTask(StringTaskBuffer taskBuffer) {
+        TransCompMediatorTask(ByteArrTaskBuffer taskBuffer) {
             this.taskBuffer = taskBuffer;
         }
 
@@ -322,11 +229,11 @@ public class ServerPipelinedComputation {
     }
 
     private static class TransformTask implements Callable<RecordLazyEvalTaskBuffer> {
-        private StringTaskBuffer taskBuffer;
+        private ByteArrTaskBuffer taskBuffer;
         private int startIdx; // inclusive
         private int endIdx;   // exclusive
 
-        TransformTask(StringTaskBuffer taskBuffer, int startIdx, int endIdx) {
+        TransformTask(ByteArrTaskBuffer taskBuffer, int startIdx, int endIdx) {
             this.taskBuffer = taskBuffer;
             this.startIdx = startIdx;
             this.endIdx = endIdx;
@@ -336,7 +243,7 @@ public class ServerPipelinedComputation {
         public RecordLazyEvalTaskBuffer call() throws Exception {
             RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = new RecordLazyEvalTaskBuffer(endIdx - startIdx);
             for (int i = startIdx; i < endIdx; i++) {
-                recordLazyEvalTaskBuffer.addData(new RecordLazyEval(taskBuffer.get(i)));
+                recordLazyEvalTaskBuffer.addData(new RecordLazyEval(new String(taskBuffer.get(i))));
             }
             return recordLazyEvalTaskBuffer;
         }
@@ -399,17 +306,17 @@ public class ServerPipelinedComputation {
         ByteArrTaskBuffer byteArrTaskBuffer = new ByteArrTaskBuffer();
         while ((line = reversedLinesFileReader.readLineBytes()) != null) {
             if (byteArrTaskBuffer.isFull()) {
-                decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer));
+                transCompMediatorPool.execute(new TransCompMediatorTask(byteArrTaskBuffer));
                 byteArrTaskBuffer = new ByteArrTaskBuffer();
             }
             byteArrTaskBuffer.addData(line);
             lineCount += line.length;
         }
-        decodeDispatchMediatorPool.execute(new DecodeDispatchTask(byteArrTaskBuffer));
-        decodeDispatchMediatorPool.execute(new Runnable() {
+        transCompMediatorPool.execute(new TransCompMediatorTask(byteArrTaskBuffer));
+        transCompMediatorPool.execute(new Runnable() {
             @Override
             public void run() {
-                DecodeDispatchTask.syncConsumeReadyJobs();
+                TransCompMediatorTask.syncConsumeReadyJobs();
             }
         });
 
@@ -426,22 +333,6 @@ public class ServerPipelinedComputation {
         pageCachePool.shutdown();
         try {
             pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // join decode pool
-        decodePool.shutdown();
-        try {
-            decodePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // join decode dispatch
-        decodeDispatchMediatorPool.shutdown();
-        try {
-            decodeDispatchMediatorPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

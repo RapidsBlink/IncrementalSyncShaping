@@ -30,7 +30,7 @@ public class FileStatistics {
 
         // 1st: init
         initSchemaTable("middleware3", "student");
-        initRange(600, 70000000000000000L);
+        initRange(600, 700);
         initFindResultListener(new FindResultListener() {
             @Override
             public void sendToClient(String result) {
