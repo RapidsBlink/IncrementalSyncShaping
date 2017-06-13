@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync;
 
 
+import com.alibaba.middleware.race.sync.network.NettyClient;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
@@ -47,7 +48,6 @@ public class Server {
     }
 
     public Server(String[] args) {
-        initProperties();
         logger.info("Current server time:" + System.currentTimeMillis());
         printArgs(args);
         logger.info(Constants.CODE_VERSION);
@@ -56,6 +56,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
+        Server.initProperties();
         logger = LoggerFactory.getLogger(Server.class);
         logger.info("Current server time:" + System.currentTimeMillis());
 
@@ -103,6 +104,7 @@ public class Server {
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
             logger.info(entry.getValue());
         }
-        System.out.println("Send finish all package......");
+        logger.info("Send finish all package......");
+
     }
 }
