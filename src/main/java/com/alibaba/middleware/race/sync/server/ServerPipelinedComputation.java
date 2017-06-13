@@ -60,7 +60,7 @@ public class ServerPipelinedComputation {
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 4;
+    final static int EVAL_UPDATE_WORKER_NUM = 8;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
@@ -177,7 +177,7 @@ public class ServerPipelinedComputation {
     }
 
     public static class EvalUpdateTaskBuffer {
-        private static int MAX_SIZE = 800;
+        private static int MAX_SIZE = 4000;
         final private EvalUpdate[] evalUpdates;
         int nextIndex = 0;
 
