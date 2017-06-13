@@ -26,9 +26,9 @@ public class RecordLazyEvalTest {
         }
     }
 
-    private static void testOne(String record, StringBuilder stringBuilder) throws IOException {
+    private static void testOne(String record) throws IOException {
         System.out.println(record);
-        RecordLazyEval recordLazyEval = new RecordLazyEval(record, stringBuilder);
+        RecordLazyEval recordLazyEval = new RecordLazyEval(record);
         prettyPrint(recordLazyEval);
         if (recordLazyEval.operationType != DELETE_OPERATION)
             iterateThough(recordLazyEval);
@@ -44,9 +44,8 @@ public class RecordLazyEvalTest {
                 "|mysql-bin.00001717148759|1496736165000|middleware3|student|U|id:1:1|1|3|first_name:2:0|徐|依|",
                 "|mysql-bin.00001717148759|1496736165000|middleware3|student|U|id:1:1|1|3|"};
 
-        StringBuilder stringBuilder = new StringBuilder();
         for (String record : records) {
-            testOne(record, stringBuilder);
+            testOne(record);
         }
     }
 }

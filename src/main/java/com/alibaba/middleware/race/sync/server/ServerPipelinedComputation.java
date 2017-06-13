@@ -60,7 +60,7 @@ public class ServerPipelinedComputation {
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 1;
+    final static int EVAL_UPDATE_WORKER_NUM = 4;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
@@ -334,10 +334,9 @@ public class ServerPipelinedComputation {
 
         @Override
         public RecordLazyEvalTaskBuffer call() throws Exception {
-            StringBuilder stringBuilder = new StringBuilder();
             RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = new RecordLazyEvalTaskBuffer(endIdx - startIdx);
             for (int i = startIdx; i < endIdx; i++) {
-                recordLazyEvalTaskBuffer.addData(new RecordLazyEval(taskBuffer.get(i), stringBuilder));
+                recordLazyEvalTaskBuffer.addData(new RecordLazyEval(taskBuffer.get(i)));
             }
             return recordLazyEvalTaskBuffer;
         }

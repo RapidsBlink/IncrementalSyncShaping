@@ -14,7 +14,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public static String table;
 
     public String recordStr;
-    private final StringBuilder stringBuilder;
+    private StringBuilder stringBuilder;
     private int curIndex;
 
     private boolean isSchemaTableValid = true;
@@ -58,10 +58,10 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
 
     // overall structure: | binlog id | timestamp | schema | table | column structure ...
     // column structure: column info | prev val | cur val
-    public RecordLazyEval(String recordStr, StringBuilder stringBuilder) {
+    public RecordLazyEval(String recordStr) {
         this.curIndex = 0;
-        this.stringBuilder = stringBuilder;
         this.recordStr = recordStr;
+        this.stringBuilder=new StringBuilder();
 
         // 1st: skip: binlog id, and timestamp
         for (int i = 0; i < 2; i++) {
@@ -99,6 +99,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
         if (this.operationType == DELETE_OPERATION) {
             this.curPKVal = this.prevPKVal;
             this.recordStr = null;
+            this.stringBuilder = null;
         } else {
             this.curPKVal = Long.valueOf(getNextString());
         }

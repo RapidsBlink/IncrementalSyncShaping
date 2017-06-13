@@ -99,7 +99,7 @@ public class ChunkComputationTask {
     // used for each chunk computation
     public String compute() {
         for (int i = upperIdx; i > lowerIdx; i--) {
-            recordLazyEval = new RecordLazyEval(fileChunk.get(i), stringBuilder);
+            recordLazyEval = new RecordLazyEval(fileChunk.get(i));
 
             if (recordLazyEval.operationType == DELETE_OPERATION) {
                 actForDeleteOperation();
