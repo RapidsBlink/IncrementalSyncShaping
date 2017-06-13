@@ -5,6 +5,9 @@ import com.alibaba.middleware.race.sync.Server;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
 
@@ -50,12 +53,12 @@ public class ServerPipelinedComputation {
 
     // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 8;
+    private final static int TRANSFORM_WORKER_NUM = 4;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 8;
+    final static int EVAL_UPDATE_WORKER_NUM = 4;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
@@ -69,6 +72,11 @@ public class ServerPipelinedComputation {
     // co-routine: read files into page cache
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
 
+    private final static ReentrantLock waitConsumePageCondLock = new ReentrantLock();
+    private final static Condition waitConsumePageCond = waitConsumePageCondLock.newCondition();
+    private static AtomicInteger unusedPageNum = new AtomicInteger(0);
+    private static int MAX_UNUSED_PAGE_NUM = 3;
+
     public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
         pageCachePool.execute(new Runnable() {
             @Override
@@ -76,11 +84,24 @@ public class ServerPipelinedComputation {
                 long startTime = System.currentTimeMillis();
 
                 for (String filePath : fileList) {
+                    while (unusedPageNum.get() >= MAX_UNUSED_PAGE_NUM) {
+                        waitConsumePageCondLock.lock();
+                        try {
+                            waitConsumePageCond.await();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } finally {
+                            waitConsumePageCondLock.unlock();
+                        }
+                    }
+
+                    // read next file
                     try {
                         FileUtil.readFileIntoPageCache(filePath);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                    unusedPageNum.incrementAndGet();
                 }
 
                 long endTime = System.currentTimeMillis();
@@ -319,6 +340,12 @@ public class ServerPipelinedComputation {
                 TransCompMediatorTask.syncConsumeReadyJobs();
             }
         });
+
+        unusedPageNum.decrementAndGet();
+
+        waitConsumePageCondLock.lock();
+        waitConsumePageCond.signalAll();
+        waitConsumePageCondLock.unlock();
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
