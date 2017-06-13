@@ -24,18 +24,20 @@ public class SequentialRestore {
 
     private void addTaskToPool(RecordUpdate recordUpdate, RecordLazyEval recordLazyEval) {
         int poolIndex = (int) (recordUpdate.lastKey % EVAL_UPDATE_WORKER_NUM);
+        if (evalUpdateApplyTasks[poolIndex] == null)
+            evalUpdateApplyTasks[poolIndex] = new EvalUpdateTaskBuffer();
+
         if (evalUpdateApplyTasks[poolIndex].isFull()) {
             evalUpdateApplyPools[poolIndex].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[poolIndex]));
             evalUpdateApplyTasks[poolIndex] = new EvalUpdateTaskBuffer();
         }
-        if (evalUpdateApplyTasks[poolIndex] == null)
-            evalUpdateApplyTasks[poolIndex] = new EvalUpdateTaskBuffer();
         evalUpdateApplyTasks[poolIndex].addData(recordUpdate, recordLazyEval);
     }
 
     void flushTasksToPool() {
         for (int i = 0; i < EVAL_UPDATE_WORKER_NUM; i++) {
-            evalUpdateApplyPools[i].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[i]));
+            if(evalUpdateApplyTasks[i] != null)
+                evalUpdateApplyPools[i].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[i]));
             evalUpdateApplyTasks[i] = null;
         }
     }
