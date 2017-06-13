@@ -53,7 +53,7 @@ public class RecordUpdate {
         }
     }
 
-    public void addEntriesIfNotThere(RecordLazyEval recordLazyEval) {
+    void addEntriesIfNotThere(RecordLazyEval recordLazyEval) {
         if (filedUpdateMap == null) {
             filedUpdateMap = new HashMap<>();
         }
