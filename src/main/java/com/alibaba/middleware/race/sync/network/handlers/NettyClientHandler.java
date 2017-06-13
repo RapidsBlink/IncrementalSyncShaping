@@ -52,7 +52,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<String> {
             NettyClient.finishedLock.unlock();
         }
         if (TYPE == NetworkConstant.LINE_RECORD) {
-            logger.info("Received a line record.....");
+            //logger.info("Received a line record.....");
             String data = msg.substring(1);
             long pk = ClientComputation.extractPK(data);
             NettyClient.resultMap.put(pk, data);

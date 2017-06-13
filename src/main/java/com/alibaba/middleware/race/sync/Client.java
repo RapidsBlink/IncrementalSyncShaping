@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NettyClient;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +8,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by will on 6/6/2017.
@@ -38,6 +36,7 @@ public class Client {
         nettyClient.waitReceiveFinish();
         nettyClient.stop();
         int i = 0;
+        logger.info("size:" + NettyClient.resultMap.size());
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 

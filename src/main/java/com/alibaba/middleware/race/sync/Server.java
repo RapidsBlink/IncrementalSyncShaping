@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync;
 
 
-import com.alibaba.middleware.race.sync.network.NettyClient;
 import com.alibaba.middleware.race.sync.network.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
@@ -79,7 +78,7 @@ public class Server {
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
             @Override
             public void sendToClient(String result) {
-                logger.info("has result, send to client.....");
+                //logger.info("has result, send to client.....");
                 nserver.send(NetworkConstant.LINE_RECORD, result);
             }
         });
@@ -94,7 +93,7 @@ public class Server {
     public void start() throws IOException {
         // pipelined computation
         for (int i = 10; i > 0; i--) {
-            System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+            //System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
             OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
         }
         // join computation thread
@@ -108,6 +107,7 @@ public class Server {
                 logger.info(entry.getValue());
             i++;
         }
+        logger.info("size:" + ServerPipelinedComputation.inRangeRecord.size());
         logger.info("Send finish all package......");
 
     }
