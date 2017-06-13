@@ -35,8 +35,6 @@ public class NettyServer {
     public static Channel clientChannel = null;
 
     int port;
-    String dataPath;
-    ArrayList<String> fileNames = new ArrayList<>();
 
     EventLoopGroup bossGroup;
     EventLoopGroup workerGroup;
@@ -48,13 +46,7 @@ public class NettyServer {
 
         logger = logger = LoggerFactory.getLogger(NettyServer.class);
         logger.info(Arrays.toString(args));
-        this.dataPath = dataPath;
         this.port = port;
-
-        for (int i = 1; i <= 10; i++) {
-            fileNames.add(i + ".txt");
-        }
-
     }
 
     public void start() {

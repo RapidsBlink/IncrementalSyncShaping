@@ -344,7 +344,7 @@ public class ServerPipelinedComputation {
         unusedPageNum.decrementAndGet();
 
         waitConsumePageCondLock.lock();
-        waitConsumePageCond.signalAll();
+        waitConsumePageCond.signal();
         waitConsumePageCondLock.unlock();
 
         long endTime = System.currentTimeMillis();
