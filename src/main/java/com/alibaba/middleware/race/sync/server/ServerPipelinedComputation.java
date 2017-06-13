@@ -72,10 +72,10 @@ public class ServerPipelinedComputation {
     // co-routine: read files into page cache
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
 
-    private final static ReentrantLock waitConsumePageCondLock = new ReentrantLock();
-    private final static Condition waitConsumePageCond = waitConsumePageCondLock.newCondition();
-    private static AtomicInteger unusedPageNum = new AtomicInteger(0);
-    private static int MAX_UNUSED_PAGE_NUM = 3;
+//    private final static ReentrantLock waitConsumePageCondLock = new ReentrantLock();
+//    private final static Condition waitConsumePageCond = waitConsumePageCondLock.newCondition();
+//    private static AtomicInteger unusedPageNum = new AtomicInteger(0);
+//    private static int MAX_UNUSED_PAGE_NUM = 3;
 
     public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
         pageCachePool.execute(new Runnable() {
@@ -84,16 +84,16 @@ public class ServerPipelinedComputation {
                 long startTime = System.currentTimeMillis();
 
                 for (String filePath : fileList) {
-                    while (unusedPageNum.get() >= MAX_UNUSED_PAGE_NUM) {
-                        waitConsumePageCondLock.lock();
-                        try {
-                            waitConsumePageCond.await();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } finally {
-                            waitConsumePageCondLock.unlock();
-                        }
-                    }
+//                    while (unusedPageNum.get() >= MAX_UNUSED_PAGE_NUM) {
+//                        waitConsumePageCondLock.lock();
+//                        try {
+//                            waitConsumePageCond.await();
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        } finally {
+//                            waitConsumePageCondLock.unlock();
+//                        }
+//                    }
 
                     // read next file
                     try {
@@ -101,7 +101,7 @@ public class ServerPipelinedComputation {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    unusedPageNum.incrementAndGet();
+//                    unusedPageNum.incrementAndGet();
                 }
 
                 long endTime = System.currentTimeMillis();
@@ -341,11 +341,11 @@ public class ServerPipelinedComputation {
             }
         });
 
-        unusedPageNum.decrementAndGet();
-
-        waitConsumePageCondLock.lock();
-        waitConsumePageCond.signalAll();
-        waitConsumePageCondLock.unlock();
+//        unusedPageNum.decrementAndGet();
+//
+//        waitConsumePageCondLock.lock();
+//        waitConsumePageCond.signalAll();
+//        waitConsumePageCondLock.unlock();
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
