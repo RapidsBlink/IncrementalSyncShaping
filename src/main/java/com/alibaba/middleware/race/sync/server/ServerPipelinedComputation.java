@@ -347,6 +347,7 @@ public class ServerPipelinedComputation {
 //        waitConsumePageCond.signalAll();
 //        waitConsumePageCondLock.unlock();
 
+
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
         if (Server.logger != null) {
