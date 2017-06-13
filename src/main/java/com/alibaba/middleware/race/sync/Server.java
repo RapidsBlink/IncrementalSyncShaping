@@ -101,8 +101,12 @@ public class Server {
         JoinComputationThread();
 
         nserver.finish();
+
+        int i = 0;
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
-            logger.info(entry.getValue());
+            if (i < 10)
+                logger.info(entry.getValue());
+            i++;
         }
         logger.info("Send finish all package......");
 
