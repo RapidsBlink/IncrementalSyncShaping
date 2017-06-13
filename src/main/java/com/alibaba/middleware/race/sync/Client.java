@@ -19,14 +19,14 @@ public class Client {
     public static Logger logger;
 
     private final static int port = Constants.SERVER_PORT;
-    static NettyClient nettyClient= null;
+    static NettyClient nettyClient = null;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new Client(args[0]).start();
         logger.info("Current client time:" + System.currentTimeMillis());
     }
 
-    public Client(String ip){
+    public Client(String ip) {
         initProperties();
         logger = LoggerFactory.getLogger(Client.class);
         nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
@@ -34,16 +34,19 @@ public class Client {
 
     }
 
-    public void start(){
+    public void start() {
         nettyClient.waitReceiveFinish();
         nettyClient.stop();
+        int i = 0;
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-            for(String value : NettyClient.resultMap.values()){
-                logger.info(value);
+            for (String value : NettyClient.resultMap.values()) {
+                if (i < 10)
+                    logger.info(value);
                 bw.write(value);
                 bw.newLine();
+                i++;
             }
             bw.close();
 
@@ -51,6 +54,7 @@ public class Client {
             e.printStackTrace();
         }
     }
+
     /**
      * 初始化系统属性
      */
