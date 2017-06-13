@@ -10,7 +10,6 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
 public class SequentialRestore {
     // data
     private RecordLazyEval recordLazyEval;
-    private String result = null;
 
     private void initFieldListIfFirstTime() {
         if (filedList.size() == 0) {
@@ -21,6 +20,24 @@ public class SequentialRestore {
 
     private void actForDelete() {
         deadKeys.add(recordLazyEval.prevPKVal);
+    }
+
+    private void addTaskToPool(RecordUpdate recordUpdate, RecordLazyEval recordLazyEval) {
+        int poolIndex = (int) (recordUpdate.lastKey % EVAL_UPDATE_WORKER_NUM);
+        if (evalUpdateApplyTasks[poolIndex].isFull()) {
+            evalUpdateApplyPools[poolIndex].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[poolIndex]));
+            evalUpdateApplyTasks[poolIndex] = new EvalUpdateTaskBuffer();
+        }
+        if (evalUpdateApplyTasks[poolIndex] == null)
+            evalUpdateApplyTasks[poolIndex] = new EvalUpdateTaskBuffer();
+        evalUpdateApplyTasks[poolIndex].addData(recordUpdate, recordLazyEval);
+    }
+
+    void flushTasksToPool() {
+        for (int i = 0; i < EVAL_UPDATE_WORKER_NUM; i++) {
+            evalUpdateApplyPools[i].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[i]));
+            evalUpdateApplyTasks[i] = null;
+        }
     }
 
     private void actForInsert() {
@@ -35,20 +52,17 @@ public class SequentialRestore {
         } else if (inRangeActiveKeys.containsKey(recordLazyEval.curPKVal)) {
             // insert-update in-range
             RecordUpdate prevUpdate = inRangeActiveKeys.get(recordLazyEval.curPKVal);
-            prevUpdate.addEntriesIfNotThere(recordLazyEval);
+            addTaskToPool(prevUpdate, recordLazyEval);
+
             inRangeActiveKeys.remove(recordLazyEval.curPKVal);
 
             // write recordStr to tree map
-            inRangeRecord.put(prevUpdate.lastKey, prevUpdate.toOneLineString(filedList));
-            result = prevUpdate.toOneLineString(filedList);
         } else {
             // first-time appearing
             if (isKeyInRange(recordLazyEval.curPKVal)) {
                 // write recordStr to skip list
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
-                recordUpdate.addEntriesIfNotThere(recordLazyEval);
-                inRangeRecord.put(recordUpdate.lastKey, recordUpdate.toOneLineString(filedList));
-                result = recordUpdate.toOneLineString(filedList);
+                addTaskToPool(recordUpdate, recordLazyEval);
             }
             // else do nothing
         }
@@ -70,7 +84,7 @@ public class SequentialRestore {
         } else if (inRangeActiveKeys.containsKey(recordLazyEval.curPKVal)) {
             // update-update in-range
             RecordUpdate prevUpdate = inRangeActiveKeys.get(recordLazyEval.curPKVal);
-            prevUpdate.addEntriesIfNotThere(recordLazyEval);
+            addTaskToPool(prevUpdate, recordLazyEval);
             if (recordLazyEval.isPKUpdate()) {
                 inRangeActiveKeys.remove(recordLazyEval.curPKVal);
                 inRangeActiveKeys.put(recordLazyEval.prevPKVal, prevUpdate);
@@ -80,7 +94,8 @@ public class SequentialRestore {
             if (isKeyInRange(recordLazyEval.curPKVal)) {
                 // add to inRangeActiveKeys
                 RecordUpdate recordUpdate = new RecordUpdate(recordLazyEval);
-                recordUpdate.addEntriesIfNotThere(recordLazyEval);
+                addTaskToPool(recordUpdate, recordLazyEval);
+
                 inRangeActiveKeys.put(recordLazyEval.prevPKVal, recordUpdate);
             } else {
                 // add to outOfRangeActiveKeys
@@ -89,20 +104,16 @@ public class SequentialRestore {
         }
     }
 
-    public String compute(RecordLazyEval recordLazyEval) {
-        String ret = null;
+    public void compute(RecordLazyEval recordLazyEval) {
         this.recordLazyEval = recordLazyEval;
         if (recordLazyEval.isSchemaTableValid()) {
             if (recordLazyEval.operationType == DELETE_OPERATION) {
                 actForDelete();
             } else if (recordLazyEval.operationType == INSERT_OPERATION) {
                 actForInsert();
-                ret = result;
-                result = null;
             } else {
                 actForUpdate();
             }
         }
-        return ret;
     }
 }

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
+
 /**
  * Created by yche on 6/8/17.
  */
@@ -41,7 +43,7 @@ public class ServerPipelinedComputation {
 
     // final result
     static ArrayList<String> filedList = new ArrayList<>();
-    public final static Map<Long, String> inRangeRecord = new TreeMap<>();
+    public final static ConcurrentMap<Long, String> inRangeRecord = new ConcurrentSkipListMap<>();
 
     // sequential computation model
     private static SequentialRestore sequentialRestore = new SequentialRestore();
@@ -56,6 +58,18 @@ public class ServerPipelinedComputation {
     private final static int TRANSFORM_WORKER_NUM = 8;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
+
+    // type3 pool: eval update application computation
+    final static int EVAL_UPDATE_WORKER_NUM = 1;
+    final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
+    final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
+
+    static {
+        for (int i = 0; i < EVAL_UPDATE_WORKER_NUM; i++) {
+            evalUpdateApplyPools[i] = Executors.newSingleThreadExecutor();
+            evalUpdateApplyTasks[i] = new EvalUpdateTaskBuffer();
+        }
+    }
 
     // co-routine: read files into page cache
     private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
@@ -84,6 +98,7 @@ public class ServerPipelinedComputation {
     }
 
     // task buffer: ByteArrTaskBuffer, StringTaskBuffer, RecordLazyEvalTaskBuffer
+    // EvalUpdateTaskBuffer
     public static class ByteArrTaskBuffer {
         static int MAX_SIZE = 40000; // tuning it.................
         private byte[][] byteArrArr = new byte[MAX_SIZE][];
@@ -148,6 +163,43 @@ public class ServerPipelinedComputation {
 
         public RecordLazyEval get(int idx) {
             return recordLazyEvals[idx];
+        }
+    }
+
+    static class EvalUpdate {
+        final RecordUpdate recordUpdate;
+        final RecordLazyEval recordLazyEval;
+
+        EvalUpdate(RecordUpdate recordUpdate, RecordLazyEval recordLazyEval) {
+            this.recordUpdate = recordUpdate;
+            this.recordLazyEval = recordLazyEval;
+        }
+    }
+
+    public static class EvalUpdateTaskBuffer {
+        private static int MAX_SIZE = 800;
+        final private EvalUpdate[] evalUpdates;
+        int nextIndex = 0;
+
+        EvalUpdateTaskBuffer() {
+            this.evalUpdates = new EvalUpdate[MAX_SIZE];
+        }
+
+        void addData(RecordUpdate recordUpdate, RecordLazyEval recordLazyEval) {
+            evalUpdates[nextIndex] = new EvalUpdate(recordUpdate, recordLazyEval);
+            nextIndex++;
+        }
+
+        public int length() {
+            return nextIndex;
+        }
+
+        boolean isFull() {
+            return nextIndex >= MAX_SIZE;
+        }
+
+        public EvalUpdate get(int idx) {
+            return evalUpdates[idx];
         }
     }
 
@@ -241,6 +293,12 @@ public class ServerPipelinedComputation {
                 }
                 computationPool.execute(new ComputationTask(recordLazyEvalTaskBuffer));
             }
+            computationPool.execute(new Runnable() {
+                @Override
+                public void run() {
+                    sequentialRestore.flushTasksToPool();
+                }
+            });
         }
 
         @Override
@@ -299,13 +357,38 @@ public class ServerPipelinedComputation {
         @Override
         public void run() {
             for (int j = 0; j < recordLazyEvalTaskBuffer.length(); j++) {
-                String result = sequentialRestore.compute(recordLazyEvalTaskBuffer.get(j));
-                if (result != null) {
+                sequentialRestore.compute(recordLazyEvalTaskBuffer.get(j));
+            }
+        }
+    }
+
+    public static class EvalUpdateApplyTask implements Runnable {
+        private EvalUpdateTaskBuffer evalUpdateTaskBuffer;
+
+        EvalUpdateApplyTask(EvalUpdateTaskBuffer evalUpdateTaskBuffer) {
+            this.evalUpdateTaskBuffer = evalUpdateTaskBuffer;
+        }
+
+        @Override
+        public void run() {
+            EvalUpdate evalUpdate;
+            RecordUpdate recordUpdate;
+            RecordLazyEval recordLazyEval;
+
+            for (int i = 0; i < evalUpdateTaskBuffer.length(); i++) {
+                evalUpdate = evalUpdateTaskBuffer.get(i);
+                recordUpdate = evalUpdate.recordUpdate;
+                recordLazyEval = evalUpdate.recordLazyEval;
+                recordUpdate.addEntriesIfNotThere(recordLazyEval);
+                if (recordLazyEval.operationType == INSERT_OPERATION) {
+                    String result = recordUpdate.toOneLineString(filedList);
                     findResultListener.sendToClient(result);
+                    inRangeRecord.put(recordUpdate.lastKey, result);
                 }
             }
         }
     }
+
 
     public static void OneRoundComputation(String fileName) throws IOException {
         long startTime = System.currentTimeMillis();
@@ -386,6 +469,16 @@ public class ServerPipelinedComputation {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+
+        // join eval update application
+        for (int i = 0; i < EVAL_UPDATE_WORKER_NUM; i++) {
+            evalUpdateApplyPools[i].shutdown();
+            try {
+                evalUpdateApplyPools[i].awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

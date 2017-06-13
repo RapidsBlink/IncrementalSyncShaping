@@ -13,7 +13,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public static String schema;
     public static String table;
 
-    public final String recordStr;
+    public String recordStr;
     private final StringBuilder stringBuilder;
     private int curIndex;
 
@@ -98,9 +98,11 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
 
         if (this.operationType == DELETE_OPERATION) {
             this.curPKVal = this.prevPKVal;
+            this.recordStr = null;
         } else {
             this.curPKVal = Long.valueOf(getNextString());
         }
+
     }
 
     @Override

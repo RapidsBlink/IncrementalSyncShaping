@@ -30,7 +30,8 @@ public class RecordLazyEvalTest {
         System.out.println(record);
         RecordLazyEval recordLazyEval = new RecordLazyEval(record, stringBuilder);
         prettyPrint(recordLazyEval);
-        iterateThough(recordLazyEval);
+        if (recordLazyEval.operationType != DELETE_OPERATION)
+            iterateThough(recordLazyEval);
         System.out.println();
     }
 
