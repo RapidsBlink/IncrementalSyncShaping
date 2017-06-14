@@ -1,0 +1,4 @@
+[WARN ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [ERROR] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ [WARN ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ 

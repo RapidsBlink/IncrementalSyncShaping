@@ -1,0 +1,29 @@
+[2017-06-13 20:23:36.809] INFO  c.a.m.r.sync.Server -Current server time:1497356616808
+[2017-06-13 20:23:36.823] INFO  c.a.m.r.sync.Server -Current server time:1497356616823
+[2017-06-13 20:23:36.824] INFO  c.a.m.r.sync.Server -middleware
+[2017-06-13 20:23:36.824] INFO  c.a.m.r.sync.Server -student
+[2017-06-13 20:23:36.824] INFO  c.a.m.r.sync.Server -100000
+[2017-06-13 20:23:36.824] INFO  c.a.m.r.sync.Server -2000000
+[2017-06-13 20:23:36.824] INFO  c.a.m.r.sync.Server -Version_0.1
+[2017-06-13 20:24:06.148] INFO  c.a.m.r.sync.Server -computation time:24765
+[2017-06-13 20:24:06.148] INFO  c.a.m.r.sync.Server -Byte count: 1250519137
+[2017-06-13 20:24:30.879] INFO  c.a.m.r.sync.Server -computation time:24730
+[2017-06-13 20:24:30.879] INFO  c.a.m.r.sync.Server -Byte count: 1535110156
+[2017-06-13 20:24:59.654] INFO  c.a.m.r.sync.Server -computation time:28775
+[2017-06-13 20:24:59.654] INFO  c.a.m.r.sync.Server -Byte count: 1162104016
+[2017-06-13 20:25:31.754] INFO  c.a.m.r.sync.Server -computation time:32100
+[2017-06-13 20:25:31.754] INFO  c.a.m.r.sync.Server -Byte count: 1156797026
+[2017-06-13 20:25:49.089] INFO  c.a.m.r.sync.Server -read files into page cache, cost: 132266ms
+[2017-06-13 20:25:54.656] INFO  c.a.m.r.sync.Server -computation time:22902
+[2017-06-13 20:25:54.656] INFO  c.a.m.r.sync.Server -Byte count: 1190105598
+[2017-06-13 20:26:06.051] INFO  c.a.m.r.sync.Server -computation time:11394
+[2017-06-13 20:26:06.051] INFO  c.a.m.r.sync.Server -Byte count: 1252583433
+[2017-06-13 20:26:16.739] INFO  c.a.m.r.sync.Server -computation time:10686
+[2017-06-13 20:26:16.739] INFO  c.a.m.r.sync.Server -Byte count: 1185007758
+[2017-06-13 20:26:27.359] INFO  c.a.m.r.sync.Server -computation time:10620
+[2017-06-13 20:26:27.359] INFO  c.a.m.r.sync.Server -Byte count: 1173580422
+[2017-06-13 20:26:37.963] INFO  c.a.m.r.sync.Server -computation time:10604
+[2017-06-13 20:26:37.964] INFO  c.a.m.r.sync.Server -Byte count: 1171138098
+[2017-06-13 20:26:51.146] INFO  c.a.m.r.sync.Server -computation time:13182
+[2017-06-13 20:26:51.146] INFO  c.a.m.r.sync.Server -Byte count: 1463270198
+[2017-06-13 20:26:51.181] INFO  c.a.m.r.sync.Server -Send finish all package......
