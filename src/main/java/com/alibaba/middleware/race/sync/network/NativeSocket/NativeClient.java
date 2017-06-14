@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xerial.snappy.SnappyFramedInputStream;
 import org.xerial.snappy.SnappyFramedOutputStream;
-import org.xerial.snappy.SnappyInputStream;
-import org.xerial.snappy.SnappyOutputStream;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -55,8 +53,8 @@ public class NativeClient {
                 clientSocket.setKeepAlive(true);
                 clientSocket.setReceiveBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                 clientSocket.setTcpNoDelay(true);
-                inputChannel = new BufferedReader(new InputStreamReader(new SnappyFramedInputStream(clientSocket.getInputStream())),
-                        NetworkConstant.SEND_BUFF_SIZE);
+                inputChannel = new BufferedReader(new InputStreamReader(new SnappyFramedInputStream(
+                        clientSocket.getInputStream(), false)), NetworkConstant.SEND_BUFF_SIZE);
                 outputChannel = new BufferedWriter(new OutputStreamWriter(new SnappyFramedOutputStream(clientSocket.getOutputStream())));
                 break;
             } catch (IOException e) {

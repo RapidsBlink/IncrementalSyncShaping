@@ -1,10 +1,10 @@
 package com.alibaba.middleware.race.sync.network.handlers;
 
 import com.alibaba.middleware.race.sync.client.ClientComputation;
-import com.alibaba.middleware.race.sync.network.netty.NettyClient;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
+import com.alibaba.middleware.race.sync.network.netty.NettyClient;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
