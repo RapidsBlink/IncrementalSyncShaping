@@ -50,12 +50,12 @@ public class ServerPipelinedComputation {
 
     // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 4;
+    private final static int TRANSFORM_WORKER_NUM = 1;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 4;
+    final static int EVAL_UPDATE_WORKER_NUM = 1;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
@@ -360,6 +360,17 @@ public class ServerPipelinedComputation {
             pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             Server.logger.info("pageCachePool.awaitTermination error.");
+            System.out.println("pageCachePool.awaitTermination error.");
+            e.printStackTrace();
+        }
+
+        // join mediator: must before transform and computation, since the data flow pattern
+        transCompMediatorPool.shutdown();
+        try {
+            transCompMediatorPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            Server.logger.info("transCompMediatorPool.awaitTermination error.");
+            System.out.println("transCompMediatorPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -369,15 +380,7 @@ public class ServerPipelinedComputation {
             transformPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             Server.logger.info("transformPool.awaitTermination error.");
-            e.printStackTrace();
-        }
-
-        // join mediator
-        transCompMediatorPool.shutdown();
-        try {
-            transCompMediatorPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            Server.logger.info("transCompMediatorPool.awaitTermination error.");
+            System.out.println("transformPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -387,6 +390,7 @@ public class ServerPipelinedComputation {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             Server.logger.info("computationPool.awaitTermination error.");
+            System.out.println("computationPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -397,6 +401,7 @@ public class ServerPipelinedComputation {
                 evalUpdateApplyPools[i].awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             } catch (InterruptedException e) {
                 Server.logger.info("evalUpdateApplyPools error. " + i);
+                System.out.println("evalUpdateApplyPools error. " + i);
                 e.printStackTrace();
             }
         }
