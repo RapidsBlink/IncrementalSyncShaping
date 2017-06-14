@@ -6,8 +6,6 @@ import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBu
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xerial.snappy.SnappyFramedInputStream;
-import org.xerial.snappy.SnappyFramedOutputStream;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -53,9 +51,10 @@ public class NativeClient {
                 clientSocket.setKeepAlive(true);
                 clientSocket.setReceiveBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                 clientSocket.setTcpNoDelay(true);
-                inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()),
-                        NetworkConstant.SEND_BUFF_SIZE);
-                outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+                inputChannel = new BufferedReader(
+                        new InputStreamReader(new BufferedInputStream(clientSocket.getInputStream(), NetworkConstant.SEND_BUFF_SIZE)));
+                outputChannel = new BufferedWriter(
+                        new OutputStreamWriter(new BufferedOutputStream(clientSocket.getOutputStream())));
                 break;
             } catch (IOException e) {
                 logger.info("connect failed... reconnecting");
@@ -83,14 +82,15 @@ public class NativeClient {
 
                 receivePooledThread.execute(new Runnable() {
                     int recvCount = 0;
+
                     @Override
                     public void run() {
                         while (true) {
                             try {
                                 String message = inputChannel.readLine();
-                                recvCount ++;
-                                if(recvCount % 100 == 0){
-                                    logger.info("received 100 messages");
+                                recvCount++;
+                                if (recvCount % 5000 == 0) {
+                                    logger.info("received 5000 messages");
                                 }
                                 if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
                                     logger.info("Received a FINISHED_ALL package, exit...");

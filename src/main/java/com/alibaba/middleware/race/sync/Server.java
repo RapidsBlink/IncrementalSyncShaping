@@ -82,8 +82,8 @@ public class Server {
             public void sendToClient(String result) {
                 //logger.info("has result, send to client.....");
                 sendCount ++;
-                if(sendCount % 100 == 0){
-                    logger.info("add 100 messages....");
+                if(sendCount % 5000 == 0){
+                    logger.info("add 5000 messages....");
                 }
                 nativeServer.send(result);
             }

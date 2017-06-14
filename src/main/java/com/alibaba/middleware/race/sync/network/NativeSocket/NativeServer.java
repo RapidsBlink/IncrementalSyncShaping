@@ -5,8 +5,6 @@ import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBu
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xerial.snappy.SnappyFramedInputStream;
-import org.xerial.snappy.SnappyFramedOutputStream;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -66,9 +64,9 @@ public class NativeServer {
                         clientSocket = serverSocket.accept();
                         clientSocket.setKeepAlive(true);
                         clientSocket.setSendBufferSize(NetworkConstant.SEND_BUFF_SIZE);
-                        outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()),
-                                NetworkConstant.SEND_BUFF_SIZE);
-                        inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        outputChannel = new BufferedWriter(
+                                new OutputStreamWriter(new BufferedOutputStream(clientSocket.getOutputStream(), NetworkConstant.SEND_BUFF_SIZE)));
+                        inputChannel = new BufferedReader(new InputStreamReader(new BufferedInputStream(clientSocket.getInputStream())));
 
                         String message = inputChannel.readLine();
                         if (message.charAt(0) == NetworkConstant.REQUIRE_ARGS) {
@@ -79,16 +77,17 @@ public class NativeServer {
 
                             sendServicePooledThread.execute(new Runnable() {
                                 long sendCount = 0;
+
                                 @Override
                                 public void run() {
                                     while (true) {
                                         try {
                                             String message = null;
-                                            message =  sendQueue.take();
-                                            if(message != null) {
+                                            message = sendQueue.take();
+                                            if (message != null) {
                                                 sendCount++;
-                                                if(sendCount % 500 == 0)
-                                                    logger.info("500 messages have been sent to client...");
+                                                if (sendCount % 5000 == 0)
+                                                    logger.info("5000 messages have been sent to client...");
                                                 try {
                                                     outputChannel.write(message);
                                                     outputChannel.newLine();
