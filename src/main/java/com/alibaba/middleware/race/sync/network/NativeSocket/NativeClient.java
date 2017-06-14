@@ -53,9 +53,9 @@ public class NativeClient {
                 clientSocket.setKeepAlive(true);
                 clientSocket.setReceiveBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                 clientSocket.setTcpNoDelay(true);
-                inputChannel = new BufferedReader(new InputStreamReader(new SnappyFramedInputStream(
-                        clientSocket.getInputStream(), false)), NetworkConstant.SEND_BUFF_SIZE);
-                outputChannel = new BufferedWriter(new OutputStreamWriter(new SnappyFramedOutputStream(clientSocket.getOutputStream())));
+                inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()),
+                        NetworkConstant.SEND_BUFF_SIZE);
+                outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
                 break;
             } catch (IOException e) {
                 logger.info("connect failed... reconnecting");
@@ -82,11 +82,16 @@ public class NativeClient {
                 logger.info(Arrays.toString(new ArgumentsPayloadBuilder(message.substring(1)).args));
 
                 receivePooledThread.execute(new Runnable() {
+                    int recvCount = 0;
                     @Override
                     public void run() {
                         while (true) {
                             try {
                                 String message = inputChannel.readLine();
+                                recvCount ++;
+                                if(recvCount % 100 == 0){
+                                    logger.info("received 100 messages");
+                                }
                                 if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
                                     logger.info("Received a FINISHED_ALL package, exit...");
                                     finishLock.lock();
