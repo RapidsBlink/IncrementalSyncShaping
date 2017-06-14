@@ -65,13 +65,13 @@ public class Server {
         for (int i = 10; i > 0; i--) {
             reverseOrderFiles.add(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
         }
-        try {
-            ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
-        } catch (IOException e) {
-            logger.info("preload file failed...");
-            logger.info(e.getMessage());
-            e.printStackTrace();
-        }
+//        try {
+//            ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
+//        } catch (IOException e) {
+//            logger.info("preload file failed...");
+//            logger.info(e.getMessage());
+//            e.printStackTrace();
+//        }
 
         // initialization for computations
         ServerPipelinedComputation.initSchemaTable(args[0], args[1]);

@@ -67,48 +67,48 @@ public class ServerPipelinedComputation {
     }
 
     // co-routine: read files into page cache
-    private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
+//    private final static ExecutorService pageCachePool = Executors.newSingleThreadExecutor();
 
 //    private final static ReentrantLock waitConsumePageCondLock = new ReentrantLock();
 //    private final static Condition waitConsumePageCond = waitConsumePageCondLock.newCondition();
 //    private static AtomicInteger unusedPageNum = new AtomicInteger(0);
 //    private static int MAX_UNUSED_PAGE_NUM = 3;
 
-    public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
-        pageCachePool.execute(new Runnable() {
-            @Override
-            public void run() {
-                long startTime = System.currentTimeMillis();
-
-                for (String filePath : fileList) {
-//                    while (unusedPageNum.get() >= MAX_UNUSED_PAGE_NUM) {
-//                        waitConsumePageCondLock.lock();
-//                        try {
-//                            waitConsumePageCond.await();
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        } finally {
-//                            waitConsumePageCondLock.unlock();
-//                        }
+//    public static void readFilesIntoPageCache(final ArrayList<String> fileList) throws IOException {
+//        pageCachePool.execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                long startTime = System.currentTimeMillis();
+//
+//                for (String filePath : fileList) {
+////                    while (unusedPageNum.get() >= MAX_UNUSED_PAGE_NUM) {
+////                        waitConsumePageCondLock.lock();
+////                        try {
+////                            waitConsumePageCond.await();
+////                        } catch (InterruptedException e) {
+////                            e.printStackTrace();
+////                        } finally {
+////                            waitConsumePageCondLock.unlock();
+////                        }
+////                    }
+//
+//                    // read next file
+//                    try {
+//                        FileUtil.readFileIntoPageCache(filePath);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
 //                    }
-
-                    // read next file
-                    try {
-                        FileUtil.readFileIntoPageCache(filePath);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-//                    unusedPageNum.incrementAndGet();
-                }
-
-                long endTime = System.currentTimeMillis();
-                System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms");
-                if (Server.logger != null) {
-                    Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms");
-                }
-            }
-        });
-    }
+////                    unusedPageNum.incrementAndGet();
+//                }
+//
+//                long endTime = System.currentTimeMillis();
+//                System.out.println("read files into page cache, cost: " + (endTime - startTime) + "ms");
+//                if (Server.logger != null) {
+//                    Server.logger.info("read files into page cache, cost: " + (endTime - startTime) + "ms");
+//                }
+//            }
+//        });
+//    }
 
     // task buffer: ByteArrTaskBuffer, StringTaskBuffer, RecordLazyEvalTaskBuffer
     // EvalUpdateTaskBuffer
@@ -355,15 +355,15 @@ public class ServerPipelinedComputation {
     }
 
     public static void JoinComputationThread() {
-        // join page cache
-        pageCachePool.shutdown();
-        try {
-            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            Server.logger.info("pageCachePool.awaitTermination error.");
-            System.out.println("pageCachePool.awaitTermination error.");
-            e.printStackTrace();
-        }
+//        // join page cache
+//        pageCachePool.shutdown();
+//        try {
+//            pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+//        } catch (InterruptedException e) {
+//            Server.logger.info("pageCachePool.awaitTermination error.");
+//            System.out.println("pageCachePool.awaitTermination error.");
+//            e.printStackTrace();
+//        }
 
         // join mediator: must before transform and computation, since the data flow pattern
         transCompMediatorPool.shutdown();

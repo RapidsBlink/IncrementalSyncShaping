@@ -29,7 +29,7 @@ public class FileStatistics {
         Thread.sleep(5000);
         long programStart = System.currentTimeMillis();
 
-        readFilesIntoPageCache(myFiles);
+//        readFilesIntoPageCache(myFiles);
 
         // 1st: init
         initSchemaTable("middleware", "student");
