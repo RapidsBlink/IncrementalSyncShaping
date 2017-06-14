@@ -1,8 +1,9 @@
-package com.alibaba.middleware.race.sync.network;
+package com.alibaba.middleware.race.sync.network.netty;
 
 import com.alibaba.middleware.race.sync.Client;
 import com.alibaba.middleware.race.sync.Constants;
-import com.alibaba.middleware.race.sync.network.handlers.NettyClientHandler;
+import com.alibaba.middleware.race.sync.network.NetworkConstant;
+import com.alibaba.middleware.race.sync.network.netty.handlers.NettyClientHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -15,10 +16,7 @@ import io.netty.handler.codec.compression.SnappyFrameEncoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
-import io.netty.util.concurrent.Future;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.locks.Condition;
@@ -40,8 +38,8 @@ public class NettyClient {
     EventLoopGroup workGroup = new NioEventLoopGroup(Constants.CLIENT_THREADS_NUMBER);
     ChannelFuture sendFuture;
 
-    String ip;
-    int port;
+    public static String ip;
+    public static int port;
 
     public NettyClient(String ip, int port) {
         this.ip = ip;
@@ -60,7 +58,8 @@ public class NettyClient {
                         ch.pipeline().addLast(new StringEncoder(CharsetUtil.UTF_8), new StringDecoder(CharsetUtil.UTF_8));
                         ch.pipeline().addLast(new NettyClientHandler());
                     }
-                }).option(ChannelOption.TCP_NODELAY, true);
+                }).option(ChannelOption.SO_RCVBUF, 100 * 1024 * 1024)
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024 * 1024, 100 * 1024 * 1024));
 
 
 

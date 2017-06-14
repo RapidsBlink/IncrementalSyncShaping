@@ -1,7 +1,7 @@
 package com.alibaba.middleware.race.sync;
 
-import com.alibaba.middleware.race.sync.network.NettyClient;
-import io.netty.util.concurrent.Future;
+import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
+import com.alibaba.middleware.race.sync.network.netty.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +9,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by will on 6/6/2017.
@@ -19,7 +18,8 @@ public class Client {
     public static Logger logger;
 
     private final static int port = Constants.SERVER_PORT;
-    static NettyClient nettyClient= null;
+    //static NettyClient nettyClient= null;
+    static NativeClient nativeClient = null;
 
     public static void main(String[] args){
         new Client(args[0]).start();
@@ -29,18 +29,19 @@ public class Client {
     public Client(String ip){
         initProperties();
         logger = LoggerFactory.getLogger(Client.class);
-        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
-        nettyClient.start();
-
+//        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
+//        nettyClient.start();
+        nativeClient = new NativeClient(ip, Constants.SERVER_PORT);
+        nativeClient.start();
     }
 
     public void start(){
-        nettyClient.waitReceiveFinish();
-        nettyClient.stop();
+        nativeClient.finish();
+        logger.info(""+nativeClient.resultMap.size());
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-            for(String value : NettyClient.resultMap.values()){
+            for(String value : nativeClient.resultMap.values()){
                 logger.info(value);
                 bw.write(value);
                 bw.newLine();

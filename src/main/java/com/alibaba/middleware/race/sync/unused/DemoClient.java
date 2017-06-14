@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync.unused;
 
 import com.alibaba.middleware.race.sync.Constants;
-import com.alibaba.middleware.race.sync.network.handlers.demoHandlers.ClientDemoInHandler;
-import com.alibaba.middleware.race.sync.network.handlers.demoHandlers.ClientIdleEventHandler;
+import com.alibaba.middleware.race.sync.network.netty.handlers.demoHandlers.ClientDemoInHandler;
+import com.alibaba.middleware.race.sync.network.netty.handlers.demoHandlers.ClientIdleEventHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;

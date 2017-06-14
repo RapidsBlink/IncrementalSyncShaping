@@ -1,7 +1,8 @@
 package com.alibaba.middleware.race.sync.network.unitTests;
 
 import com.alibaba.middleware.race.sync.Server;
-import com.alibaba.middleware.race.sync.network.NettyClient;
+import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
+import com.alibaba.middleware.race.sync.network.netty.NettyClient;
 
 /**
  * Created by will on 7/6/2017.
@@ -9,12 +10,10 @@ import com.alibaba.middleware.race.sync.network.NettyClient;
 public class ClientTester {
     public static void main(String[] args) {
         Server.initProperties();
-        NettyClient client = new NettyClient("127.0.0.1", 8080);
+        NativeClient client = new NativeClient("127.0.0.1", 8080);
         client.start();
 
-        client.waitReceiveFinish();
-
-        client.stop();
+        client.finish();
 
     }
 }

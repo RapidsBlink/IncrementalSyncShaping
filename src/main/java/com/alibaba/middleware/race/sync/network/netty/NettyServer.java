@@ -1,8 +1,9 @@
-package com.alibaba.middleware.race.sync.network;
+package com.alibaba.middleware.race.sync.network.netty;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
-import com.alibaba.middleware.race.sync.network.handlers.NettyServerHandler;
+import com.alibaba.middleware.race.sync.network.netty.handlers.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -18,9 +19,10 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by will on 7/6/2017.
@@ -31,8 +33,16 @@ public class NettyServer {
     public static boolean sendFinished = false;
     public static String[] args;
     public static ArrayBlockingQueue<String> sendQueue = new ArrayBlockingQueue<>(NetworkConstant.SEND_CHUNK_BUFF_SIZE);
-
     public static Channel clientChannel = null;
+    public static ReentrantLock isWriteAbleLock = new ReentrantLock();
+    public static Condition isWriteAbleCondition = isWriteAbleLock.newCondition();
+
+    public static StringBuilder sendBuff = new StringBuilder(NetworkConstant.SEND_BUFF_SIZE);
+    public static ReentrantLock sendBuffLock = new ReentrantLock();
+
+    static {
+        sendBuff.append(NetworkConstant.BUFFERED_RECORD);
+    }
 
     int port;
 
@@ -51,7 +61,7 @@ public class NettyServer {
 
     public void start() {
         bossGroup = new NioEventLoopGroup(1);
-        workerGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(2);
 
         ServerBootstrap bootstrap = new ServerBootstrap();
 
@@ -69,7 +79,8 @@ public class NettyServer {
 
                     }
 
-                }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+                }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true)
+        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(1 * 1024 * 1024, 100 * 1024 * 1024));
 
         logger.info("bind to port " + port);
 
@@ -79,9 +90,23 @@ public class NettyServer {
     }
 
     public void finish(){
+        if(sendBuff.length() > 1) {
+            try {
+                sendBuff.append(NetworkConstant.END_OF_TRANSMISSION);
+                sendQueue.put(sendBuff.toString());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        logger.info("Server called finish function...");
         //for(int i = 0 ; i < 10; i++)
         send(NetworkConstant.FINISHED_ALL, "");
         logger.info("NettyServer FINISHED_ALL instruction added to the queue...");
+
+        logger.info("wait all message has been sent..");
+        while(!sendQueue.isEmpty()){
+
+        }
     }
 
     public void stop() {
@@ -97,6 +122,25 @@ public class NettyServer {
             e.printStackTrace();
         }
         logger.info("STOP netty server...");
+
+    }
+
+    public void sendWithBuff(char type, String data){
+        sendBuffLock.lock();
+        if(sendBuff.length() + data.length() > sendBuff.capacity() - 5){
+            sendBuff.append(NetworkConstant.END_OF_TRANSMISSION);
+            try {
+                sendQueue.put(sendBuff.toString());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            sendBuff.setLength(0);
+            sendBuff.append(NetworkConstant.BUFFERED_RECORD);
+        }
+        sendBuff.append(data);
+        sendBuff.append(NetworkConstant.END_OF_MESSAGE);
+        sendBuffLock.unlock();
 
     }
 

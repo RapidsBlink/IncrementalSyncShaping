@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.network.handlers.demoHandlers;
+package com.alibaba.middleware.race.sync.network.netty.handlers.demoHandlers;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;

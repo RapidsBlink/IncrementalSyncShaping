@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync;
 
 
-import com.alibaba.middleware.race.sync.network.NettyClient;
-import com.alibaba.middleware.race.sync.network.NettyServer;
+import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
+import com.alibaba.middleware.race.sync.network.netty.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import org.slf4j.Logger;
@@ -22,8 +22,8 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
 public class Server {
     public static Logger logger;
     private static ArrayList<String> dataFiles = new ArrayList<>();
-    private static NettyServer nserver = null;
-
+    //private static NettyServer nserver = null;
+    private static NativeServer nativeServer = null;
     static {
         for (int i = 1; i < 11; i++) {
             dataFiles.add(i + ".txt");
@@ -51,14 +51,14 @@ public class Server {
         logger.info("Current server time:" + System.currentTimeMillis());
         printArgs(args);
         logger.info(Constants.CODE_VERSION);
-        nserver = new NettyServer(args, Constants.SERVER_PORT);
-        nserver.start();
     }
 
     public static void main(String[] args) {
         Server.initProperties();
         logger = LoggerFactory.getLogger(Server.class);
         logger.info("Current server time:" + System.currentTimeMillis());
+
+        nativeServer = new NativeServer(args, Constants.SERVER_PORT);
 
         // start pre-loading files
         ArrayList<String> reverseOrderFiles = new ArrayList<>();
@@ -80,7 +80,7 @@ public class Server {
             @Override
             public void sendToClient(String result) {
                 logger.info("has result, send to client.....");
-                nserver.send(NetworkConstant.LINE_RECORD, result);
+                nativeServer.send(result);
             }
         });
 
@@ -97,14 +97,17 @@ public class Server {
             System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
             OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
         }
+
+        nativeServer.start();
+
         // join computation thread
         JoinComputationThread();
 
-        nserver.finish();
+        nativeServer.finish();
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
             logger.info(entry.getValue());
         }
         logger.info("Send finish all package......");
-
+        //nserver.stop();
     }
 }

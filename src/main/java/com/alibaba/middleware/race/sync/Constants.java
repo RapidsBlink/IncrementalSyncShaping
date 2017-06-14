@@ -11,14 +11,14 @@ public interface Constants {
     // teamCode
     String TEAMCODE = "78921g1clv";
     // 日志级别
-    String LOG_LEVEL = "INFO";
+    String LOG_LEVEL = "DEBUG";
     // server端口
-    Integer SERVER_PORT = 35527;
+    Integer SERVER_PORT = 5527;
     // 结果文件的命名
     String RESULT_FILE_NAME = "Result.rs";
 
     //Client threads number
-    Integer CLIENT_THREADS_NUMBER = 24;
+    Integer CLIENT_THREADS_NUMBER = 1;
 
     // ------------ 本地测试可以使用自己的路径--------------//
     //%%%%%%%%%%%%%%%%% change bellow %%%%%%%%%%%%%%%%%

@@ -5,7 +5,7 @@ jarPath="./target/sync-1.0.jar"
 schema="middleware3"
 tableName="student"
 start=600
-end=700
+end=700000000
 
 
 
