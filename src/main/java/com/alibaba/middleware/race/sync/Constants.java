@@ -11,7 +11,7 @@ public interface Constants {
     // teamCode
     String TEAMCODE = "78921g1clv";
     // 日志级别
-    String LOG_LEVEL = "DEBUG";
+    String LOG_LEVEL = "INFO";
     // server端口
     Integer SERVER_PORT = 5527;
     // 结果文件的命名
