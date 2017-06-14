@@ -1,0 +1,94 @@
+3567 KB   3172/3567 KB   3176/3567 KB   3180/3567 KB   3184/3567 KB   3188/3567 KB   3192/3567 KB   3196/3567 KB   3200/3567 KB   3204/3567 KB   3208/3567 KB   3212/3567 KB   3216/3567 KB   3220/3567 KB   3224/3567 KB   3228/3567 KB   3232/3567 KB   3236/3567 KB   3240/3567 KB   3244/3567 KB   3248/3567 KB   3252/3567 KB   3256/3567 KB   3256/3567 KB   3260/3567 KB   3264/3567 KB   3268/3567 KB   3272/3567 KB   3276/3567 KB   3280/3567 KB   3284/3567 KB   3288/3567 KB   3292/3567 KB   3296/3567 KB   3300/3567 KB   3304/3567 KB   3308/3567 KB   3312/3567 KB   3316/3567 KB   3319/3567 KB   3323/3567 KB   3327/3567 KB   3331/3567 KB   3335/3567 KB   3339/3567 KB   3343/3567 KB   3347/3567 KB   3351/3567 KB   3355/3567 KB   3359/3567 KB   3363/3567 KB   3367/3567 KB   3371/3567 KB   3375/3567 KB   3379/3567 KB   3383/3567 KB   3387/3567 KB   3391/3567 KB   3395/3567 KB   3399/3567 KB   3403/3567 KB   3407/3567 KB   3411/3567 KB   3415/3567 KB   3419/3567 KB   3423/3567 KB   3427/3567 KB   3431/3567 KB   3435/3567 KB   3439/3567 KB   3443/3567 KB   3447/3567 KB   3451/3567 KB   3455/3567 KB   3459/3567 KB   3463/3567 KB   3467/3567 KB   3471/3567 KB   3475/3567 KB   3479/3567 KB   3483/3567 KB   3487/3567 KB   3491/3567 KB   3495/3567 KB   3499/3567 KB   3503/3567 KB   3507/3567 KB   3507/3567 KB   3511/3567 KB   3515/3567 KB   3519/3567 KB   3523/3567 KB   3527/3567 KB   3531/3567 KB   3535/3567 KB   3539/3567 KB   3543/3567 KB   3547/3567 KB   3551/3567 KB   3555/3567 KB   3559/3567 KB   3563/3567 KB   3567/3567 KB   3567/3567 KB                  Downloaded: http://maven.aliyun.com/nexus/content/groups/public/io/netty/netty-all/4.1.12.Final/netty-all-4.1.12.Final.jar (3567 KB at 4626.1 KB/sec)
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ sync ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.1:compile (default-compile) @ sync ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 35 source files to /home/admin/code/78921g1clv/target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ sync ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.1:testCompile (default-testCompile) @ sync ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ sync ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ sync ---
+[INFO] Building jar: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[INFO] 
+[INFO] <<< maven-assembly-plugin:2.5.3:assembly (default-cli) < package @ sync <<<
+[INFO] 
+[INFO] --- maven-assembly-plugin:2.5.3:assembly (default-cli) @ sync ---
+[INFO] Reading assembly descriptor: src/resources/assembly.xml
+[INFO] Copying files to /home/admin/code/78921g1clv/target/sync-1.0
+[WARNING] Assembly file: /home/admin/code/78921g1clv/target/sync-1.0 is not a regular file (it may be a directory). It cannot be attached to the project build for installation or deployment.
+[WARNING] Artifact: com.alibaba.middleware.race:sync:jar:1.0 references the same file as the assembly destination file. Moving it to a temporary location for inclusion.
+[INFO] Building jar: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[WARNING] Configuration options: 'appendAssemblyId' is set to false, and 'classifier' is missing.
+Instead of attaching the assembly file: /home/admin/code/78921g1clv/target/sync-1.0.jar, it will become the file for main project artifact.
+NOTE: If multiple descriptors or descriptor-formats are provided for this project, the value of this file will be non-deterministic!
+[WARNING] Replacing pre-existing project main-artifact file: /home/admin/code/78921g1clv/target/archive-tmp/sync-1.0.jar
+with assembly file: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 8.535 s
+[INFO] Finished at: 2017-06-13T23:38:54+08:00
+[INFO] Final Memory: 29M/240M
+[INFO] ------------------------------------------------------------------------
+success
+
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - assembly code successfully
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyjar.sh /home/admin/code 78921g1clv /home/admin/topkn-workspace 
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：300000
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyjar.sh /home/admin/code 78921g1clv /home/admin/topkn-workspace , execute status is SUCCESS Script execute output: success
+
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - copy jar successfully
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/scp_user_jar.sh 78921g1clv /home/admin/topkn-workspace 
+ [INFO ] [23:38:54] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：300000
+ [INFO ] [23:38:55] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/scp_user_jar.sh 78921g1clv /home/admin/topkn-workspace , execute status is SUCCESS Script execute output: success
+
+ [INFO ] [23:38:55] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 拷贝选手jar到client目录成功
+ [INFO ] [23:38:55] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/cleanCache.sh 
+ [INFO ] [23:38:55] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [23:39:05] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh , execute status is SUCCESS Script execute output: 开始清空系统的缓存
+vm.drop_caches = 3
+success
+
+ [INFO ] [23:39:05] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功清除系统缓存(运行前清理)
+ [INFO ] [23:39:05] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 开始运行选手的服务端程序，此时设定的超时时间为（单位秒）：300
+ [INFO ] [23:39:05] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_server.sh /home/admin/logs/78921g1clv/gc_server.log middleware student 100000 2000000 
+ [INFO ] [23:39:10] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 开始发送HTTP请求启动选手的Client端程序
+ [INFO ] [23:39:13] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 30s ago
+ [INFO ] [23:39:13] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:39:43] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 60s ago
+ [INFO ] [23:39:43] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:40:13] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 90s ago
+ [INFO ] [23:40:13] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:40:43] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 120s ago
+ [INFO ] [23:40:43] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:41:13] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 150s ago
+ [INFO ] [23:41:13] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:41:43] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 180s ago
+ [INFO ] [23:41:43] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:42:13] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 210s ago
+ [INFO ] [23:42:13] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 收到来自响应: {"invalid":false}
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/killJava.sh 
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：10000
+ [INFO ] [23:42:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 14204
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [INFO ] [23:42:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - tsar信息时间点信息为：13/06/17-23:42
+ [INFO ] [23:42:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-23:42 
+ [INFO ] [23:42:23] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [23:42:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-23:42 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [23:42:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功输出tsar信息SUCCESS
+ 

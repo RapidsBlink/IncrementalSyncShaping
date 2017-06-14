@@ -1,0 +1,91 @@
+.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_SERVER] to Logger[com.alibaba.middleware.race.sync.Server]
+20:23:41,672 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Client] to false
+20:23:41,672 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Client level set to INFO
+20:23:41,672 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_CLIENT] to Logger[com.alibaba.middleware.race.sync.Client]
+20:23:41,673 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to INFO
+20:23:41,673 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [STDOUT] to Logger[ROOT]
+20:23:41,673 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+20:23:41,674 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@1bb41390 - Registering current configuration as safe fallback point
+[2017-06-13 20:23:42]  INFO  NettyClientHandler - Channel established......
+[2017-06-13 20:23:42]  INFO  NettyClientHandler - Sending a request to get the arguments.....
+[2017-06-13 20:23:42]  INFO  NettyClientHandler - Request has sent.....
+[2017-06-13 20:23:44]  INFO  NettyClientHandler - Received a message, decoding...
+[2017-06-13 20:23:44]  INFO  NettyClientHandler - Received a REQUIRE_ARGS reply.....
+[2017-06-13 20:23:44]  INFO  NettyClientHandler - [middleware, student, 100000, 2000000]
+[2017-06-13 20:26:51]  INFO  NettyClientHandler - Received a message, decoding...
+[2017-06-13 20:26:51]  INFO  NettyClientHandler - Received all chunks, finished......
+success
+
+ [WARN ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [INFO ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 运行选手的JAVA程序结束，耗时为（单位毫秒）：193306
+ [ERROR] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ [INFO ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - tsar信息时间点信息为：13/06/17-20:26
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-20:26 
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-20:26 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 13-06-17-20-26 
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [20:26:54] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 13-06-17-20-26 , execute status is SUCCESS Script execute output: 归档Client端选手代码成功
+需要归档的结果文件不存在
+success
+
+ [INFO ] [20:26:54] com.alibaba.middleware.race.TesterHttpServer - 归档结果文件成功
+ [INFO ] [23:39:10] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log 
+ [INFO ] [23:39:10] com.alibaba.middleware.race.TesterHttpServer - 开始运行选手的程序，此时设定的超时时间为（单位秒）：360
+ [INFO ] [23:39:10] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：360000
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log , execute status is SUCCESS Script execute output: gcLogPath的路径为/home/admin/logs/78921g1clv/gc_client.log
+23:39:10,784 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.groovy]
+23:39:10,784 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+23:39:10,784 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml]
+23:39:10,799 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@52564db1 - URL [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml] is not of type file
+23:39:11,006 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+23:39:11,008 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [STDOUT]
+23:39:11,102 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+23:39:11,105 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_SERVER]
+23:39:11,125 |-INFO in ch.qos.logback.core.rolling.FixedWindowRollingPolicy@17ce2804 - Will use gz compression
+23:39:11,134 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_SERVER] - Active log file name: /home/admin/logs/78921g1clv/server-custom.log
+23:39:11,134 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_SERVER] - File property is set to [/home/admin/logs/78921g1clv/server-custom.log]
+23:39:11,135 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+23:39:11,136 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_CLIENT]
+23:39:11,138 |-INFO in ch.qos.logback.core.rolling.FixedWindowRollingPolicy@cffd2a8 - Will use gz compression
+23:39:11,140 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_CLIENT] - Active log file name: /home/admin/logs/78921g1clv/client-custom.log
+23:39:11,140 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE_CLIENT] - File property is set to [/home/admin/logs/78921g1clv/client-custom.log]
+23:39:11,141 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Server] to false
+23:39:11,141 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Server level set to INFO
+23:39:11,142 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_SERVER] to Logger[com.alibaba.middleware.race.sync.Server]
+23:39:11,142 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Client] to false
+23:39:11,142 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Client level set to INFO
+23:39:11,143 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_CLIENT] to Logger[com.alibaba.middleware.race.sync.Client]
+23:39:11,143 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to INFO
+23:39:11,143 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [STDOUT] to Logger[ROOT]
+23:39:11,143 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+23:39:11,144 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@4b706125 - Registering current configuration as safe fallback point
+[2017-06-13 23:39:11]  INFO  NettyClientHandler - Channel established......
+[2017-06-13 23:39:11]  INFO  NettyClientHandler - Sending a request to get the arguments.....
+[2017-06-13 23:39:11]  INFO  NettyClientHandler - Request has sent.....
+[2017-06-13 23:39:12]  INFO  NettyClientHandler - Received a message, decoding...
+[2017-06-13 23:39:12]  INFO  NettyClientHandler - Received a REQUIRE_ARGS reply.....
+[2017-06-13 23:39:12]  INFO  NettyClientHandler - [middleware, student, 100000, 2000000]
+[2017-06-13 23:42:19]  INFO  NettyClientHandler - Received a message, decoding...
+[2017-06-13 23:42:19]  INFO  NettyClientHandler - Received all chunks, finished......
+success
+
+ [WARN ] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [INFO ] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - 运行选手的JAVA程序结束，耗时为（单位毫秒）：191951
+ [ERROR] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ [INFO ] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - tsar信息时间点信息为：13/06/17-23:42
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-23:42 
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 13/06/17-23:42 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 13-06-17-23-42 
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [23:42:22] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 13-06-17-23-42 , execute status is SUCCESS Script execute output: 归档Client端选手代码成功
+需要归档的结果文件不存在
+success
+
+ [INFO ] [23:42:22] com.alibaba.middleware.race.TesterHttpServer - 归档结果文件成功
+ 
