@@ -350,6 +350,7 @@ public class ServerPipelinedComputation {
         if (Server.logger != null) {
             Server.logger.info("computation time:" + (endTime - startTime));
             Server.logger.info("Byte count: " + lineCount);
+            Server.logger.info("current records size:" + inRangeRecord.size());
         }
     }
 
