@@ -63,6 +63,7 @@ public class NativeClient {
             try {
                 TimeUnit.MILLISECONDS.sleep(3000);
             } catch (InterruptedException e) {
+                logger.info(e.getMessage());
                 e.printStackTrace();
             }
             clientSocket = null;
@@ -98,12 +99,15 @@ public class NativeClient {
                                         long pk = ClientComputation.extractPK(message);
                                         resultMap.put(pk, message);
                                     } catch (NumberFormatException e) {
+                                        logger.info(e.getMessage());
                                         logger.info("decoding error");
                                     }
 
                                 }
 
                             } catch (IOException e) {
+                                logger.info(e.getMessage());
+                                logger.info("message readline error...");
                                 e.printStackTrace();
                             }
                         }
@@ -112,6 +116,7 @@ public class NativeClient {
 
             }
         } catch (IOException e) {
+            logger.info(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -123,6 +128,7 @@ public class NativeClient {
                 try {
                     finishCondition.await();
                 } catch (InterruptedException e) {
+                    logger.info(e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -135,6 +141,7 @@ public class NativeClient {
         } catch (InterruptedException e) {
             logger.info("receivePooledThread.awaitTermination error.");
             e.printStackTrace();
+            logger.info(e.getMessage());
         }
         try {
             outputChannel.close();
@@ -143,6 +150,7 @@ public class NativeClient {
         } catch (IOException e) {
             logger.info("close error.");
             e.printStackTrace();
+            logger.info(e.getMessage());
         }
     }
 

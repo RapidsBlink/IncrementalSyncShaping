@@ -52,6 +52,7 @@ public class NativeServer {
             sendQueue.put(data);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            logger.info(e.getMessage());
             logger.warn("ERROR WHILE PUTTING DATA INTO QUEUE");
         }
     }
@@ -78,24 +79,34 @@ public class NativeServer {
                             outputChannel.flush();
 
                             sendServicePooledThread.execute(new Runnable() {
+                                long sendCount = 0;
                                 @Override
                                 public void run() {
                                     while (true) {
                                         try {
-                                            String message = sendQueue.take();
-                                            //logger.info("has message, send to client...");
-                                            try {
-                                                outputChannel.write(message);
-                                                outputChannel.newLine();
-                                            } catch (IOException e1) {
-                                                e1.printStackTrace();
-                                            }
-                                            if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
-                                                logger.info("send FINISHED_ALL package");
-                                                break;
+                                            String message = null;
+                                            message =  sendQueue.take();
+                                            if(message != null) {
+                                                sendCount++;
+                                                if(sendCount % 500 == 0)
+                                                    logger.info("500 messages have been sent to client...");
+                                                try {
+                                                    outputChannel.write(message);
+                                                    outputChannel.newLine();
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                    logger.info("outputChannel write error.");
+                                                    logger.info(e.getMessage());
+                                                }
+                                                if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
+                                                    logger.info("send FINISHED_ALL package");
+                                                    break;
+                                                }
                                             }
                                         } catch (InterruptedException e) {
                                             e.printStackTrace();
+                                            logger.info("message take error...");
+                                            logger.info(e.getMessage());
                                         }
 
                                     }
@@ -106,6 +117,8 @@ public class NativeServer {
 
                 } catch (IOException e) {
                     e.printStackTrace();
+                    logger.info("socket listen error");
+                    logger.info(e.getMessage());
                 }
             }
         });
@@ -124,6 +137,8 @@ public class NativeServer {
                 inputChannel.close();
                 clientSocket.close();
             } catch (IOException e) {
+                logger.info(e.getMessage());
+                logger.info("close error");
                 e.printStackTrace();
             }
             sendServicePooledThread.shutdown();
@@ -132,6 +147,7 @@ public class NativeServer {
             bossServicePooledThread.awaitTermination(5000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            logger.info(e.getMessage());
         }
     }
 }
