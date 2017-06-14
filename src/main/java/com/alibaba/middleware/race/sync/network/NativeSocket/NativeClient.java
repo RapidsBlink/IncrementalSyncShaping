@@ -133,6 +133,7 @@ public class NativeClient {
         try {
             receivePooledThread.awaitTermination(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            logger.info("receivePooledThread.awaitTermination error.");
             e.printStackTrace();
         }
         try {
@@ -140,6 +141,7 @@ public class NativeClient {
             inputChannel.close();
             clientSocket.close();
         } catch (IOException e) {
+            logger.info("close error.");
             e.printStackTrace();
         }
     }

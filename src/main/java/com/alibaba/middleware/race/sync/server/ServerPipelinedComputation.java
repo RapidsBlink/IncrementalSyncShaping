@@ -359,6 +359,7 @@ public class ServerPipelinedComputation {
         try {
             pageCachePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
+            Server.logger.info("pageCachePool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -367,6 +368,7 @@ public class ServerPipelinedComputation {
         try {
             transformPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
+            Server.logger.info("transformPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -375,6 +377,7 @@ public class ServerPipelinedComputation {
         try {
             transCompMediatorPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
+            Server.logger.info("transCompMediatorPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -383,6 +386,7 @@ public class ServerPipelinedComputation {
         try {
             computationPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
+            Server.logger.info("computationPool.awaitTermination error.");
             e.printStackTrace();
         }
 
@@ -392,6 +396,7 @@ public class ServerPipelinedComputation {
             try {
                 evalUpdateApplyPools[i].awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             } catch (InterruptedException e) {
+                Server.logger.info("evalUpdateApplyPools error. " + i);
                 e.printStackTrace();
             }
         }
