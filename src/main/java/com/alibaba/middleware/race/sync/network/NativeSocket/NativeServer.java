@@ -5,6 +5,10 @@ import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBu
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xerial.snappy.SnappyFramedInputStream;
+import org.xerial.snappy.SnappyFramedOutputStream;
+import org.xerial.snappy.SnappyInputStream;
+import org.xerial.snappy.SnappyOutputStream;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -63,8 +67,9 @@ public class NativeServer {
                         clientSocket = serverSocket.accept();
                         clientSocket.setKeepAlive(true);
                         clientSocket.setSendBufferSize(NetworkConstant.SEND_BUFF_SIZE);
-                        outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()), NetworkConstant.SEND_BUFF_SIZE);
-                        inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                        outputChannel = new BufferedWriter(new OutputStreamWriter(new SnappyFramedOutputStream(
+                                clientSocket.getOutputStream())), NetworkConstant.SEND_BUFF_SIZE);
+                        inputChannel = new BufferedReader(new InputStreamReader(new SnappyFramedInputStream(clientSocket.getInputStream())));
 
                         String message = inputChannel.readLine();
                         if (message.charAt(0) == NetworkConstant.REQUIRE_ARGS) {
