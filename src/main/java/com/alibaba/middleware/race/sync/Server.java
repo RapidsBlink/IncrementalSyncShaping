@@ -80,7 +80,7 @@ public class Server {
             @Override
             public void sendToClient(String result) {
                 //logger.info("has result, send to client.....");
-                nativeServer.send(result);
+                //nativeServer.send(result);
             }
         });
 
