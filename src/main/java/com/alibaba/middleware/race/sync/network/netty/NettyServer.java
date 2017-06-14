@@ -80,7 +80,7 @@ public class NettyServer {
                     }
 
                 }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true)
-        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(1 * 1024 * 1024, 100 * 1024 * 1024));
+                .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(1 * 1024 * 1024, 100 * 1024 * 1024));
 
         logger.info("bind to port " + port);
 
@@ -89,8 +89,8 @@ public class NettyServer {
         logger.info("Bind done.");
     }
 
-    public void finish(){
-        if(sendBuff.length() > 1) {
+    public void finish() {
+        if (sendBuff.length() > 1) {
             try {
                 sendBuff.append(NetworkConstant.END_OF_TRANSMISSION);
                 sendQueue.put(sendBuff.toString());
@@ -104,7 +104,7 @@ public class NettyServer {
         logger.info("NettyServer FINISHED_ALL instruction added to the queue...");
 
         logger.info("wait all message has been sent..");
-        while(!sendQueue.isEmpty()){
+        while (!sendQueue.isEmpty()) {
 
         }
     }
@@ -125,9 +125,9 @@ public class NettyServer {
 
     }
 
-    public void sendWithBuff(char type, String data){
+    public void sendWithBuff(char type, String data) {
         sendBuffLock.lock();
-        if(sendBuff.length() + data.length() > sendBuff.capacity() - 5){
+        if (sendBuff.length() + data.length() > sendBuff.capacity() - 5) {
             sendBuff.append(NetworkConstant.END_OF_TRANSMISSION);
             try {
                 sendQueue.put(sendBuff.toString());

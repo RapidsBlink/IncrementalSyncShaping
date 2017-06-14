@@ -2,9 +2,6 @@ package com.alibaba.middleware.race.sync.network.unitTests;
 
 import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.network.netty.NettyServer;
-import com.alibaba.middleware.race.sync.network.NetworkConstant;
-import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 
 /**
  * Created by will on 7/6/2017.

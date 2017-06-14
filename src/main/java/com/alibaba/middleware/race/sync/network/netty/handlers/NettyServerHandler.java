@@ -1,9 +1,9 @@
 package com.alibaba.middleware.race.sync.network.netty.handlers;
 
-import com.alibaba.middleware.race.sync.network.netty.NettyServer;
 import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
+import com.alibaba.middleware.race.sync.network.netty.NettyServer;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -49,7 +49,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
     private void checkQueueAndSendData(final ChannelHandlerContext ctx) {
         while (true) {
             try {
-                while(!ctx.channel().isWritable()){
+                while (!ctx.channel().isWritable()) {
                     logger.info("server flushed..");
                     ctx.flush();
                     Thread.sleep(100);
@@ -64,7 +64,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
                     f.addListener(new ChannelFutureListener() {
                         @Override
                         public void operationComplete(ChannelFuture future) throws Exception {
-                            if(!future.isSuccess()){
+                            if (!future.isSuccess()) {
                                 ctx.writeAndFlush(message).addListener(this);
                             }
                             logger.info("Server send FINISHED_ALL package ...");
@@ -79,7 +79,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<String> {
         }
     }
 
-//    @Override
+    //    @Override
 //    public void channelInactive(ChannelHandlerContext ctx){
 //        logger.info("Channel Inactive......");
 //    }

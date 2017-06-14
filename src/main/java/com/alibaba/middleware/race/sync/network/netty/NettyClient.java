@@ -59,17 +59,16 @@ public class NettyClient {
                         ch.pipeline().addLast(new NettyClientHandler());
                     }
                 }).option(ChannelOption.SO_RCVBUF, 100 * 1024 * 1024)
-        .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024 * 1024, 100 * 1024 * 1024));
-
+                .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(50 * 1024 * 1024, 100 * 1024 * 1024));
 
 
         sendFuture = bootstrap.connect(ip, port);
         sendFuture.addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
-                if(!future.isSuccess()){
+                if (!future.isSuccess()) {
                     Client.logger.info("Reconnect......");
-                    Thread.sleep(1000,0);
+                    Thread.sleep(1000, 0);
                     sendFuture = bootstrap.connect(ip, port);
                     sendFuture.addListener(this);
                 }
@@ -79,9 +78,9 @@ public class NettyClient {
     }
 
 
-    public void waitReceiveFinish(){
+    public void waitReceiveFinish() {
         Client.logger.info("Client wait to receive all data.....");
-        while(!NettyClient.finished) {
+        while (!NettyClient.finished) {
             NettyClient.finishedLock.lock();
             if (!NettyClient.finished) {
                 try {
@@ -90,11 +89,10 @@ public class NettyClient {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     Client.logger.info(e.getMessage());
-                }
-                finally {
+                } finally {
                     NettyClient.finishedLock.unlock();
                 }
-            }else {
+            } else {
                 NettyClient.finishedLock.unlock();
             }
         }

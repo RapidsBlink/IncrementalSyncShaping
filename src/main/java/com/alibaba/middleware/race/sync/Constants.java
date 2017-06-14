@@ -5,7 +5,7 @@ package com.alibaba.middleware.race.sync;
  */
 public interface Constants {
 
-    String CODE_VERSION = "Version_0.1";
+    String CODE_VERSION = "Version_0.2";
 
     String[] TEST_ROLE = {"server", "client"};
     // teamCode
@@ -35,13 +35,13 @@ public interface Constants {
 
     // ------------ 正式比赛指定的路径--------------//
     //%%%%%%%%%%%%%%%%% change bellow %%%%%%%%%%%%%%%%%
-    //// 工作主目录
+    // 工作主目录
 //    String TESTER_HOME = "/home/admin";
-//    //// 赛题数据
+//    // 赛题数据
 //    String DATA_HOME = "/home/admin/canal_data";
-//    //// 结果文件目录(client端会用到)
-//    String RESULT_HOME = "/home/admin/sync_results/"+TEAMCODE;
-//    //// 中间结果目录（client和server都会用到）
+//    // 结果文件目录(client端会用到)
+//    String RESULT_HOME = "/home/admin/sync_results/" + TEAMCODE;
+//    // 中间结果目录（client和server都会用到）
 //    String MIDDLE_HOME = "/home/admin/middle/" + TEAMCODE;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 

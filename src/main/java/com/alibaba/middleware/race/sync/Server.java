@@ -2,8 +2,6 @@ package com.alibaba.middleware.race.sync;
 
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.network.netty.NettyServer;
-import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +20,8 @@ import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation
 public class Server {
     public static Logger logger;
     private static ArrayList<String> dataFiles = new ArrayList<>();
-    //private static NettyServer nserver = null;
     private static NativeServer nativeServer = null;
+
     static {
         for (int i = 1; i < 11; i++) {
             dataFiles.add(i + ".txt");
@@ -79,7 +77,7 @@ public class Server {
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
             @Override
             public void sendToClient(String result) {
-                logger.info("has result, send to client.....");
+                //logger.info("has result, send to client.....");
                 nativeServer.send(result);
             }
         });
@@ -94,20 +92,23 @@ public class Server {
     public void start() throws IOException {
         // pipelined computation
         for (int i = 10; i > 0; i--) {
-            System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+            //System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
             OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
         }
-
         nativeServer.start();
 
         // join computation thread
         JoinComputationThread();
 
         nativeServer.finish();
+
+        int i = 0;
         for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
-            logger.info(entry.getValue());
+            if (i < 10)
+                logger.info(entry.getValue());
+            i++;
         }
+        logger.info("size:" + ServerPipelinedComputation.inRangeRecord.size());
         logger.info("Send finish all package......");
-        //nserver.stop();
     }
 }

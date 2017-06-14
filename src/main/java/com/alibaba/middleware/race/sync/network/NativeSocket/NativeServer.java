@@ -104,9 +104,10 @@ public class NativeServer {
     public void finish() {
         try {
             isStoped = true;
-            send(NetworkConstant.FINISHED_ALL+"");
+            send(NetworkConstant.FINISHED_ALL + "");
             while (!sendQueue.isEmpty()) {
-            };
+            }
+            ;
             try {
                 outputChannel.flush();
                 outputChannel.close();

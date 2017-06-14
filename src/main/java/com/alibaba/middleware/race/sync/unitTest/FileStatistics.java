@@ -19,7 +19,10 @@ public class FileStatistics {
     static {
 //        for(int i = 10; i > 0 ; i--)
 //            myFiles.add("/home/will/Workspace/test/canal_data/" + i + ".txt");
-        myFiles.add("/tmp/canal.txt");
+//        myFiles.add("/tmp/canal.txt");
+        for (int i = 10; i > 0; i--) {
+            myFiles.add("/tmp/" + i + ".txt");
+        }
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -29,8 +32,9 @@ public class FileStatistics {
         readFilesIntoPageCache(myFiles);
 
         // 1st: init
-        initSchemaTable("middleware3", "student");
-        initRange(600, 7000000000L);
+        initSchemaTable("middleware", "student");
+//        initSchemaTable("middleware2", "teacher");
+        initRange(0, 600000000000L);
         initFindResultListener(new FindResultListener() {
             @Override
             public void sendToClient(String result) {

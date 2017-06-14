@@ -61,7 +61,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public RecordLazyEval(String recordStr) {
         this.curIndex = 0;
         this.recordStr = recordStr;
-        this.stringBuilder=new StringBuilder();
+        this.stringBuilder = new StringBuilder();
 
         // 1st: skip: binlog id, and timestamp
         for (int i = 0; i < 2; i++) {

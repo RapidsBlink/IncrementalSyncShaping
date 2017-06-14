@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
-import com.alibaba.middleware.race.sync.network.netty.NettyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +17,15 @@ public class Client {
     public static Logger logger;
 
     private final static int port = Constants.SERVER_PORT;
-    //static NettyClient nettyClient= null;
+
     static NativeClient nativeClient = null;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         new Client(args[0]).start();
         logger.info("Current client time:" + System.currentTimeMillis());
     }
 
-    public Client(String ip){
+    public Client(String ip) {
         initProperties();
         logger = LoggerFactory.getLogger(Client.class);
 //        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
@@ -35,13 +34,13 @@ public class Client {
         nativeClient.start();
     }
 
-    public void start(){
+    public void start() {
         nativeClient.finish();
-        logger.info(""+nativeClient.resultMap.size());
+        logger.info("" + nativeClient.resultMap.size());
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-            for(String value : nativeClient.resultMap.values()){
+            for (String value : nativeClient.resultMap.values()) {
                 logger.info(value);
                 bw.write(value);
                 bw.newLine();
@@ -52,6 +51,7 @@ public class Client {
             e.printStackTrace();
         }
     }
+
     /**
      * 初始化系统属性
      */

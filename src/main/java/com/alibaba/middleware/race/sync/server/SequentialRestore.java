@@ -36,7 +36,7 @@ public class SequentialRestore {
 
     void flushTasksToPool() {
         for (int i = 0; i < EVAL_UPDATE_WORKER_NUM; i++) {
-            if(evalUpdateApplyTasks[i] != null)
+            if (evalUpdateApplyTasks[i] != null)
                 evalUpdateApplyPools[i].execute(new EvalUpdateApplyTask(evalUpdateApplyTasks[i]));
             evalUpdateApplyTasks[i] = null;
         }
