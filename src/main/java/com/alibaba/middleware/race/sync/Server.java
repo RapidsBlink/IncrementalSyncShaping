@@ -58,6 +58,7 @@ public class Server {
         logger.info("Current server time:" + System.currentTimeMillis());
 
         nativeServer = new NativeServer(args, Constants.SERVER_PORT);
+        nativeServer.start();
 
         // start pre-loading files
         ArrayList<String> reverseOrderFiles = new ArrayList<>();
@@ -96,7 +97,6 @@ public class Server {
             //System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
             OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
         }
-        nativeServer.start();
 
         // join computation thread
         JoinComputationThread();

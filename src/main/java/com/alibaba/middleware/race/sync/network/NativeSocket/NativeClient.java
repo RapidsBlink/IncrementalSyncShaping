@@ -40,13 +40,12 @@ public class NativeClient {
         this.hostName = hostName;
         this.port = port;
 
-        establishConnection();
-        logger.info("Connection established...");
+
     }
 
     private void establishConnection() {
-        clientSocket = new Socket();
         while (true) {
+            clientSocket = new Socket();
             try {
                 clientSocket.connect(new InetSocketAddress(hostName, port), 1000);
                 clientSocket.setKeepAlive(true);
@@ -59,14 +58,17 @@ public class NativeClient {
                 logger.info("connect failed... reconnecting");
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(1000);
+                TimeUnit.MILLISECONDS.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            clientSocket = null;
         }
     }
 
     public void start() {
+        establishConnection();
+        logger.info("Connection established...");
         try {
             outputChannel.write(NetworkStringMessage.buildMessage(NetworkConstant.REQUIRE_ARGS, ""));
             outputChannel.flush();
@@ -128,6 +130,13 @@ public class NativeClient {
         try {
             receivePooledThread.awaitTermination(3000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            outputChannel.close();
+            inputChannel.close();
+            clientSocket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

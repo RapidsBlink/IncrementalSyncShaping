@@ -29,9 +29,10 @@ public class NativeServer {
     private Logger logger;
     private ArrayBlockingQueue<String> sendQueue = new ArrayBlockingQueue<>(NetworkConstant.SEND_CHUNK_BUFF_SIZE);
 
-    private String[] args;
+    public static String[] args;
     private int port;
     private ExecutorService sendServicePooledThread = Executors.newSingleThreadExecutor();
+    private ExecutorService bossServicePooledThread = Executors.newSingleThreadExecutor();
 
     public NativeServer(String[] args, int port) {
         this.logger = LoggerFactory.getLogger(NativeServer.class);
@@ -54,51 +55,56 @@ public class NativeServer {
     }
 
     public void start() {
-        try {
-            if (!isStoped) {
-                clientSocket = serverSocket.accept();
-                clientSocket.setKeepAlive(true);
-                clientSocket.setSendBufferSize(NetworkConstant.SEND_BUFF_SIZE);
-                outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()), NetworkConstant.SEND_BUFF_SIZE);
-                inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        bossServicePooledThread.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (!isStoped) {
+                        clientSocket = serverSocket.accept();
+                        clientSocket.setKeepAlive(true);
+                        clientSocket.setSendBufferSize(NetworkConstant.SEND_BUFF_SIZE);
+                        outputChannel = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()), NetworkConstant.SEND_BUFF_SIZE);
+                        inputChannel = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-                String message = inputChannel.readLine();
-                if (message.charAt(0) == NetworkConstant.REQUIRE_ARGS) {
-                    logger.info("Received a REQUIRE_ARGS package...");
-                    ArgumentsPayloadBuilder argsPayload = new ArgumentsPayloadBuilder(this.args);
-                    outputChannel.write(NetworkStringMessage.buildMessage(NetworkConstant.REQUIRE_ARGS, argsPayload.toString()));
-                    outputChannel.flush();
+                        String message = inputChannel.readLine();
+                        if (message.charAt(0) == NetworkConstant.REQUIRE_ARGS) {
+                            logger.info("Received a REQUIRE_ARGS package...");
+                            ArgumentsPayloadBuilder argsPayload = new ArgumentsPayloadBuilder(NativeServer.args);
+                            outputChannel.write(NetworkStringMessage.buildMessage(NetworkConstant.REQUIRE_ARGS, argsPayload.toString()));
+                            outputChannel.flush();
 
-                    sendServicePooledThread.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            while (true) {
-                                try {
-                                    String message = sendQueue.take();
-                                    //logger.info("has message, send to client...");
-                                    try {
-                                        outputChannel.write(message);
-                                        outputChannel.newLine();
-                                    } catch (IOException e1) {
-                                        e1.printStackTrace();
+                            sendServicePooledThread.execute(new Runnable() {
+                                @Override
+                                public void run() {
+                                    while (true) {
+                                        try {
+                                            String message = sendQueue.take();
+                                            //logger.info("has message, send to client...");
+                                            try {
+                                                outputChannel.write(message);
+                                                outputChannel.newLine();
+                                            } catch (IOException e1) {
+                                                e1.printStackTrace();
+                                            }
+                                            if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
+                                                logger.info("send FINISHED_ALL package");
+                                                break;
+                                            }
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
                                     }
-                                    if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
-                                        logger.info("send FINISHED_ALL package");
-                                        break;
-                                    }
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
                                 }
-
-                            }
+                            });
                         }
-                    });
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     public void finish() {
@@ -117,7 +123,9 @@ public class NativeServer {
                 e.printStackTrace();
             }
             sendServicePooledThread.shutdown();
+            bossServicePooledThread.shutdown();
             sendServicePooledThread.awaitTermination(5000, TimeUnit.MILLISECONDS);
+            bossServicePooledThread.awaitTermination(5000, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
