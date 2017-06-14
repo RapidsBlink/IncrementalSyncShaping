@@ -101,6 +101,8 @@ public class Server {
         // join computation thread
         JoinComputationThread();
 
+        logger.info("JoinComputationThread finished.");
+
         nativeServer.finish();
 
         int i = 0;
