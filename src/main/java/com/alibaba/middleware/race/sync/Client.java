@@ -40,10 +40,13 @@ public class Client {
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-            for (String value : nativeClient.resultMap.values()) {
-                logger.info(value);
+        int i = 0;
+        for (String value : nativeClient.resultMap.values()) {
+                if (i < 10)
+                    logger.info(value);
                 bw.write(value);
                 bw.newLine();
+                i++;
             }
             bw.close();
 
