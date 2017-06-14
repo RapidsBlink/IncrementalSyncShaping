@@ -1,0 +1,35 @@
+[2017-06-14 22:08:30.966] INFO  c.a.m.r.sync.Server -Current server time:1497449310964
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -Current server time:1497449310981
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -middleware5
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -student
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -100000
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -2000000
+[2017-06-14 22:08:30.981] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-14 22:08:35.172] INFO  c.a.m.r.sync.Server -read files into page cache, cost: 4192ms
+[2017-06-14 22:08:37.223] INFO  c.a.m.r.sync.Server -computation time:6242
+[2017-06-14 22:08:37.223] INFO  c.a.m.r.sync.Server -Byte count: 1250519137
+[2017-06-14 22:08:37.223] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:08:42.658] INFO  c.a.m.r.sync.Server -computation time:5435
+[2017-06-14 22:08:42.658] INFO  c.a.m.r.sync.Server -Byte count: 1535110156
+[2017-06-14 22:08:42.659] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:08:46.555] INFO  c.a.m.r.sync.Server -computation time:3896
+[2017-06-14 22:08:46.556] INFO  c.a.m.r.sync.Server -Byte count: 1162104016
+[2017-06-14 22:08:46.556] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:08:50.271] INFO  c.a.m.r.sync.Server -computation time:3715
+[2017-06-14 22:08:50.272] INFO  c.a.m.r.sync.Server -Byte count: 1156797026
+[2017-06-14 22:08:50.272] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:08:54.339] INFO  c.a.m.r.sync.Server -computation time:4067
+[2017-06-14 22:08:54.339] INFO  c.a.m.r.sync.Server -Byte count: 1190105598
+[2017-06-14 22:08:54.339] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:08:59.370] INFO  c.a.m.r.sync.Server -computation time:5030
+[2017-06-14 22:08:59.370] INFO  c.a.m.r.sync.Server -Byte count: 1252583433
+[2017-06-14 22:08:59.370] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:09:03.623] INFO  c.a.m.r.sync.Server -computation time:4252
+[2017-06-14 22:09:03.623] INFO  c.a.m.r.sync.Server -Byte count: 1185007758
+[2017-06-14 22:09:03.623] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:09:08.059] INFO  c.a.m.r.sync.Server -computation time:4436
+[2017-06-14 22:09:08.060] INFO  c.a.m.r.sync.Server -Byte count: 1173580422
+[2017-06-14 22:09:08.060] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-14 22:09:12.681] INFO  c.a.m.r.sync.Server -computation time:4621
+[2017-06-14 22:09:12.681] INFO  c.a.m.r.sync.Server -Byte count: 1171138098
+[2017-06-14 22:09:12.681] INFO  c.a.m.r.sync.Server -current records size:0
