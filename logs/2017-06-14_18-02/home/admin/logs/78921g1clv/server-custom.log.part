@@ -1,0 +1,8 @@
+[2017-06-14 17:55:47.719] INFO  c.a.m.r.sync.Server -Current server time:1497434147718
+[2017-06-14 17:55:47.731] INFO  c.a.m.r.sync.Server -Current server time:1497434147731
+[2017-06-14 17:55:47.731] INFO  c.a.m.r.sync.Server -middleware5
+[2017-06-14 17:55:47.731] INFO  c.a.m.r.sync.Server -student
+[2017-06-14 17:55:47.731] INFO  c.a.m.r.sync.Server -100000
+[2017-06-14 17:55:47.732] INFO  c.a.m.r.sync.Server -2000000
+[2017-06-14 17:55:47.732] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-14 17:57:16.023] INFO  c.a.m.r.sync.Server -read files into page cache, cost: 88293ms
