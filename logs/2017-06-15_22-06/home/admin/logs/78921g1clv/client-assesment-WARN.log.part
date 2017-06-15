@@ -1,0 +1,10 @@
+it.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [20:33:05] com.alibaba.middleware.race.TesterHttpServer - 上传日志文件出错TIMED_OUT
+ [WARN ] [21:07:32] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [WARN ] [21:07:33] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [WARN ] [21:08:33] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [WARN ] [21:08:33] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [21:08:33] com.alibaba.middleware.race.TesterHttpServer - 上传日志文件出错TIMED_OUT
+ [WARN ] [21:59:44] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [WARN ] [21:59:44] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ 

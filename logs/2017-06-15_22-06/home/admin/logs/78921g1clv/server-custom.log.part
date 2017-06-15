@@ -1,0 +1,51 @@
+[2017-06-15 21:57:24.091] INFO  c.a.m.r.sync.Server -Current server time:1497535044090
+[2017-06-15 21:58:16.847] INFO  c.a.m.r.sync.Server -52746
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -Current server time:1497535096851
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -middleware5
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -student
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -1000000
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -8000000
+[2017-06-15 21:58:16.851] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-15 21:58:30.823] INFO  c.a.m.r.sync.Server -computation time:13971
+[2017-06-15 21:58:30.823] INFO  c.a.m.r.sync.Server -Byte count: 1093134391
+[2017-06-15 21:58:30.827] INFO  c.a.m.r.sync.Server -current records size:19844
+[2017-06-15 21:58:38.367] INFO  c.a.m.r.sync.Server -computation time:7540
+[2017-06-15 21:58:38.367] INFO  c.a.m.r.sync.Server -Byte count: 1025036970
+[2017-06-15 21:58:38.369] INFO  c.a.m.r.sync.Server -current records size:30526
+[2017-06-15 21:58:45.934] INFO  c.a.m.r.sync.Server -computation time:7565
+[2017-06-15 21:58:45.934] INFO  c.a.m.r.sync.Server -Byte count: 1063941864
+[2017-06-15 21:58:45.936] INFO  c.a.m.r.sync.Server -current records size:44815
+[2017-06-15 21:58:53.344] INFO  c.a.m.r.sync.Server -computation time:7408
+[2017-06-15 21:58:53.344] INFO  c.a.m.r.sync.Server -Byte count: 1026894938
+[2017-06-15 21:58:53.346] INFO  c.a.m.r.sync.Server -current records size:49477
+[2017-06-15 21:58:57.672] INFO  c.a.m.r.sync.Server -computation time:4325
+[2017-06-15 21:58:57.672] INFO  c.a.m.r.sync.Server -Byte count: 1032430419
+[2017-06-15 21:58:57.675] INFO  c.a.m.r.sync.Server -current records size:56734
+[2017-06-15 21:59:05.047] INFO  c.a.m.r.sync.Server -computation time:7372
+[2017-06-15 21:59:05.047] INFO  c.a.m.r.sync.Server -Byte count: 1098623605
+[2017-06-15 21:59:05.050] INFO  c.a.m.r.sync.Server -current records size:62742
+[2017-06-15 21:59:16.124] INFO  c.a.m.r.sync.Server -computation time:11074
+[2017-06-15 21:59:16.124] INFO  c.a.m.r.sync.Server -Byte count: 1024018897
+[2017-06-15 21:59:16.126] INFO  c.a.m.r.sync.Server -current records size:64122
+[2017-06-15 21:59:23.441] INFO  c.a.m.r.sync.Server -computation time:7314
+[2017-06-15 21:59:23.441] INFO  c.a.m.r.sync.Server -Byte count: 1053713142
+[2017-06-15 21:59:23.444] INFO  c.a.m.r.sync.Server -current records size:69953
+[2017-06-15 21:59:31.370] INFO  c.a.m.r.sync.Server -computation time:7926
+[2017-06-15 21:59:31.370] INFO  c.a.m.r.sync.Server -Byte count: 1017278201
+[2017-06-15 21:59:31.386] INFO  c.a.m.r.sync.Server -current records size:70092
+[2017-06-15 21:59:43.645] INFO  c.a.m.r.sync.Server -computation time:12259
+[2017-06-15 21:59:43.645] INFO  c.a.m.r.sync.Server -Byte count: 1454841673
+[2017-06-15 21:59:43.683] INFO  c.a.m.r.sync.Server -current records size:1201791
+[2017-06-15 21:59:43.697] INFO  c.a.m.r.sync.Server -JoinComputationThread finished.
+[2017-06-15 21:59:43.699] INFO  c.a.m.r.sync.Server -1000001	邹	铭	女	469	181198
+[2017-06-15 21:59:43.699] INFO  c.a.m.r.sync.Server -1000003	邹	景	男	469	295219
+[2017-06-15 21:59:43.699] INFO  c.a.m.r.sync.Server -1000007	邹	乙民	女	469	152256
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000009	邹	力	男	469	152867
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000011	杨	发	男	649	294610
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000013	侯	孙	女	220	142258
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000015	邹	林	女	469	271650
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000017	杨	高	女	649	146246
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000023	杨	黎名	男	649	16672
+[2017-06-15 21:59:43.700] INFO  c.a.m.r.sync.Server -1000029	杨	黎	女	649	142142
+[2017-06-15 21:59:43.789] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-15 21:59:43.789] INFO  c.a.m.r.sync.Server -Send finish all package......
