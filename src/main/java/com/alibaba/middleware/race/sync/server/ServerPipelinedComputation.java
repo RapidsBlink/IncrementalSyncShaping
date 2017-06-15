@@ -286,12 +286,7 @@ public class ServerPipelinedComputation {
             lineCount += line.length;
         }
         transCompMediatorPool.execute(new TransCompMediatorTask(byteArrTaskBuffer));
-        transCompMediatorPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                TransCompMediatorTask.syncConsumeReadyJobs();
-            }
-        });
+
 
         long endTime = System.currentTimeMillis();
         System.out.println("computation time:" + (endTime - startTime));
@@ -303,6 +298,12 @@ public class ServerPipelinedComputation {
     }
 
     public static void JoinComputationThread() {
+        transCompMediatorPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                TransCompMediatorTask.syncConsumeReadyJobs();
+            }
+        });
         // join mediator: must before transform and computation, since the data flow pattern
         transCompMediatorPool.shutdown();
         try {
