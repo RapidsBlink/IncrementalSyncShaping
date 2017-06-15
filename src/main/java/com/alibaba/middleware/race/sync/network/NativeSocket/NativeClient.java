@@ -54,10 +54,9 @@ public class NativeClient {
                 clientSocket.setReceiveBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                 clientSocket.setTcpNoDelay(true);
                 inputChannel = new BufferedReader(
-                        new InputStreamReader(new BufferedInputStream(new SnappyFramedInputStream(
-                                clientSocket.getInputStream()), NetworkConstant.SEND_BUFF_SIZE)));
+                        new InputStreamReader(new BufferedInputStream(clientSocket.getInputStream(), NetworkConstant.SEND_BUFF_SIZE)));
                 outputChannel = new BufferedWriter(
-                        new OutputStreamWriter(new BufferedOutputStream(new SnappyFramedOutputStream(clientSocket.getOutputStream()))));
+                        new OutputStreamWriter(new BufferedOutputStream(clientSocket.getOutputStream())));
                 break;
             } catch (IOException e) {
                 logger.info("connect failed... reconnecting");

@@ -67,9 +67,9 @@ public class NativeServer {
                         clientSocket.setKeepAlive(true);
                         clientSocket.setSendBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                         outputChannel = new BufferedWriter(
-                                new OutputStreamWriter(new BufferedOutputStream(new SnappyFramedOutputStream(
-                                        clientSocket.getOutputStream()), NetworkConstant.SEND_BUFF_SIZE)));
-                        inputChannel = new BufferedReader(new InputStreamReader(new BufferedInputStream(new SnappyFramedInputStream(clientSocket.getInputStream()))));
+                                new OutputStreamWriter(new BufferedOutputStream(
+                                        clientSocket.getOutputStream(), NetworkConstant.SEND_BUFF_SIZE)));
+                        inputChannel = new BufferedReader(new InputStreamReader(new BufferedInputStream(clientSocket.getInputStream())));
 
                         String message = inputChannel.readLine();
                         if (message.charAt(0) == NetworkConstant.REQUIRE_ARGS) {
