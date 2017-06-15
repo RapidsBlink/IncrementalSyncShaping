@@ -11,7 +11,7 @@ import java.nio.channels.FileChannel;
 /**
  * Created by yche on 6/11/17.
  */
-final class FileUtil {
+final public class FileUtil {
     static void unmap(MappedByteBuffer mbb) {
         try {
             Method cleaner = mbb.getClass().getMethod("cleaner");
@@ -43,5 +43,38 @@ final class FileUtil {
         }
         //System.out.println(maxIndex);
 
+    }
+
+    public static void copyFiles(String fileName, String srcFolder, String dstFolder) throws IOException {
+        FileChannel srcFileChannel = new RandomAccessFile(srcFolder + File.separator + fileName, "r").getChannel();
+        FileChannel dstFileChannel = new RandomAccessFile(dstFolder + File.separator + fileName, "rw").getChannel();
+        MappedByteBuffer srcMappedByteBuffer = null;
+        MappedByteBuffer dstMappedByteBuffer = null;
+        File file = new File(srcFolder + File.separator + fileName);
+        long fileSize = file.length();
+
+        int CHUNK_SIZE = 64 * 1024 * 1024;
+
+        long maxIndex = fileSize % CHUNK_SIZE != 0 ? fileSize / CHUNK_SIZE : fileSize / CHUNK_SIZE - 1;
+        long lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
+        dstFileChannel.truncate(fileSize);
+
+        for (long nextIndex = 0; nextIndex < maxIndex; nextIndex++) {
+            srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, CHUNK_SIZE);
+            dstMappedByteBuffer = dstFileChannel.map(FileChannel.MapMode.READ_WRITE, nextIndex * CHUNK_SIZE, CHUNK_SIZE);
+
+            srcMappedByteBuffer.load();
+            dstMappedByteBuffer.put(srcMappedByteBuffer);
+            unmap(srcMappedByteBuffer);
+            unmap(dstMappedByteBuffer);
+        }
+
+        srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, maxIndex * CHUNK_SIZE, lastChunkLength);
+        dstMappedByteBuffer = dstFileChannel.map(FileChannel.MapMode.READ_WRITE, maxIndex * CHUNK_SIZE, lastChunkLength);
+
+        srcMappedByteBuffer.load();
+        dstMappedByteBuffer.put(srcMappedByteBuffer);
+        unmap(srcMappedByteBuffer);
+        unmap(dstMappedByteBuffer);
     }
 }

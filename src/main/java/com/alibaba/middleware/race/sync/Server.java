@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync;
 
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.network.NetworkConstant;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
+import static com.alibaba.middleware.race.sync.server.FileUtil.copyFiles;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.JoinComputationThread;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRoundComputation;
 
@@ -53,6 +53,7 @@ public class Server {
     }
 
     public static void main(String[] args) {
+
         Server.initProperties();
         logger = LoggerFactory.getLogger(Server.class);
         logger.info("Current server time:" + System.currentTimeMillis());
@@ -60,11 +61,19 @@ public class Server {
         nativeServer = new NativeServer(args, Constants.SERVER_PORT);
         nativeServer.start();
 
-        // start pre-loading files
-        ArrayList<String> reverseOrderFiles = new ArrayList<>();
-        for (int i = 10; i > 0; i--) {
-            reverseOrderFiles.add(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+        for (int i = 1; i < 11; i++) {
+            try {
+                copyFiles(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
+            } catch (IOException e) {
+                logger.info(e.getMessage());
+            }
         }
+
+        // start pre-loading files
+//        ArrayList<String> reverseOrderFiles = new ArrayList<>();
+//        for (int i = 10; i > 0; i--) {
+//            reverseOrderFiles.add(Constants.MIDDLE_HOME + File.separator + dataFiles.get(i - 1));
+//        }
 //        try {
 //            ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
 //        } catch (IOException e) {
@@ -78,11 +87,12 @@ public class Server {
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
             int sendCount = 0;
+
             @Override
             public void sendToClient(String result) {
                 //logger.info("has result, send to client.....");
-                sendCount ++;
-                if(sendCount % 5000 == 0){
+                sendCount++;
+                if (sendCount % 5000 == 0) {
                     logger.info("add 5000 messages....");
                 }
                 nativeServer.send(result);
@@ -100,7 +110,7 @@ public class Server {
         // pipelined computation
         for (int i = 10; i > 0; i--) {
             //System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
-            OneRoundComputation(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
+            OneRoundComputation(Constants.MIDDLE_HOME + File.separator + dataFiles.get(i - 1));
         }
 
         // join computation thread
