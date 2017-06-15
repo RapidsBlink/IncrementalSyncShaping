@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import static com.alibaba.middleware.race.sync.server.FileUtil.copyFiles;
+import static com.alibaba.middleware.race.sync.server.FileUtil.transferFile;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.JoinComputationThread;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRoundComputation;
 
@@ -61,26 +62,19 @@ public class Server {
         nativeServer = new NativeServer(args, Constants.SERVER_PORT);
         nativeServer.start();
 
+        long copyStartTimer = System.currentTimeMillis();
+
         for (int i = 1; i < 11; i++) {
             try {
-                copyFiles(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
+                transferFile(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
             } catch (IOException e) {
                 logger.info(e.getMessage());
             }
         }
 
-        // start pre-loading files
-//        ArrayList<String> reverseOrderFiles = new ArrayList<>();
-//        for (int i = 10; i > 0; i--) {
-//            reverseOrderFiles.add(Constants.MIDDLE_HOME + File.separator + dataFiles.get(i - 1));
-//        }
-//        try {
-//            ServerPipelinedComputation.readFilesIntoPageCache(reverseOrderFiles);
-//        } catch (IOException e) {
-//            logger.info("preload file failed...");
-//            logger.info(e.getMessage());
-//            e.printStackTrace();
-//        }
+        long copyEndTimer = System.currentTimeMillis();
+        logger.info(copyEndTimer - copyStartTimer + "");
+        System.out.println(copyEndTimer - copyStartTimer + "");
 
         // initialization for computations
         ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
@@ -109,7 +103,6 @@ public class Server {
     public void start() throws IOException {
         // pipelined computation
         for (int i = 10; i > 0; i--) {
-            //System.out.println(Constants.DATA_HOME + File.separator + dataFiles.get(i - 1));
             OneRoundComputation(Constants.MIDDLE_HOME + File.separator + dataFiles.get(i - 1));
         }
 
