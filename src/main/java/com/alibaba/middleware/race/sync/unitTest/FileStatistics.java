@@ -32,7 +32,7 @@ public class FileStatistics {
 //        readFilesIntoPageCache(myFiles);
 
         // 1st: init
-        initSchemaTable("middleware", "student");
+        //initSchemaTable("middleware", "student");
 //        initSchemaTable("middleware2", "teacher");
         initRange(0, 600000000000L);
         initFindResultListener(new FindResultListener() {

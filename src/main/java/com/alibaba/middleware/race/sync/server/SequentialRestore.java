@@ -108,14 +108,14 @@ public class SequentialRestore {
 
     public void compute(RecordLazyEval recordLazyEval) {
         this.recordLazyEval = recordLazyEval;
-        if (recordLazyEval.isSchemaTableValid()) {
-            if (recordLazyEval.operationType == DELETE_OPERATION) {
-                actForDelete();
-            } else if (recordLazyEval.operationType == INSERT_OPERATION) {
-                actForInsert();
-            } else {
-                actForUpdate();
-            }
+        //if (recordLazyEval.isSchemaTableValid()) {
+        if (recordLazyEval.operationType == DELETE_OPERATION) {
+            actForDelete();
+        } else if (recordLazyEval.operationType == INSERT_OPERATION) {
+            actForInsert();
+        } else {
+            actForUpdate();
         }
+        //}
     }
 }

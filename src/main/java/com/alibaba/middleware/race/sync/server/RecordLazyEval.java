@@ -17,7 +17,7 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     private StringBuilder stringBuilder;
     private int curIndex;
 
-    private boolean isSchemaTableValid = true;
+    //private boolean isSchemaTableValid = true;
 
     // eager evaluation
     public char operationType;
@@ -25,9 +25,9 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
     public long prevPKVal;
 
 
-    boolean isSchemaTableValid() {
-        return isSchemaTableValid;
-    }
+//    boolean isSchemaTableValid() {
+//        return isSchemaTableValid;
+//    }
 
     // end at '|'
     private String getNextString() {
@@ -63,24 +63,24 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
         this.recordStr = recordStr;
         this.stringBuilder = new StringBuilder();
 
-        // 1st: skip: binlog id, and timestamp
-        for (int i = 0; i < 2; i++) {
+        // 1st: skip: binlog id, and timestamp, schema and table
+        for (int i = 0; i < 4; i++) {
             skipNextString();
         }
 
         // check schema and table
-        String schema = getNextString();
-
-        if (!schema.equals(RecordLazyEval.schema)) {
-            this.isSchemaTableValid = false;
-            return;
-        }
-
-        String table = getNextString();
-        if (!table.equals(RecordLazyEval.table)) {
-            this.isSchemaTableValid = false;
-            return;
-        }
+//        String schema = getNextString();
+//
+//        if (!schema.equals(RecordLazyEval.schema)) {
+//            this.isSchemaTableValid = false;
+//            return;
+//        }
+//
+//        String table = getNextString();
+//        if (!table.equals(RecordLazyEval.table)) {
+//            this.isSchemaTableValid = false;
+//            return;
+//        }
 
         // 2nd: eager evaluate: operation type, primary key
         curIndex++;

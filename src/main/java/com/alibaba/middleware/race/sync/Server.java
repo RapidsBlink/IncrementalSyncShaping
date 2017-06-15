@@ -77,7 +77,7 @@ public class Server {
         System.out.println(copyEndTimer - copyStartTimer + "");
 
         // initialization for computations
-        ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
+        //ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
             int sendCount = 0;
