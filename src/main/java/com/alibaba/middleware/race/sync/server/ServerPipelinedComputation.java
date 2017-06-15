@@ -55,7 +55,7 @@ public class ServerPipelinedComputation {
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 1;
+    final static int EVAL_UPDATE_WORKER_NUM = 2;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
