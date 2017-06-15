@@ -1,0 +1,81 @@
+
+ [INFO ] [13:28:03] com.alibaba.middleware.race.TesterHttpServer - 成功执行完毕选手的Client程序并返回响应
+ [INFO ] [13:28:03] com.alibaba.middleware.race.TesterHttpServer - 开始根据teamCode创建相应的目录：/home/admin/logs/77147r276c,/home/admin/middle/77147r276c,/home/admin/sync_results/77147r276c
+ [INFO ] [13:28:03] com.alibaba.middleware.race.TesterHttpServer - 是否存在目录：true
+ [INFO ] [13:28:03] com.alibaba.middleware.race.TesterHttpServer - 为选手77147r276c创建对应teamCode的目录(中间结果相关)
+ [INFO ] [18:29:50] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log 
+ [INFO ] [18:29:50] com.alibaba.middleware.race.TesterHttpServer - 开始运行选手的程序，此时设定的超时时间为（单位秒）：120
+ [INFO ] [18:29:50] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log , execute status is SUCCESS Script execute output: gcLogPath的路径为/home/admin/logs/78921g1clv/gc_client.log
+18:29:51,086 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.groovy]
+18:29:51,086 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+18:29:51,086 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml]
+18:29:51,102 |-INFO in ch.qos.logback.core.joran.spi.ConfigurationWatchList@4f28cbd3 - URL [jar:file:/home/admin/topkn-workspace/libs/sync-1.0.jar!/logback.xml] is not of type file
+18:29:51,317 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+18:29:51,319 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [STDOUT]
+18:29:51,419 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.FileAppender]
+18:29:51,421 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_SERVER]
+18:29:51,425 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@23:85 - no applicable action for [rollingPolicy], current ElementPath  is [[configuration][appender][rollingPolicy]]
+18:29:51,426 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@24:30 - no applicable action for [fileNamePattern], current ElementPath  is [[configuration][appender][rollingPolicy][fileNamePattern]]
+18:29:51,426 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@26:23 - no applicable action for [minIndex], current ElementPath  is [[configuration][appender][rollingPolicy][minIndex]]
+18:29:51,427 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@27:23 - no applicable action for [maxIndex], current ElementPath  is [[configuration][appender][rollingPolicy][maxIndex]]
+18:29:51,427 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@31:89 - no applicable action for [triggeringPolicy], current ElementPath  is [[configuration][appender][triggeringPolicy]]
+18:29:51,428 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@32:26 - no applicable action for [MaxFileSize], current ElementPath  is [[configuration][appender][triggeringPolicy][MaxFileSize]]
+18:29:51,430 |-INFO in ch.qos.logback.core.FileAppender[FILE_SERVER] - File property is set to [/home/admin/logs/78921g1clv/server-custom.log]
+18:29:51,431 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - About to instantiate appender of type [ch.qos.logback.core.FileAppender]
+18:29:51,431 |-INFO in ch.qos.logback.core.joran.action.AppenderAction - Naming appender as [FILE_CLIENT]
+18:29:51,433 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@50:85 - no applicable action for [rollingPolicy], current ElementPath  is [[configuration][appender][rollingPolicy]]
+18:29:51,433 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@51:30 - no applicable action for [fileNamePattern], current ElementPath  is [[configuration][appender][rollingPolicy][fileNamePattern]]
+18:29:51,434 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@53:23 - no applicable action for [minIndex], current ElementPath  is [[configuration][appender][rollingPolicy][minIndex]]
+18:29:51,434 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@54:23 - no applicable action for [maxIndex], current ElementPath  is [[configuration][appender][rollingPolicy][maxIndex]]
+18:29:51,434 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@58:89 - no applicable action for [triggeringPolicy], current ElementPath  is [[configuration][appender][triggeringPolicy]]
+18:29:51,435 |-ERROR in ch.qos.logback.core.joran.spi.Interpreter@59:26 - no applicable action for [MaxFileSize], current ElementPath  is [[configuration][appender][triggeringPolicy][MaxFileSize]]
+18:29:51,436 |-INFO in ch.qos.logback.core.FileAppender[FILE_CLIENT] - File property is set to [/home/admin/logs/78921g1clv/client-custom.log]
+18:29:51,437 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Server] to false
+18:29:51,437 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Server level set to INFO
+18:29:51,438 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_SERVER] to Logger[com.alibaba.middleware.race.sync.Server]
+18:29:51,438 |-INFO in ch.qos.logback.classic.joran.action.LoggerAction - Setting additivity of logger [com.alibaba.middleware.race.sync.Client] to false
+18:29:51,439 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - com.alibaba.middleware.race.sync.Client level set to INFO
+18:29:51,439 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [FILE_CLIENT] to Logger[com.alibaba.middleware.race.sync.Client]
+18:29:51,439 |-INFO in ch.qos.logback.classic.joran.action.LevelAction - ROOT level set to INFO
+18:29:51,439 |-INFO in ch.qos.logback.core.joran.action.AppenderRefAction - Attaching appender named [STDOUT] to Logger[ROOT]
+18:29:51,439 |-INFO in ch.qos.logback.classic.joran.action.ConfigurationAction - End of configuration.
+18:29:51,441 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@4ddbc091 - Registering current configuration as safe fallback point
+[2017-06-15 18:29:51]  INFO  NativeClient - Connection established...
+[2017-06-15 18:29:51]  INFO  NativeClient - Received a REQUIRE_ARGS message...
+[2017-06-15 18:29:51]  INFO  NativeClient - [middleware5, student, 1000000, 8000000]
+[2017-06-15 18:30:46]  INFO  NativeClient - Received a FINISHED_ALL package, exit...
+success
+
+ [WARN ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [INFO ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - 运行选手的JAVA程序结束，耗时为（单位毫秒）：55698
+ [ERROR] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - Result is not correct.
+ [INFO ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - tsar信息时间点信息为：15/06/17-18:30
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 15/06/17-18:30 
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 15/06/17-18:30 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 15-06-17-18-30 
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 15-06-17-18-30 , execute status is SUCCESS Script execute output: 归档Client端选手代码成功
+需要归档的结果文件不存在
+success
+
+ [INFO ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - 归档结果文件成功
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/sync_cleaner.sh 78921g1clv 
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/sync_cleaner.sh 78921g1clv , execute status is SUCCESS Script execute output: 结果文件不存在
+success
+
+ [INFO ] [18:30:46] com.alibaba.middleware.race.TesterHttpServer - 清理结果文件成功
+ [INFO ] [18:30:46] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv 
+ [INFO ] [18:30:47] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [18:30:47] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv , execute status is SUCCESS Script execute output: 要删除的中间结果文件为/home/admin/middle/78921g1clv
+成功清除中间结果
+success
+
+ [INFO ] [18:30:47] com.alibaba.middleware.race.TesterHttpServer - 成功清除中间结果
+ [INFO ] [18:30:47] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv 
+ [INFO ] [18:30:47] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ 

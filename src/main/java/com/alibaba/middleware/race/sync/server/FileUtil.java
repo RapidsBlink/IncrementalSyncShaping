@@ -54,6 +54,9 @@ final public class FileUtil {
 
         dstFileChannel.transferFrom(srcFileChannel, 0, srcFileChannel.size());
 
+        srcFileChannel.close();
+        dstFileChannel.close();
+
     }
     public static void copyFiles(String fileName, String srcFolder, String dstFolder) throws IOException {
         FileChannel srcFileChannel = new RandomAccessFile(srcFolder + File.separator + fileName, "r").getChannel();
