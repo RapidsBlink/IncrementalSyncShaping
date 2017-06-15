@@ -83,17 +83,11 @@ public class NativeClient {
                 logger.info(Arrays.toString(new ArgumentsPayloadBuilder(message.substring(1)).args));
 
                 receivePooledThread.execute(new Runnable() {
-                    int recvCount = 0;
-
                     @Override
                     public void run() {
                         while (true) {
                             try {
                                 String message = inputChannel.readLine();
-                                recvCount++;
-                                if (recvCount % 5000 == 0) {
-                                    logger.info("received 5000 messages");
-                                }
                                 if (message.length() <= 3 && message.charAt(0) == NetworkConstant.FINISHED_ALL) {
                                     logger.info("Received a FINISHED_ALL package, exit...");
                                     finishLock.lock();

@@ -79,8 +79,6 @@ public class NativeServer {
                             outputChannel.flush();
 
                             sendServicePooledThread.execute(new Runnable() {
-                                long sendCount = 0;
-
                                 @Override
                                 public void run() {
                                     while (true) {
@@ -88,9 +86,6 @@ public class NativeServer {
                                             String message = null;
                                             message = sendQueue.take();
                                             if (message != null) {
-                                                sendCount++;
-                                                if (sendCount % 5000 == 0)
-                                                    logger.info("5000 messages have been sent to client...");
                                                 try {
                                                     outputChannel.write(message);
                                                     outputChannel.newLine();

@@ -80,15 +80,10 @@ public class Server {
         //ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
-            int sendCount = 0;
 
             @Override
             public void sendToClient(String result) {
                 //logger.info("has result, send to client.....");
-                sendCount++;
-                if (sendCount % 5000 == 0) {
-                    logger.info("add 5000 messages....");
-                }
                 nativeServer.send(result);
             }
         });
