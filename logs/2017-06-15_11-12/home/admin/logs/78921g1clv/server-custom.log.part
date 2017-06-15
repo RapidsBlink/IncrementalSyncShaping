@@ -1,0 +1,19 @@
+[2017-06-15 11:09:09.433] INFO  c.a.m.r.sync.Server -Current server time:1497496149432
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -Current server time:1497496149445
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -middleware5
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -student
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -100000
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -2000000
+[2017-06-15 11:09:09.445] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-15 11:09:18.387] INFO  c.a.m.r.sync.Server -computation time:8941
+[2017-06-15 11:09:18.387] INFO  c.a.m.r.sync.Server -Byte count: 1250519137
+[2017-06-15 11:09:18.387] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-15 11:09:32.268] INFO  c.a.m.r.sync.Server -computation time:13881
+[2017-06-15 11:09:32.268] INFO  c.a.m.r.sync.Server -Byte count: 1535110156
+[2017-06-15 11:09:32.268] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-15 11:09:44.510] INFO  c.a.m.r.sync.Server -computation time:12241
+[2017-06-15 11:09:44.510] INFO  c.a.m.r.sync.Server -Byte count: 1162104016
+[2017-06-15 11:09:44.510] INFO  c.a.m.r.sync.Server -current records size:0
+[2017-06-15 11:10:11.960] INFO  c.a.m.r.sync.Server -computation time:27450
+[2017-06-15 11:10:11.960] INFO  c.a.m.r.sync.Server -Byte count: 1156797026
+[2017-06-15 11:10:11.960] INFO  c.a.m.r.sync.Server -current records size:0
