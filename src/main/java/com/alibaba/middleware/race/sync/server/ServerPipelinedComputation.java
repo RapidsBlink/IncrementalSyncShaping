@@ -50,12 +50,12 @@ public class ServerPipelinedComputation {
 
     // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 16;
+    private final static int TRANSFORM_WORKER_NUM = 8;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 16;
+    final static int EVAL_UPDATE_WORKER_NUM = 8;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
@@ -69,7 +69,7 @@ public class ServerPipelinedComputation {
     // task buffer: ByteArrTaskBuffer, StringTaskBuffer, RecordLazyEvalTaskBuffer
     // EvalUpdateTaskBuffer
     public static class ByteArrTaskBuffer {
-        static int MAX_SIZE = 500; // tuning it.................
+        static int MAX_SIZE = 40000; // tuning it.................
         private byte[][] byteArrArr = new byte[MAX_SIZE][];
         private int nextIndex = 0;
 
@@ -124,7 +124,7 @@ public class ServerPipelinedComputation {
     }
 
     public static class EvalUpdateTaskBuffer {
-        private static int MAX_SIZE = 50;
+        private static int MAX_SIZE = 4000;
         final private EvalUpdate[] evalUpdates;
         int nextIndex = 0;
 
