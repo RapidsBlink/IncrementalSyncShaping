@@ -50,12 +50,12 @@ public class ServerPipelinedComputation {
 
     // type2 pool: transform and computation
     private final static ExecutorService transCompMediatorPool = Executors.newSingleThreadExecutor();
-    private final static int TRANSFORM_WORKER_NUM = 2;
+    private final static int TRANSFORM_WORKER_NUM = 4;
     private final static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     private final static ExecutorService computationPool = Executors.newSingleThreadExecutor();
 
     // type3 pool: eval update application computation
-    final static int EVAL_UPDATE_WORKER_NUM = 1;
+    final static int EVAL_UPDATE_WORKER_NUM = 4;
     final static ExecutorService[] evalUpdateApplyPools = new ExecutorService[EVAL_UPDATE_WORKER_NUM];
     final static EvalUpdateTaskBuffer[] evalUpdateApplyTasks = new EvalUpdateTaskBuffer[EVAL_UPDATE_WORKER_NUM];
 
