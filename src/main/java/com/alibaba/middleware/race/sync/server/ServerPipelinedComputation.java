@@ -69,7 +69,7 @@ public class ServerPipelinedComputation {
     // task buffer: ByteArrTaskBuffer, StringTaskBuffer, RecordLazyEvalTaskBuffer
     // EvalUpdateTaskBuffer
     public static class ByteArrTaskBuffer {
-        static int MAX_SIZE = 40000; // tuning it.................
+        static int MAX_SIZE = 500; // tuning it.................
         private byte[][] byteArrArr = new byte[MAX_SIZE][];
         private int nextIndex = 0;
 
@@ -124,7 +124,7 @@ public class ServerPipelinedComputation {
     }
 
     public static class EvalUpdateTaskBuffer {
-        private static int MAX_SIZE = 4000;
+        private static int MAX_SIZE = 50;
         final private EvalUpdate[] evalUpdates;
         int nextIndex = 0;
 
