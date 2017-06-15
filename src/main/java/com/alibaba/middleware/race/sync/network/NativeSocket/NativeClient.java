@@ -6,6 +6,8 @@ import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBu
 import com.alibaba.middleware.race.sync.network.TransferClass.NetworkStringMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xerial.snappy.SnappyFramedInputStream;
+import org.xerial.snappy.SnappyFramedOutputStream;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -52,9 +54,10 @@ public class NativeClient {
                 clientSocket.setReceiveBufferSize(NetworkConstant.SEND_BUFF_SIZE);
                 clientSocket.setTcpNoDelay(true);
                 inputChannel = new BufferedReader(
-                        new InputStreamReader(new BufferedInputStream(clientSocket.getInputStream(), NetworkConstant.SEND_BUFF_SIZE)));
+                        new InputStreamReader(new BufferedInputStream(new SnappyFramedInputStream(
+                                clientSocket.getInputStream()), NetworkConstant.SEND_BUFF_SIZE)));
                 outputChannel = new BufferedWriter(
-                        new OutputStreamWriter(new BufferedOutputStream(clientSocket.getOutputStream())));
+                        new OutputStreamWriter(new BufferedOutputStream(new SnappyFramedOutputStream(clientSocket.getOutputStream()))));
                 break;
             } catch (IOException e) {
                 logger.info("connect failed... reconnecting");
