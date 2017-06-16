@@ -10,7 +10,7 @@ import java.nio.channels.FileChannel;
  */
 public class MappedFileWriter {
 
-    private static int CHUNK_SIZE = 64 * 1024 * 1024;
+    private static int CHUNK_SIZE = 16 * 1024 * 1024;
 
     private FileChannel fileChannel;
     private long realSize = 0;
@@ -28,19 +28,19 @@ public class MappedFileWriter {
     }
 
     public void write(byte[] data, int offset, int length) throws IOException {
+        if(length <= 0 )
+            return;
         int expectEnd = currentInnerChunkIndex + length;
-        if (expectEnd < CHUNK_SIZE) {
+        if (expectEnd <= CHUNK_SIZE) {
             mappedByteBuffer.put(data, offset, length);
             currentInnerChunkIndex = expectEnd;
             realSize += length;
         } else {
             int writeLength = CHUNK_SIZE - currentInnerChunkIndex;
             mappedByteBuffer.put(data, offset, writeLength);
-            realSize += writeLength;
+            realSize+=writeLength;
             getNextChunk();
             write(data, offset + writeLength, length - writeLength);
-            currentInnerChunkIndex += (length - writeLength);
-            realSize += (length - writeLength);
         }
         if (currentInnerChunkIndex == CHUNK_SIZE)
             getNextChunk();

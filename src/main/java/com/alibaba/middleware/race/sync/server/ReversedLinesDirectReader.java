@@ -17,7 +17,6 @@ public class ReversedLinesDirectReader {
     private static byte LINE_SPLITTER = 0x0a;   // \n
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
-    private ByteBuffer internalBuff = ByteBuffer.allocate(CHUNK_SIZE);
 
     private int maxIndex;
     private int nextIndex;
@@ -36,9 +35,6 @@ public class ReversedLinesDirectReader {
             inChunkIndex = lastChunkLength - 1;
         }
         mappedByteBuffer.load();
-        internalBuff.clear();
-        mappedByteBuffer.get(internalBuff.array(), 0, mappedByteBuffer.limit());
-        internalBuff.flip();
         nextIndex--;
     }
 
@@ -54,14 +50,14 @@ public class ReversedLinesDirectReader {
     }
 
     private void findFirstValidChar() {
-        while (inChunkIndex >= 0 && internalBuff.get(inChunkIndex) == LINE_SPLITTER) {
+        while (inChunkIndex >= 0 && mappedByteBuffer.get(inChunkIndex) == LINE_SPLITTER) {
             inChunkIndex--;
         }
     }
 
     private void constructString() throws IOException {
         byte ch;
-        while (inChunkIndex >= 0 && (ch = internalBuff.get(inChunkIndex)) != LINE_SPLITTER) {
+        while (inChunkIndex >= 0 && (ch = mappedByteBuffer.get(inChunkIndex)) != LINE_SPLITTER) {
             byteBuffer.put(ch);
             inChunkIndex--;
         }
