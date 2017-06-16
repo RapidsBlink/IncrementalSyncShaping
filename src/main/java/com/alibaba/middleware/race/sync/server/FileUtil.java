@@ -15,7 +15,7 @@ import java.nio.channels.FileChannel;
  * Created by yche on 6/11/17.
  */
 final public class FileUtil {
-    static void unmap(MappedByteBuffer mbb) {
+    public static void unmap(MappedByteBuffer mbb) {
         try {
             Method cleaner = mbb.getClass().getMethod("cleaner");
             cleaner.setAccessible(true);
