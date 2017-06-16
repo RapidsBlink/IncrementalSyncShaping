@@ -27,6 +27,9 @@ public class ByteBufferUsage {
     }
 
     public static void main(String[] args) {
-        compareByteBuffer();
+//        compareByteBuffer();
+        ByteBuffer byteBuffer=ByteBuffer.allocate(1024);
+        System.out.println(byteBuffer.position() + ", " + byteBuffer.limit());
     }
+
 }
