@@ -64,9 +64,9 @@ public class RecordLazyEval implements Iterator<AbstractMap.SimpleEntry<String, 
         this.stringBuilder = new StringBuilder();
 
         // 1st: skip: binlog id, and timestamp, schema and table
-        for (int i = 0; i < 4; i++) {
-            skipNextString();
-        }
+//        for (int i = 0; i < 4; i++) {
+//            skipNextString();
+//        }
 
         // check schema and table
 //        String schema = getNextString();

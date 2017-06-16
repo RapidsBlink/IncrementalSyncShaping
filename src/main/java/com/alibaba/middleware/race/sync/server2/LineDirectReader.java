@@ -52,7 +52,7 @@ public class LineDirectReader {
 
         maxChunkLength = nextChunkIndex != maxChunkIndex ? CHUNK_SIZE : lastChunkLength;
 
-        System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
+        //System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
         // 2nd: load memory
         if (mappedByteBuffer != null) {
             FileUtil.unmap(mappedByteBuffer);
@@ -91,15 +91,16 @@ public class LineDirectReader {
             inChunkIndex++;
             // reach the end
             if (nextChunkIndex >= maxChunkIndex && inChunkIndex >= maxChunkLength) {
-                System.out.println("exit this round");
+                //System.out.println("exit this round");
                 break;
             }
         }
 
         byteBuffer.flip();
 
-        byte[] retBytes = new byte[byteBuffer.limit()];
+        byte[] retBytes = new byte[byteBuffer.limit() + 1];
         System.arraycopy(byteBuffer.array(), 0, retBytes, 0, byteBuffer.limit());
+        retBytes[byteBuffer.limit()] = '\n';
         return retBytes;
     }
 

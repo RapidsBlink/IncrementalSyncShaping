@@ -1,5 +1,9 @@
 package com.alibaba.middleware.race.sync.server;
 
+import com.alibaba.middleware.race.sync.Server;
+
+import java.util.Arrays;
+
 import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.*;
@@ -15,6 +19,7 @@ public class SequentialRestore {
         if (filedList.size() == 0) {
             RecordFields record = new RecordFields(recordLazyEval.recordStr);
             filedList = record.colOrder;
+            Server.logger.info(Arrays.toString(record.colOrder.toArray()));
         }
     }
 

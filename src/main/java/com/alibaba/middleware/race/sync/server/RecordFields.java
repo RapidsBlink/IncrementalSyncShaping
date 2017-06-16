@@ -58,7 +58,7 @@ public class RecordFields {
         StringBuilder stringBuilder = new StringBuilder();
 
         // 1st: skip binlog id, and timestamp, schema and table, operation type
-        for (int i = 0; i < 5; i++)
+        //for (int i = 0; i < 5; i++)
             skipNextString(recordStr);
 
         initAllFieldInfo(recordStr, stringBuilder);

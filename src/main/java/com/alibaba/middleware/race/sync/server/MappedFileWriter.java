@@ -51,6 +51,15 @@ public class MappedFileWriter {
             FileUtil.unmap(mappedByteBuffer);
         }
         fileChannel.truncate(realSize);
+        fileChannel.close();
+    }
+
+    public void close(int reduceSize) throws IOException {
+        if (mappedByteBuffer != null) {
+            FileUtil.unmap(mappedByteBuffer);
+        }
+        fileChannel.truncate(realSize - reduceSize);
+        fileChannel.close();
     }
 
     public void getNextChunk() throws IOException {
