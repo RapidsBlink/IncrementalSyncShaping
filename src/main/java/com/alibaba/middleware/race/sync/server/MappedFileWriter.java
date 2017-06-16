@@ -27,6 +27,14 @@ public class MappedFileWriter {
         write(data, 0, data.length);
     }
 
+    public void write(byte data) throws IOException {
+        mappedByteBuffer.put(data);
+        realSize++;
+        currentInnerChunkIndex++;
+        if(currentInnerChunkIndex == CHUNK_SIZE)
+            getNextChunk();
+    }
+
     public void write(byte[] data, int offset, int length) throws IOException {
         if(length <= 0 )
             return;
