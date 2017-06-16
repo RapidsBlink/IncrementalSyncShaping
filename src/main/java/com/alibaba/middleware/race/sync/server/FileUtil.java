@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race.sync.server;
 
+import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.server2.LineDirectReader;
 
@@ -59,7 +60,7 @@ final public class FileUtil {
 
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static byte[] internalBuff = new byte[CHUNK_SIZE];
-
+    //private static byte[] reducedBuff = new byte[CHUNK_SIZE];
     public static void copyFiles(String fileName, String srcFolder, String dstFolder) throws IOException {
         FileChannel srcFileChannel = new RandomAccessFile(srcFolder + File.separator + fileName, "r").getChannel();
         File file = new File(srcFolder + File.separator + fileName);
@@ -72,17 +73,16 @@ final public class FileUtil {
         long lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
 
         for (long nextIndex = 0; nextIndex < maxIndex; nextIndex++) {
-            Server.logger.info("nextIndex: "+nextIndex);
             srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, CHUNK_SIZE);
-            //srcMappedByteBuffer.load();
+            srcMappedByteBuffer.load();
             srcMappedByteBuffer.get(internalBuff);
+
             mappedFileWriter.write(internalBuff);
             unmap(srcMappedByteBuffer);
 
         }
         srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, maxIndex * CHUNK_SIZE, lastChunkLength);
-        //srcMappedByteBuffer.load();
-
+        srcMappedByteBuffer.load();
         srcMappedByteBuffer.get(internalBuff, 0 , srcMappedByteBuffer.limit());
         mappedFileWriter.write(internalBuff, 0, srcMappedByteBuffer.limit());
         unmap(srcMappedByteBuffer);
