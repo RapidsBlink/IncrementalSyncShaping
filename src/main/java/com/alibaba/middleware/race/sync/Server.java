@@ -66,7 +66,7 @@ public class Server {
 
         for (int i = 1; i < 11; i++) {
             try {
-                transferFile(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
+                copyFiles(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
             } catch (IOException e) {
                 logger.info(e.getMessage());
             }
@@ -75,6 +75,8 @@ public class Server {
         long copyEndTimer = System.currentTimeMillis();
         logger.info(copyEndTimer - copyStartTimer + "");
         System.out.println(copyEndTimer - copyStartTimer + "");
+
+        //System.exit(0);
 
         // initialization for computations
         //ServerPipelinedComputation.initSchemaTable(args[0], args[1]);

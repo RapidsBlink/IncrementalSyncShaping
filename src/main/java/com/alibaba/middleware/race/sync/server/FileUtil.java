@@ -1,11 +1,9 @@
 package com.alibaba.middleware.race.sync.server;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.server2.LineDirectReader;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
@@ -58,37 +56,36 @@ final public class FileUtil {
         dstFileChannel.close();
 
     }
+
+    static int CHUNK_SIZE = 64 * 1024 * 1024;
+    private static byte[] internalBuff = new byte[CHUNK_SIZE];
+
     public static void copyFiles(String fileName, String srcFolder, String dstFolder) throws IOException {
         FileChannel srcFileChannel = new RandomAccessFile(srcFolder + File.separator + fileName, "r").getChannel();
-        FileChannel dstFileChannel = new RandomAccessFile(dstFolder + File.separator + fileName, "rw").getChannel();
-        MappedByteBuffer srcMappedByteBuffer = null;
-        MappedByteBuffer dstMappedByteBuffer = null;
         File file = new File(srcFolder + File.separator + fileName);
         long fileSize = file.length();
 
-        int CHUNK_SIZE = 100 * 1024 * 1024;
+        MappedFileWriter mappedFileWriter = new MappedFileWriter(dstFolder + File.separator+ fileName, fileSize);
+        MappedByteBuffer srcMappedByteBuffer = null;
 
         long maxIndex = fileSize % CHUNK_SIZE != 0 ? fileSize / CHUNK_SIZE : fileSize / CHUNK_SIZE - 1;
         long lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
-        dstFileChannel.truncate(fileSize);
 
         for (long nextIndex = 0; nextIndex < maxIndex; nextIndex++) {
             Server.logger.info("nextIndex: "+nextIndex);
             srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, CHUNK_SIZE);
-            dstMappedByteBuffer = dstFileChannel.map(FileChannel.MapMode.READ_WRITE, nextIndex * CHUNK_SIZE, CHUNK_SIZE);
-
-            srcMappedByteBuffer.load();
-            dstMappedByteBuffer.put(srcMappedByteBuffer);
+            //srcMappedByteBuffer.load();
+            srcMappedByteBuffer.get(internalBuff);
+            mappedFileWriter.write(internalBuff);
             unmap(srcMappedByteBuffer);
-            unmap(dstMappedByteBuffer);
+
         }
-
         srcMappedByteBuffer = srcFileChannel.map(FileChannel.MapMode.READ_ONLY, maxIndex * CHUNK_SIZE, lastChunkLength);
-        dstMappedByteBuffer = dstFileChannel.map(FileChannel.MapMode.READ_WRITE, maxIndex * CHUNK_SIZE, lastChunkLength);
+        //srcMappedByteBuffer.load();
 
-        srcMappedByteBuffer.load();
-        dstMappedByteBuffer.put(srcMappedByteBuffer);
+        srcMappedByteBuffer.get(internalBuff, 0 , srcMappedByteBuffer.limit());
+        mappedFileWriter.write(internalBuff, 0, srcMappedByteBuffer.limit());
         unmap(srcMappedByteBuffer);
-        unmap(dstMappedByteBuffer);
+        mappedFileWriter.close();
     }
 }

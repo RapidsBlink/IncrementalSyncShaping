@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.server.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -12,7 +14,7 @@ import java.nio.channels.FileChannel;
  * not thread safe
  */
 public class LineDirectReader {
-    private static int CHUNK_SIZE = 32 * 1024 * 1024;
+    private static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static byte LINE_SPLITTER = '\n';
 
     private FileChannel fileChannel;
@@ -33,7 +35,7 @@ public class LineDirectReader {
         int fileSize = (int) file.length();
         this.maxChunkIndex = fileSize % CHUNK_SIZE != 0 ? fileSize / CHUNK_SIZE : fileSize / CHUNK_SIZE - 1;
         this.lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
-        System.out.println("lastChunkLength:" + lastChunkLength);
+        //System.out.println("lastChunkLength:" + lastChunkLength);
 
         // fetch the first chunk
         this.nextChunkIndex = 0;
@@ -43,8 +45,11 @@ public class LineDirectReader {
     private void fetchNextChunk() throws IOException {
         // 1st: set chunk size
         maxChunkLength = nextChunkIndex != maxChunkIndex ? CHUNK_SIZE : lastChunkLength;
-        System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
+        //System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
         // 2nd: load memory
+        if(mappedByteBuffer != null){
+            FileUtil.unmap(mappedByteBuffer);
+        }
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextChunkIndex * CHUNK_SIZE, maxChunkLength);
         mappedByteBuffer.load();
 
@@ -94,6 +99,7 @@ public class LineDirectReader {
     public byte[] readLineBytes() throws IOException {
         // the last chunk finished
         if (nextChunkIndex >= maxChunkIndex && inChunkIndex >= maxChunkLength) {
+            FileUtil.unmap(mappedByteBuffer);
             return null;
         }
 
@@ -101,9 +107,9 @@ public class LineDirectReader {
         for (int i = 0; i < 4; i++) {
             skipOneStringBytes();
         }
-        if (nextChunkIndex >= maxChunkIndex && maxChunkLength - inChunkIndex < 1000) {
-            System.out.println(new String(getLineBytes()));
-        }
+//        if (nextChunkIndex >= maxChunkIndex && maxChunkLength - inChunkIndex < 1000) {
+//            System.out.println(new String(getLineBytes()));
+//        }
         return getLineBytes();
     }
 }
