@@ -44,10 +44,17 @@ public class LineDirectReader {
 
     private void fetchNextChunk() throws IOException {
         // 1st: set chunk size
+        if (nextChunkIndex > maxChunkIndex) {
+            System.out.println("in chunk index:" + inChunkIndex);
+            System.out.println("maxChunkLength:" + maxChunkLength);
+            System.out.println("next chunk index" + nextChunkIndex);
+        }
+
         maxChunkLength = nextChunkIndex != maxChunkIndex ? CHUNK_SIZE : lastChunkLength;
-        //System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
+
+        System.out.println("max chunk len:" + maxChunkLength + ", cur next chunk index:" + nextChunkIndex + ", max index:" + maxChunkIndex);
         // 2nd: load memory
-        if(mappedByteBuffer != null){
+        if (mappedByteBuffer != null) {
             FileUtil.unmap(mappedByteBuffer);
         }
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextChunkIndex * CHUNK_SIZE, maxChunkLength);
@@ -84,7 +91,7 @@ public class LineDirectReader {
             inChunkIndex++;
             // reach the end
             if (nextChunkIndex >= maxChunkIndex && inChunkIndex >= maxChunkLength) {
-                System.out.println("!!");
+                System.out.println("exit this round");
                 break;
             }
         }
@@ -98,7 +105,8 @@ public class LineDirectReader {
 
     public byte[] readLineBytes() throws IOException {
         // the last chunk finished
-        if (nextChunkIndex >= maxChunkIndex && inChunkIndex >= maxChunkLength) {
+        // avoid the last is '\n'
+        if (nextChunkIndex >= maxChunkIndex && inChunkIndex >= maxChunkLength - 1) {
             FileUtil.unmap(mappedByteBuffer);
             return null;
         }
@@ -107,9 +115,9 @@ public class LineDirectReader {
         for (int i = 0; i < 4; i++) {
             skipOneStringBytes();
         }
-//        if (nextChunkIndex >= maxChunkIndex && maxChunkLength - inChunkIndex < 1000) {
-//            System.out.println(new String(getLineBytes()));
-//        }
+        if (nextChunkIndex >= maxChunkIndex && maxChunkLength - inChunkIndex < 1000) {
+            System.out.println(new String(getLineBytes()));
+        }
         return getLineBytes();
     }
 }

@@ -26,7 +26,7 @@ public class FileStatistics {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        Thread.sleep(5000);
+//        Thread.sleep(5000);
         long programStart = System.currentTimeMillis();
 
 //        readFilesIntoPageCache(myFiles);
