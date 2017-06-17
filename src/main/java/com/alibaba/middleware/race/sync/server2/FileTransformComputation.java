@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.Server;
+
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.concurrent.Callable;
@@ -15,8 +17,7 @@ public class FileTransformComputation {
     private static byte LINE_SPLITTER = '\n';
 
     static int CHUNK_SIZE = 64 * 1024 * 1024;
-    private static int TRANSFORM_WORKER_NUM = 16;
-    private static int SMALL_CHUNK_SIZE = CHUNK_SIZE / TRANSFORM_WORKER_NUM;
+    static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
 
@@ -36,12 +37,31 @@ public class FileTransformComputation {
             this.byteBuffer = ByteBuffer.allocate(endIndex - startIndex);
         }
 
+        // for the first small chunk
+        public TransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
+            this.mappedByteBuffer = mappedByteBuffer;
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+            this.nextIndex = this.startIndex;
+            this.byteBuffer = ByteBuffer.allocate(endIndex - startIndex);
+
+            // computation
+            int localIndex = 0;
+            for (int i = 0; i < 4; i++) {
+                if (remainingByteBuffer.get(localIndex) == FILED_SPLITTER)
+                    localIndex++;
+                while (remainingByteBuffer.get(localIndex) != FILED_SPLITTER)
+                    localIndex++;
+            }
+            this.byteBuffer.put(remainingByteBuffer.array(), localIndex, remainingByteBuffer.limit());
+        }
+
         // stop at `|`
         private void skipField() {
             if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
                 nextIndex++;
             }
-            while (mappedByteBuffer.getChar(nextIndex) != FILED_SPLITTER) {
+            while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
                 nextIndex++;
             }
         }
@@ -71,20 +91,21 @@ public class FileTransformComputation {
         }
     }
 
+    private static void joinSinglePool(ExecutorService executorService) {
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            if (Server.logger != null) {
+                Server.logger.info(e.getMessage());
+            }
+        }
+    }
+
     // should be called after all files transformed
     public static void joinPool() {
-        transformPool.shutdown();
-        try {
-            transformPool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        writeFilePool.shutdown();
-        try {
-            writeFilePool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        joinSinglePool(transformPool);
+        joinSinglePool(writeFilePool);
     }
 }
