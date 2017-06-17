@@ -15,9 +15,12 @@ public class FileTransformTest {
     }
 
     public static void main(String[] args) throws IOException {
+        long startTime = System.currentTimeMillis();
         for (int i = 1; i < 11; i++) {
             transformOneFile(i + ".txt");
         }
         FileTransformComputation.joinPool();
+        long endTime = System.currentTimeMillis();
+        System.out.println(endTime - startTime);
     }
 }

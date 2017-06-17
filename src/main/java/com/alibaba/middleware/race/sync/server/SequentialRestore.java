@@ -19,7 +19,8 @@ public class SequentialRestore {
         if (filedList.size() == 0) {
             RecordFields record = new RecordFields(recordLazyEval.recordStr);
             filedList = record.colOrder;
-            Server.logger.info(Arrays.toString(record.colOrder.toArray()));
+            if (Server.logger != null)
+                Server.logger.info(Arrays.toString(record.colOrder.toArray()));
         }
     }
 

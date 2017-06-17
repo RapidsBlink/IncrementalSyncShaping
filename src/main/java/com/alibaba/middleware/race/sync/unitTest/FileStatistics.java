@@ -20,8 +20,10 @@ public class FileStatistics {
 //        for(int i = 10; i > 0 ; i--)
 //            myFiles.add("/home/will/Workspace/test/canal_data/" + i + ".txt");
 //        myFiles.add("/tmp/canal.txt");
+
         for (int i = 10; i > 0; i--) {
-            myFiles.add("/tmp/" + i + ".txt");
+//            myFiles.add("/tmp/" + i + ".txt");
+            myFiles.add("/home/yche/OutData/" + i + ".txt");
         }
     }
 

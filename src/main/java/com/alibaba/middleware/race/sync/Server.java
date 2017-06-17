@@ -3,6 +3,7 @@ package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.FileTransformComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.server.FileUtil.copyFiles;
 import static com.alibaba.middleware.race.sync.server.FileUtil.transferFile;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.JoinComputationThread;
 import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRoundComputation;
@@ -62,19 +62,20 @@ public class Server {
         nativeServer = new NativeServer(args, Constants.SERVER_PORT);
         nativeServer.start();
 
+        // transform file
         long copyStartTimer = System.currentTimeMillis();
 
         for (int i = 1; i < 11; i++) {
             try {
-                copyFiles(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
+                transferFile(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
             } catch (IOException e) {
                 logger.info(e.getMessage());
             }
         }
+        FileTransformComputation.joinPool();
 
         long copyEndTimer = System.currentTimeMillis();
         logger.info(copyEndTimer - copyStartTimer + "");
-        System.out.println(copyEndTimer - copyStartTimer + "");
 
         //System.exit(0);
 
