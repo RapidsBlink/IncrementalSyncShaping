@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -29,7 +30,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<ByteBuffer>> byteBufferFutureQueue; // consumed by output stream
+    private Queue<Future<ByteBuffer>> byteBufferFutureQueue=new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 

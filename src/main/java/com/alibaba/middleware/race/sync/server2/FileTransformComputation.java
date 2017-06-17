@@ -53,7 +53,7 @@ public class FileTransformComputation {
                 while (remainingByteBuffer.get(localIndex) != FILED_SPLITTER)
                     localIndex++;
             }
-            this.byteBuffer.put(remainingByteBuffer.array(), localIndex, remainingByteBuffer.limit());
+            this.byteBuffer.put(remainingByteBuffer.array(), localIndex, remainingByteBuffer.limit()-localIndex);
         }
 
         // stop at `|`
