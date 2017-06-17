@@ -5,10 +5,7 @@ import com.alibaba.middleware.race.sync.Server;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * Created by yche on 6/16/17.
@@ -20,6 +17,8 @@ public class FileTransformComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
+
+    static BlockingQueue<Byte> writeQueue = new ArrayBlockingQueue<>(500);
     static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
 
     public static class FileTransformTask implements Callable<ByteBuffer> {
@@ -54,7 +53,7 @@ public class FileTransformComputation {
                 while (remainingByteBuffer.get(localIndex) != FILED_SPLITTER)
                     localIndex++;
             }
-            this.byteBuffer.put(remainingByteBuffer.array(), localIndex, remainingByteBuffer.limit()-localIndex);
+            this.byteBuffer.put(remainingByteBuffer.array(), localIndex, remainingByteBuffer.limit() - localIndex);
         }
 
         // stop at `|`

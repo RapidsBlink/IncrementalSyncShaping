@@ -128,17 +128,25 @@ public class FileTransformWriteMediator {
     }
 
     private void assignWriterTask(final ByteBuffer byteBuffer) {
+        try {
+            writeQueue.put((byte) 0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         writeFilePool.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     bufferedOutputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
+                    writeQueue.take();
                 } catch (IOException e) {
                     e.printStackTrace();
                     if (Server.logger != null) {
                         Server.logger.info("assign writer single task exception");
                         Server.logger.info(e.getMessage());
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -146,6 +154,7 @@ public class FileTransformWriteMediator {
 
     // 3rd work
     private void assignWriterTasks() {
+
         while (!byteBufferFutureQueue.isEmpty()) {
             Future<ByteBuffer> future = byteBufferFutureQueue.poll();
             ByteBuffer result = null;
