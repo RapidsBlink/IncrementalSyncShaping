@@ -154,6 +154,7 @@ public class FileTransformWriteMediator {
                 e.printStackTrace();
                 if (Server.logger != null) {
                     Server.logger.info("assign task exception");
+                    Server.logger.info(e.getMessage());
                 }
             }
             assignWriterTask(result);
@@ -181,6 +182,10 @@ public class FileTransformWriteMediator {
                     bufferedOutputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    if (Server.logger != null) {
+                        Server.logger.info("assign task exception");
+                        Server.logger.info(e.getMessage());
+                    }
                 }
             }
         });
