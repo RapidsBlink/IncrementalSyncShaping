@@ -14,14 +14,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class FileTransformComputation {
     private static byte FILED_SPLITTER = '|';
-    private static byte LINE_SPLITTER = '\n';
+    static byte LINE_SPLITTER = '\n';
 
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
-    static ExecutorService transformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
+    static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
 
-    public static class TransformTask implements Callable<ByteBuffer> {
+    public static class FileTransformTask implements Callable<ByteBuffer> {
         final MappedByteBuffer mappedByteBuffer;
         final int startIndex; // inclusive, not `\n` at first
         final int endIndex;   // exclusive
@@ -29,7 +29,7 @@ public class FileTransformComputation {
 
         private int nextIndex;
 
-        public TransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+        public FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
             this.mappedByteBuffer = mappedByteBuffer;
             this.startIndex = startIndex;
             this.endIndex = endIndex;
@@ -38,7 +38,7 @@ public class FileTransformComputation {
         }
 
         // for the first small chunk
-        public TransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
+        public FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
             this.mappedByteBuffer = mappedByteBuffer;
             this.startIndex = startIndex;
             this.endIndex = endIndex;
@@ -105,7 +105,7 @@ public class FileTransformComputation {
 
     // should be called after all files transformed
     public static void joinPool() {
-        joinSinglePool(transformPool);
+        joinSinglePool(fileTransformPool);
         joinSinglePool(writeFilePool);
     }
 }

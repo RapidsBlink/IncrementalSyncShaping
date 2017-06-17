@@ -11,9 +11,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
-import static com.alibaba.middleware.race.sync.server2.FileTransformComputation.CHUNK_SIZE;
-import static com.alibaba.middleware.race.sync.server2.FileTransformComputation.TRANSFORM_WORKER_NUM;
-import static com.alibaba.middleware.race.sync.server2.FileTransformComputation.writeFilePool;
+import static com.alibaba.middleware.race.sync.server2.FileTransformComputation.*;
 
 /**
  * Created by yche on 6/16/17.
@@ -63,16 +61,69 @@ public class FileTransformWriteMediator {
         mappedByteBuffer.load();
     }
 
+    // previous tail, should be copied into task
+    private int preparePrevBytes() {
+        int end = 0;
+
+        if (prevRemainingBytes.position() > 0 && prevRemainingBytes.get(prevRemainingBytes.position() - 1) != LINE_SPLITTER) {
+            byte myByte;
+            // stop at `\n`
+            while ((myByte = mappedByteBuffer.get(end)) != LINE_SPLITTER) {
+                prevRemainingBytes.put(myByte);
+                end++;
+            }
+            prevRemainingBytes.put(myByte);
+            end++;
+        }
+        prevRemainingBytes.flip();
+        return end;
+    }
+
+    private int computeEnd(int smallChunkLastIndex) {
+        int end = smallChunkLastIndex;
+        while (mappedByteBuffer.get(end) != LINE_SPLITTER) {
+            end--;
+        }
+        end += 1;
+        return end;
+    }
+
     // 2nd work: merge remaining, compute [start, end)
     private void assignTransformTasks() {
-        // previous tail, should be copied into task
         int avgTask = currChunkLength / TRANSFORM_WORKER_NUM;
-        if (prevRemainingBytes.position() > 0) {
 
+        // index pair
+        int start;
+        int end = preparePrevBytes();
+
+        // 1st: first worker
+        start = end;
+        end = computeEnd(avgTask - 1);
+        FileTransformTask fileTransformTask;
+        if (prevRemainingBytes.limit() > 0) {
+            ByteBuffer tmp = ByteBuffer.allocate(prevRemainingBytes.limit());
+            tmp.put(prevRemainingBytes);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp);
+        } else {
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
+        }
+
+        byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
+
+        // 2nd: subsequent workers
+        for (int i = 1; i < TRANSFORM_WORKER_NUM; i++) {
+            start = end;
+            int smallChunkLastIndex = i < TRANSFORM_WORKER_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
+            end = computeEnd(smallChunkLastIndex);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
+            byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
         }
 
         // current tail, clear and then put
         prevRemainingBytes.clear();
+        for (int i = end; i < currChunkLength; i++) {
+            prevRemainingBytes.put(mappedByteBuffer.get(i));
+        }
     }
 
     private void assignWriterTask(final ByteBuffer byteBuffer) {
@@ -91,7 +142,7 @@ public class FileTransformWriteMediator {
     // 3rd work
     private void assignWriterTasks() {
         while (!byteBufferFutureQueue.isEmpty()) {
-            Future<ByteBuffer> future = byteBufferFutureQueue.peek();
+            Future<ByteBuffer> future = byteBufferFutureQueue.poll();
             ByteBuffer result = null;
             while (result == null) {
                 try {
