@@ -137,6 +137,7 @@ public class FileTransformWriteMediator {
                     e.printStackTrace();
                     if (Server.logger != null) {
                         Server.logger.info("assign writer single task exception");
+                        Server.logger.info(e.getMessage());
                     }
                 }
             }
@@ -167,6 +168,7 @@ public class FileTransformWriteMediator {
         } catch (IOException e) {
             e.printStackTrace();
             if (Server.logger != null) {
+                Server.logger.info("mmap error");
                 Server.logger.info(e.getMessage());
             }
         }
