@@ -17,10 +17,11 @@ import static com.alibaba.middleware.race.sync.server2.RecordField.fieldIndexMap
 public class RecordFieldTest {
     public static void main(String []args) throws IOException {
         MappedByteBuffer mappedByteBuffer;
-        FileChannel fileChannel = new RandomAccessFile("/tmp/1.txt", "r").getChannel();
+        FileChannel fileChannel = new RandomAccessFile("/tmp/canal.txt", "r").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 1024 * 1024);
         mappedByteBuffer.load();
-        new RecordField(mappedByteBuffer).initFieldIndexMap();
+        if(!RecordField.isInit())
+            new RecordField(mappedByteBuffer).initFieldIndexMap();
         for (Map.Entry<ByteBuffer, Integer> entry : fieldIndexMap.entrySet()) {
             System.out.println(new String(entry.getKey().array())+", "+entry.getValue());
         }

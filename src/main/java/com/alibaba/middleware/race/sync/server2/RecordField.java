@@ -46,6 +46,7 @@ public class RecordField {
         byte myByte;
         while ((myByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             myBuffer.put(myByte);
+            nextIndex++;
         }
         myBuffer.flip();
         ByteBuffer retByteBuffer = ByteBuffer.allocate(myBuffer.limit());
@@ -55,13 +56,15 @@ public class RecordField {
     }
 
     public void initFieldIndexMap() {
-        for (int i = 0; i < 4; i++) {
+        // mysql, ts, schema, table, op, pk name, prev val, cur val
+        for (int i = 0; i < 8; i++) {
             skipField();
         }
 
         // peek next char after `|`
         while (mappedByteBuffer.get(nextFieldIndex + 1) != LINE_SPLITTER) {
-            fieldIndexMap.put(getNextField(), nextFieldIndex);
+            ByteBuffer nextField=getNextField();
+            fieldIndexMap.put(nextField, nextFieldIndex);
             nextFieldIndex++;
             skipField();
             skipField();
