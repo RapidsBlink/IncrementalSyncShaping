@@ -62,7 +62,7 @@ public class RecordField {
         }
 
         // peek next char after `|`
-        while (mappedByteBuffer.get(nextFieldIndex + 1) != LINE_SPLITTER) {
+        while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
             ByteBuffer nextField=getNextField();
             fieldIndexMap.put(nextField, nextFieldIndex);
             nextFieldIndex++;
