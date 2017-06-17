@@ -63,30 +63,30 @@ public class Server {
         nativeServer.start();
 
         // transform file
-        long copyStartTimer = System.currentTimeMillis();
+
 
         for (int i = 1; i < 11; i++) {
+            long copyStartTimer = System.currentTimeMillis();
             try {
                 transferFile(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
             } catch (IOException e) {
                 logger.info(e.getMessage());
             }
+            long copyEndTimer = System.currentTimeMillis();
+            logger.info("computation time cost:" + (copyEndTimer - copyStartTimer));
         }
+
+        long copyStartTimer = System.currentTimeMillis();
         FileTransformComputation.joinPool();
-
         long copyEndTimer = System.currentTimeMillis();
-        logger.info(copyEndTimer - copyStartTimer + "");
-
-        //System.exit(0);
+        logger.info("sync time cost:" + (copyEndTimer - copyStartTimer));
 
         // initialization for computations
-        //ServerPipelinedComputation.initSchemaTable(args[0], args[1]);
         ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
         ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
 
             @Override
             public void sendToClient(String result) {
-                //logger.info("has result, send to client.....");
                 nativeServer.send(result);
             }
         });
