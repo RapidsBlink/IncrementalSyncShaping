@@ -1,6 +1,6 @@
-package com.alibaba.middleware.race.sync.unitTest;
+package com.alibaba.middleware.race.sync.unused;
 
-import com.alibaba.middleware.race.sync.server2.LineDirectReader;
+import com.alibaba.middleware.race.sync.unused.LineDirectReader;
 
 import java.io.IOException;
 

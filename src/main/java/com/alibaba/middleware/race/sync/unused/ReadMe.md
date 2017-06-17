@@ -268,7 +268,7 @@ package com.alibaba.middleware.race.sync.server;
 import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator;
-import com.alibaba.middleware.race.sync.server2.LineDirectReader;
+import com.alibaba.middleware.race.sync.unused.LineDirectReader;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;

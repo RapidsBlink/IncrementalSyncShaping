@@ -1,15 +1,11 @@
 package com.alibaba.middleware.race.sync.server;
 
-import com.alibaba.middleware.race.sync.Constants;
-import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator;
-import com.alibaba.middleware.race.sync.server2.LineDirectReader;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 
 /**
  * Created by yche on 6/11/17.

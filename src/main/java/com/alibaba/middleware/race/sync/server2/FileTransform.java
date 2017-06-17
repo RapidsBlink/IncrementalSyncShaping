@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.concurrent.*;
@@ -10,8 +9,8 @@ import java.util.concurrent.*;
 /**
  * Created by yche on 6/16/17.
  */
-public class FileTransformComputation {
-    private static byte FILED_SPLITTER = '|';
+public class FileTransform {
+    static byte FILED_SPLITTER = '|';
     static byte LINE_SPLITTER = '\n';
 
     static int CHUNK_SIZE = 64 * 1024 * 1024;
@@ -108,6 +107,4 @@ public class FileTransformComputation {
         joinSinglePool(fileTransformPool);
         joinSinglePool(writeFilePool);
     }
-
-
 }

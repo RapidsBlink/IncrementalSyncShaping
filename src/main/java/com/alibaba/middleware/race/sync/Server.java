@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
 import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
-import com.alibaba.middleware.race.sync.server2.FileTransformComputation;
+import com.alibaba.middleware.race.sync.server2.FileTransform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class Server {
         }
 
         long copyStartTimer = System.currentTimeMillis();
-        FileTransformComputation.joinPool();
+        FileTransform.joinPool();
         long copyEndTimer = System.currentTimeMillis();
         logger.info("sync time cost:" + (copyEndTimer - copyStartTimer));
 

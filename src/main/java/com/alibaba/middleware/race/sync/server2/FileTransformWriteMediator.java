@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
-import static com.alibaba.middleware.race.sync.server2.FileTransformComputation.*;
+import static com.alibaba.middleware.race.sync.server2.FileTransform.*;
 
 /**
  * Created by yche on 6/16/17.
