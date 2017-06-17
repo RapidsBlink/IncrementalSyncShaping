@@ -30,7 +30,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<ByteBuffer>> byteBufferFutureQueue=new LinkedList<>(); // consumed by output stream
+    private Queue<Future<ByteBuffer>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -135,6 +135,9 @@ public class FileTransformWriteMediator {
                     bufferedOutputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
                 } catch (IOException e) {
                     e.printStackTrace();
+                    if (Server.logger != null) {
+                        Server.logger.info("assign writer single task exception");
+                    }
                 }
             }
         });
@@ -145,11 +148,12 @@ public class FileTransformWriteMediator {
         while (!byteBufferFutureQueue.isEmpty()) {
             Future<ByteBuffer> future = byteBufferFutureQueue.poll();
             ByteBuffer result = null;
-            while (result == null) {
-                try {
-                    result = future.get();
-                } catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
+            try {
+                result = future.get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+                if (Server.logger != null) {
+                    Server.logger.info("assign task exception");
                 }
             }
             assignWriterTask(result);

@@ -164,12 +164,10 @@ public class ServerPipelinedComputation {
             while (!lazyEvalTaskQueue.isEmpty()) {
                 Future<RecordLazyEvalTaskBuffer> recordLazyEvalTaskBufferFuture = lazyEvalTaskQueue.poll();
                 RecordLazyEvalTaskBuffer recordLazyEvalTaskBuffer = null;
-                while (recordLazyEvalTaskBuffer == null) {
-                    try {
-                        recordLazyEvalTaskBuffer = recordLazyEvalTaskBufferFuture.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    recordLazyEvalTaskBuffer = recordLazyEvalTaskBufferFuture.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
                 }
                 computationPool.execute(new ComputationTask(recordLazyEvalTaskBuffer));
             }
