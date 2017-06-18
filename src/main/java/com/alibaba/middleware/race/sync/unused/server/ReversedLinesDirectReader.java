@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.server;
+package com.alibaba.middleware.race.sync.unused.server;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
+import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 
 /**
  * Created by yche on 6/9/17.

@@ -2,7 +2,7 @@ package com.alibaba.middleware.race.sync;
 
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
+import com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +12,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.server.FileUtil.transferFile;
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.JoinComputationThread;
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.OneRoundComputation;
+import static com.alibaba.middleware.race.sync.unused.server.FileUtil.transferFile;
+import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.JoinComputationThread;
+import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.OneRoundComputation;
 
 /**
  * Created by will on 6/6/2017.

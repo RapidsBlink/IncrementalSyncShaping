@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
-import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
+import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
 /**
@@ -24,9 +24,7 @@ public class FileTransformWriteMediator {
     static BufferedOutputStream bufferedOutputStream;
 
     private FileChannel fileChannel;
-    // input
     private MappedByteBuffer mappedByteBuffer;
-    // output
 
     private int nextIndex;
     private int maxIndex;   // inclusive

@@ -1,6 +1,6 @@
-package com.alibaba.middleware.race.sync.unitTest;
+package com.alibaba.middleware.race.sync.unused.unitTest;
 
-import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
+import com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.*;
+import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.*;
 
 /**
  * Created by yche on 6/6/17.

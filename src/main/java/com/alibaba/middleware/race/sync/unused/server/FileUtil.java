@@ -1,6 +1,4 @@
-package com.alibaba.middleware.race.sync.server;
-
-import com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator;
+package com.alibaba.middleware.race.sync.unused.server;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -23,7 +21,7 @@ final public class FileUtil {
     }
 
     public static void transferFile(String fileName, String srcFolder, String dstFolder) throws IOException {
-        FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(fileName, srcFolder, dstFolder);
-        fileTransformWriteMediator.transformFile();
+//        FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(fileName, srcFolder, dstFolder);
+//        fileTransformWriteMediator.transformFile();
     }
 }

@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.unused.client;
 
-import com.alibaba.middleware.race.sync.server.RecordUpdate;
+import com.alibaba.middleware.race.sync.unused.server.RecordUpdate;
 
 import java.util.ArrayList;
 

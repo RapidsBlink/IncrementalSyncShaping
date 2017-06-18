@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.server;
+package com.alibaba.middleware.race.sync.unused.server;
 
 import com.alibaba.middleware.race.sync.Server;
 
@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import static com.alibaba.middleware.race.sync.Constants.DELETE_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.INSERT_OPERATION;
-import static com.alibaba.middleware.race.sync.server.ServerPipelinedComputation.*;
+import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.*;
 
 /**
  * Created by yche on 6/8/17.

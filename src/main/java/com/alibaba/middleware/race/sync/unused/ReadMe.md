@@ -2,9 +2,9 @@
 ## Parallel(Not Useful Overlap)
 
 ```java
-package com.alibaba.middleware.race.sync.play;
+package com.alibaba.middleware.race.sync.unused.play;
 
-import com.alibaba.middleware.race.sync.server.RecordUpdate;
+import com.alibaba.middleware.race.sync.unused.server.RecordUpdate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -124,7 +124,7 @@ public class GlobalComputation {
 ## Condition Variable Version Pipelined Computation
 
 ```java
-package com.alibaba.middleware.race.sync.server;
+package com.alibaba.middleware.race.sync.unused.server;
 
 import com.alibaba.middleware.race.sync.Server;
 
@@ -263,7 +263,7 @@ public class ServerPipelinedComputation {
 
 
 ```java
-package com.alibaba.middleware.race.sync.server;
+package com.alibaba.middleware.race.sync.unused.server;
 
 import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.Server;

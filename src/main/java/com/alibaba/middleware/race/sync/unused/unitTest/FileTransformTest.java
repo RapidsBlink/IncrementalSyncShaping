@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.unitTest;
+package com.alibaba.middleware.race.sync.unused.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator;
@@ -9,8 +9,8 @@ import java.io.IOException;
  * Created by yche on 6/17/17.
  */
 public class FileTransformTest {
-    private static void transformOneFile(String fileName) throws IOException {
-        FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(fileName, "/tmp", "/home/yche/OutData");
+    private static void transformOneFile(String filePath) throws IOException {
+        FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(filePath);
         fileTransformWriteMediator.transformFile();
     }
 

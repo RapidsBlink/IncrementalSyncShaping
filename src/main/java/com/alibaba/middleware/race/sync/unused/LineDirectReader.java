@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.unused;
 
-import com.alibaba.middleware.race.sync.server.FileUtil;
+import com.alibaba.middleware.race.sync.unused.server.FileUtil;
 
 import java.io.File;
 import java.io.IOException;

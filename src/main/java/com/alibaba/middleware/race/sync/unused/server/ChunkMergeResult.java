@@ -1,7 +1,5 @@
 package com.alibaba.middleware.race.sync.unused.server;
 
-import com.alibaba.middleware.race.sync.server.RecordUpdate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;

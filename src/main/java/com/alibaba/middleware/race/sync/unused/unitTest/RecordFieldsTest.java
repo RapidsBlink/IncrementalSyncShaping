@@ -1,6 +1,6 @@
-package com.alibaba.middleware.race.sync.unitTest;
+package com.alibaba.middleware.race.sync.unused.unitTest;
 
-import com.alibaba.middleware.race.sync.server.RecordFields;
+import com.alibaba.middleware.race.sync.unused.server.RecordFields;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
