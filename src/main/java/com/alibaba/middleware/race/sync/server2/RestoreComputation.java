@@ -3,8 +3,7 @@ package com.alibaba.middleware.race.sync.server2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ExecutorService;
 
 import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
@@ -15,7 +14,6 @@ import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
 public class RestoreComputation {
     private HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
     private TreeSet<Long> inRangeKeys = new TreeSet<>();
-    private ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public void compute(RecordWrapper recordWrapper) {
         KeyOperation keyOperation = recordWrapper.keyOperation;
@@ -55,11 +53,16 @@ public class RestoreComputation {
         return valueIndexArrWrapperArrayList;
     }
 
-    public void addFinalResult(long key, String result) {
-        finalResultMap.put(key, result);
-    }
-
-    public ConcurrentMap<Long, String> getFinalResultMap() {
-        return finalResultMap;
+    // used by master thread
+    public void parallelEvalAndSend(ExecutorService evalThreadPool) {
+        BufferedEvalAndSendTask bufferedTask = new BufferedEvalAndSendTask();
+        for (Long inRangeKey : inRangeKeys) {
+            if (bufferedTask.isFull()) {
+                evalThreadPool.execute(bufferedTask);
+                bufferedTask = new BufferedEvalAndSendTask();
+            }
+            bufferedTask.addData(new RecordObject(inRangeKey, valueIndexArrMap.get(inRangeKey)));
+        }
+        evalThreadPool.execute(bufferedTask);
     }
 }
