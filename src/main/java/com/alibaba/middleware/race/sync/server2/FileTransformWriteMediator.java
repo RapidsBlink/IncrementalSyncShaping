@@ -137,6 +137,8 @@ public class FileTransformWriteMediator {
             @Override
             public void run() {
                 try {
+//                    System.out.println(new String(byteBuffer.array(),0, byteBuffer.limit()));
+//                    System.out.println("size:"+byteBuffer.limit());
                     bufferedOutputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
                     writeQueue.take();
                 } catch (IOException e) {
@@ -178,17 +180,17 @@ public class FileTransformWriteMediator {
                 }
             }
             curPropertyFileLen += transformResultPair.retByteBuffer.limit();
-
+            System.out.println("curPropertyFileLen:"+curPropertyFileLen);
             // 2nd: compute key change
             final TransformResultPair finalTransformResultPair = transformResultPair;
-            computationPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
-                        restoreComputation.compute(recordKeyValuePair);
-                    }
-                }
-            });
+//            computationPool.submit(new Runnable() {
+//                @Override
+//                public void run() {
+//                    for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
+//                        restoreComputation.compute(recordKeyValuePair);
+//                    }
+//                }
+//            });
 
             // 3rd: write properties into file
             assignWriterTask(transformResultPair.retByteBuffer);

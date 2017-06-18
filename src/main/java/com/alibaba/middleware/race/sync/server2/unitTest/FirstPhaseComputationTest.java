@@ -18,6 +18,6 @@ public class FirstPhaseComputationTest {
         for (int i = 1; i < 11; i++) {
             filePathList.add(srcFolder + File.separator + i + ".txt");
         }
-        PipelinedComputation.firstPhaseComputation(filePathList, "/home/yche/OutPut" + MIDDLE_FILE_NAME);
+        PipelinedComputation.firstPhaseComputation(filePathList, "/home/yche/OutPut" +File.separator+ MIDDLE_FILE_NAME);
     }
 }
