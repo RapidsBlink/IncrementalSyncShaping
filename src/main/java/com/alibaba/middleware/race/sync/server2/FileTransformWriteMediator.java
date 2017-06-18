@@ -11,6 +11,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
@@ -21,7 +22,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  */
 public class FileTransformWriteMediator {
     private static long curPropertyFileLen = 0;
-    static BufferedOutputStream bufferedOutputStream;
+    static BufferedOutputStream bufferedOutputStream ;
 
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
@@ -56,7 +57,7 @@ public class FileTransformWriteMediator {
         }
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
         mappedByteBuffer.load();
-        if(RecordField.isInit()){
+        if (!RecordField.isInit()) {
             new RecordField(mappedByteBuffer).initFieldIndexMap();
         }
     }
@@ -167,8 +168,14 @@ public class FileTransformWriteMediator {
             }
 
             // 1st: update offset
+            if (transformResultPair == null) {
+                System.out.println("null transform result pair");
+            }
             for (RecordKeyValuePair recordKeyValuePair : transformResultPair.recordWrapperArrayList) {
-                recordKeyValuePair.valueIndexArrWrapper.addGlobalOffset(curPropertyFileLen);
+                if (recordKeyValuePair.valueIndexArrWrapper != null) {
+                    // for the delete operation
+                    recordKeyValuePair.valueIndexArrWrapper.addGlobalOffset(curPropertyFileLen);
+                }
             }
             curPropertyFileLen += transformResultPair.retByteBuffer.limit();
 
@@ -203,20 +210,6 @@ public class FileTransformWriteMediator {
     }
 
     private void finish() {
-        writeFilePool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    bufferedOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (Server.logger != null) {
-                        Server.logger.info("assign task exception");
-                        Server.logger.info(e.getMessage());
-                    }
-                }
-            }
-        });
         unmap(mappedByteBuffer);
     }
 

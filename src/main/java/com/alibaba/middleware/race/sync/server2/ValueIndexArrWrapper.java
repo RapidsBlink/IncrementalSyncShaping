@@ -22,7 +22,7 @@ public class ValueIndexArrWrapper {
 
     // used by transform worker
     void addIndex(ByteBuffer keyBytes, long offset, short length) {
-        System.out.println("index:" + RecordField.fieldIndexMap.get(keyBytes) + "\t\tbuffer:" + new String(keyBytes.array(), 0, keyBytes.limit()));
+//        System.out.println("index:" + RecordField.fieldIndexMap.get(keyBytes) + "\t\tbuffer:" + new String(keyBytes.array(), 0, keyBytes.limit()));
         valueIndexArr[RecordField.fieldIndexMap.get(keyBytes)] = new IndexPair(offset, length);
     }
 

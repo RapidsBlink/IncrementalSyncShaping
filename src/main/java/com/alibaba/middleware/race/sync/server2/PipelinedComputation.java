@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
+import static com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator.bufferedOutputStream;
+
 /**
  * Created by yche on 6/16/17.
  * whole computation logic
@@ -46,13 +48,27 @@ public class PipelinedComputation {
 
     // should be called after all files transformed
     public static void joinFirstPhasePool() {
+        writeFilePool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    bufferedOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    if (Server.logger != null) {
+                        Server.logger.info("assign task exception");
+                        Server.logger.info(e.getMessage());
+                    }
+                }
+            }
+        });
         joinSinglePool(fileTransformPool);
         joinSinglePool(writeFilePool);
         joinSinglePool(computationPool);
     }
 
-    private static void firstPhaseComputation(ArrayList<String> srcFilePaths, String dstFilePath) throws IOException {
-        FileTransformWriteMediator.bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dstFilePath));
+    public static void firstPhaseComputation(ArrayList<String> srcFilePaths, String dstFilePath) throws IOException {
+        bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dstFilePath));
         for (String pathString : srcFilePaths) {
             FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
             fileTransformWriteMediator.transformFile();
