@@ -5,7 +5,7 @@ package com.alibaba.middleware.race.sync.server2;
  */
 public class IndexPair {
     long offset;
-    final short length;
+    public final short length;
 
     IndexPair(long offset, short length) {
         this.offset = offset;

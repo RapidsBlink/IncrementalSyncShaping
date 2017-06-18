@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 /**
  * Created by yche on 6/16/17.
  */
-public class FileTransform {
+public class PipelinedComputation {
     static byte FILED_SPLITTER = '|';
     static byte LINE_SPLITTER = '\n';
 

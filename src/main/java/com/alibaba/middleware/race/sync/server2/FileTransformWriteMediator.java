@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
-import static com.alibaba.middleware.race.sync.server2.FileTransform.*;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
 /**
  * Created by yche on 6/16/17.
@@ -30,7 +30,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<ByteBuffer>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
+    private Queue<Future<TransformResultPair>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -156,10 +156,10 @@ public class FileTransformWriteMediator {
     private void assignWriterTasks() {
 
         while (!byteBufferFutureQueue.isEmpty()) {
-            Future<ByteBuffer> future = byteBufferFutureQueue.poll();
+            Future<TransformResultPair> future = byteBufferFutureQueue.poll();
             ByteBuffer result = null;
             try {
-                result = future.get();
+                result = future.get().retByteBuffer;
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 if (Server.logger != null) {

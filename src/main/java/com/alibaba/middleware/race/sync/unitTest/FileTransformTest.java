@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.FileTransform;
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class FileTransformTest {
         for (int i = 1; i < 11; i++) {
             transformOneFile(i + ".txt");
         }
-        FileTransform.joinPool();
+        PipelinedComputation.joinPool();
         long endTime = System.currentTimeMillis();
         System.out.println(endTime - startTime);
     }

@@ -15,7 +15,7 @@ public class RestoreComputation {
     private HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
     private TreeSet<Long> inRangeKeys = new TreeSet<>();
 
-    public void compute(RecordWrapper recordWrapper) {
+    public void compute(RecordKeyValuePair recordWrapper) {
         KeyOperation keyOperation = recordWrapper.keyOperation;
         if (keyOperation.getOperationType() == D_OPERATION) {
             valueIndexArrMap.remove(keyOperation.getPrevKey());
