@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  * Created by yche on 6/18/17.
  */
 public class ValueIndexArrWrapper {
-    private IndexPair[] valueIndexArr;
+    public IndexPair[] valueIndexArr;
 
     ValueIndexArrWrapper() {
         valueIndexArr = new IndexPair[RecordField.FILED_NUM];

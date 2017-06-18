@@ -5,9 +5,9 @@ package com.alibaba.middleware.race.sync.server2;
  * record key-change
  */
 public class KeyOperation {
-    private byte operationType;
-    private Long prevKey;
-    private Long curKey;
+    public byte operationType;
+    public Long prevKey;
+    public Long curKey;
 
     KeyOperation(byte operationType) {
         this.operationType = operationType;

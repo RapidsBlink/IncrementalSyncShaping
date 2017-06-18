@@ -56,6 +56,9 @@ public class FileTransformWriteMediator {
         }
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
         mappedByteBuffer.load();
+        if(RecordField.isInit()){
+            new RecordField(mappedByteBuffer).initFieldIndexMap();
+        }
     }
 
     // previous tail, should be copied into task
