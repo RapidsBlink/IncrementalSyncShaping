@@ -57,4 +57,6 @@ public interface Constants {
     byte I_OPERATION = 'I';
     byte D_OPERATION = 'D';
     byte U_OPERATION = 'U';
+
+    String MIDDLE_FILE_NAME = "properties.rapids";
 }

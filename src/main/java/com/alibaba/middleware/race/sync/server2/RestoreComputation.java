@@ -12,10 +12,10 @@ import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
 /**
  * Created by yche on 6/18/17.
  */
-public class Restore {
-    HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
-    TreeSet<Long> inRangeKeys = new TreeSet<>();
-    ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
+public class RestoreComputation {
+    private HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
+    private TreeSet<Long> inRangeKeys = new TreeSet<>();
+    private ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public void compute(RecordWrapper recordWrapper) {
         KeyOperation keyOperation = recordWrapper.keyOperation;
@@ -57,5 +57,9 @@ public class Restore {
 
     public void addFinalResult(long key, String result) {
         finalResultMap.put(key, result);
+    }
+
+    public ConcurrentMap<Long, String> getFinalResultMap() {
+        return finalResultMap;
     }
 }

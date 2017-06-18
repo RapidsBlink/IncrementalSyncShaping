@@ -38,7 +38,7 @@ public class KeyOperation {
     }
 
     public boolean isKeyChanged() {
-        return getPrevKey() != getCurKey();
+        return !getPrevKey().equals(getCurKey());
     }
 
     private static long pkLowerBound;

@@ -15,7 +15,7 @@ public class ValueIndexArrWrapper {
         }
     }
 
-    private IndexPair get(int index) {
+    public IndexPair get(int index) {
         return valueIndexArr[index];
     }
 
