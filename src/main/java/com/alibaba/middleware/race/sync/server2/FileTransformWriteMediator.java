@@ -11,6 +11,7 @@ import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 

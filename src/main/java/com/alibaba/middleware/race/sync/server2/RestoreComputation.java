@@ -45,14 +45,6 @@ public class RestoreComputation {
         }
     }
 
-    public ArrayList<ValueIndexArrWrapper> getInRangeValueArrWrappers() {
-        ArrayList<ValueIndexArrWrapper> valueIndexArrWrapperArrayList = new ArrayList<>(inRangeKeys.size());
-        for (Long inRangeKey : inRangeKeys) {
-            valueIndexArrWrapperArrayList.add(valueIndexArrMap.get(inRangeKey));
-        }
-        return valueIndexArrWrapperArrayList;
-    }
-
     // used by master thread
     public void parallelEvalAndSend(ExecutorService evalThreadPool) {
         BufferedEvalAndSendTask bufferedTask = new BufferedEvalAndSendTask();

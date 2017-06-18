@@ -4,8 +4,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.FILED_SPLITTER;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.LINE_SPLITTER;
+import static com.alibaba.middleware.race.sync.Constants.FILED_SPLITTER;
+import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
+
 
 /**
  * Created by yche on 6/17/17.

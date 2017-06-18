@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.sync.server2;
 /**
  * Created by yche on 6/18/17.
  */
-public class RecordObject {
+class RecordObject {
     final long key;
     private final ValueIndexArrWrapper valueIndexArrWrapper;
 

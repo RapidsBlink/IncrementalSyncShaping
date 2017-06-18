@@ -2,27 +2,25 @@ package com.alibaba.middleware.race.sync.server2;
 
 /**
  * Created by yche on 6/18/17.
- * use builder pattern
+ * record key-change
  */
 public class KeyOperation {
     private byte operationType;
     private Long prevKey;
     private Long curKey;
 
-    public KeyOperation(byte operationType) {
+    KeyOperation(byte operationType) {
         this.operationType = operationType;
         this.prevKey = null;
         this.curKey = null;
     }
 
-    KeyOperation preKey(long prevKey) {
+    void preKey(long prevKey) {
         this.prevKey = prevKey;
-        return this;
     }
 
-    KeyOperation curKey(long curKey) {
+    void curKey(long curKey) {
         this.curKey = curKey;
-        return this;
     }
 
     byte getOperationType() {

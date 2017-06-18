@@ -25,7 +25,7 @@ public class PropertyValueFetcher {
         }
     }
 
-    public String fetchProperty(long globalOffset, short length) {
+    String fetchProperty(long globalOffset, short length) {
         byte[] result = new byte[length];
         try {
             raf.seek(globalOffset);

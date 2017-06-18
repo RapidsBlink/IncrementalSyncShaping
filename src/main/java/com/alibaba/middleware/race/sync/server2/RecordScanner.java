@@ -3,15 +3,12 @@ package com.alibaba.middleware.race.sync.server2;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
-import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.FILED_SPLITTER;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.LINE_SPLITTER;
+import static com.alibaba.middleware.race.sync.Constants.*;
 
 /**
  * Created by yche on 6/18/17.
  */
-public class RecordScanner {
+class RecordScanner {
     // input
     private final ByteBuffer mappedByteBuffer;
     private final int endIndex;   // exclusive

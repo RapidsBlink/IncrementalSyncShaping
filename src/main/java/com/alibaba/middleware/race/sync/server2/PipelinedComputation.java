@@ -8,8 +8,7 @@ import java.util.concurrent.*;
  * Created by yche on 6/16/17.
  */
 public class PipelinedComputation {
-    static byte FILED_SPLITTER = '|';
-    static byte LINE_SPLITTER = '\n';
+
 
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;

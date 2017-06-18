@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 public class ValueIndexArrWrapper {
     private IndexPair[] valueIndexArr;
 
-    public ValueIndexArrWrapper() {
+    ValueIndexArrWrapper() {
         valueIndexArr = new IndexPair[RecordField.FILED_NUM];
         for (IndexPair indexPair : valueIndexArr) {
             System.out.println(indexPair);
@@ -24,7 +24,7 @@ public class ValueIndexArrWrapper {
     }
 
     // used by transform worker
-    public void addIndex(ByteBuffer keyBytes, long offset, short length) {
+    void addIndex(ByteBuffer keyBytes, long offset, short length) {
         valueIndexArr[RecordField.fieldIndexMap.get(keyBytes)] = new IndexPair(offset, length);
     }
 
