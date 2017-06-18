@@ -1,15 +1,13 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.unused.Record;
-
 /**
  * Created by yche on 6/18/17.
  */
 public class RecordObject {
-    long key;
-    ValueIndexArrWrapper valueIndexArrWrapper;
+    final long key;
+    private final ValueIndexArrWrapper valueIndexArrWrapper;
 
-    public RecordObject(long key, ValueIndexArrWrapper valueIndexArrWrapper) {
+    RecordObject(long key, ValueIndexArrWrapper valueIndexArrWrapper) {
         this.key = key;
         this.valueIndexArrWrapper = valueIndexArrWrapper;
     }

@@ -28,7 +28,7 @@ public class FileTransform {
 
         private int nextIndex;
 
-        public FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+        FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
             this.mappedByteBuffer = mappedByteBuffer;
             this.startIndex = startIndex;
             this.endIndex = endIndex;
@@ -37,7 +37,7 @@ public class FileTransform {
         }
 
         // for the first small chunk
-        public FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
+        FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
             this.mappedByteBuffer = mappedByteBuffer;
             this.startIndex = startIndex;
             this.endIndex = endIndex;

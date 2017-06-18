@@ -25,19 +25,19 @@ public class KeyOperation {
         return this;
     }
 
-    public byte getOperationType() {
+    byte getOperationType() {
         return operationType;
     }
 
-    public Long getPrevKey() {
+    Long getPrevKey() {
         return prevKey;
     }
 
-    public Long getCurKey() {
+    Long getCurKey() {
         return curKey;
     }
 
-    public boolean isKeyChanged() {
+    boolean isKeyChanged() {
         return !getPrevKey().equals(getCurKey());
     }
 

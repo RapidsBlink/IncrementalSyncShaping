@@ -23,10 +23,12 @@ public class ValueIndexArrWrapper {
         valueIndexArr[index] = indexPair;
     }
 
+    // used by transform worker
     public void addIndex(ByteBuffer keyBytes, long offset, short length) {
         valueIndexArr[RecordField.fieldIndexMap.get(keyBytes)] = new IndexPair(offset, length);
     }
 
+    // used by master thread
     public void addGlobalOffset(long prevGlobalLen) {
         for (IndexPair indexPair : valueIndexArr) {
             if (indexPair != null) {
@@ -35,7 +37,7 @@ public class ValueIndexArrWrapper {
         }
     }
 
-    public void mergeLatterOperation(ValueIndexArrWrapper valueIndexArr) {
+    void mergeLatterOperation(ValueIndexArrWrapper valueIndexArr) {
         for (int i = 0; i < RecordField.FILED_NUM; i++) {
             if (valueIndexArr.get(i) != null) {
                 this.set(i, valueIndexArr.get(i));

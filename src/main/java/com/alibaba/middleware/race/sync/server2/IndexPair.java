@@ -7,7 +7,7 @@ public class IndexPair {
     long offset;
     final short length;
 
-    public IndexPair(long offset, short length) {
+    IndexPair(long offset, short length) {
         this.offset = offset;
         this.length = length;
     }
