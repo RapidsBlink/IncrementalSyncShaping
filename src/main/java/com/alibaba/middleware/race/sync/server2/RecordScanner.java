@@ -7,22 +7,24 @@ import static com.alibaba.middleware.race.sync.Constants.*;
 
 /**
  * Created by yche on 6/18/17.
+ * used for scan the byte arr of record string lines
  */
-class RecordScanner {
+public class RecordScanner {
     // input
     private final ByteBuffer mappedByteBuffer;
     private final int endIndex;   // exclusive
 
     // intermediate states
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
+    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(128);
     private int nextIndex; // start from startIndex
 
     // output
     private final ByteBuffer retByteBuffer; // fast-consumption object
     private final ArrayList<RecordKeyValuePair> recordWrapperArrayList; // fast-consumption object
 
-    RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
-                  ByteBuffer retByteBuffer, ArrayList<RecordKeyValuePair> retRecordWrapperArrayList) {
+    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
+                         ByteBuffer retByteBuffer, ArrayList<RecordKeyValuePair> retRecordWrapperArrayList) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -41,15 +43,16 @@ class RecordScanner {
     }
 
     private void putIntoByteBufferUntilFieldSplitter() {
+        if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
+            nextIndex++;
+        }
         byte myByte;
         while ((myByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             retByteBuffer.put(myByte);
             nextIndex++;
         }
         // add `\n`
-        retByteBuffer.put(mappedByteBuffer.get(nextIndex));
-        // stop at new start `|`, finally stop at unreachable endIndex
-        nextIndex++;
+        retByteBuffer.put(LINE_SPLITTER);
     }
 
     private long getNextLong() {
@@ -67,18 +70,17 @@ class RecordScanner {
         return Long.valueOf(new String(tmpBuffer.array(), 0, tmpBuffer.limit()));
     }
 
-    private void skipFieldNameAndUpdateStates() {
-        int start = nextIndex + 1;
+    private void skipFieldName() {
         // skip '|'
         nextIndex++;
         // stop at '|'
-        while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
+        byte myByte;
+        fieldNameBuffer.clear();
+        while ((myByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+            fieldNameBuffer.put(myByte);
             nextIndex++;
         }
-        int end = nextIndex;
-
-        mappedByteBuffer.position(start);
-        mappedByteBuffer.limit(end);
+        fieldNameBuffer.flip();
     }
 
     private RecordKeyValuePair scanOneRecord() {
@@ -114,17 +116,19 @@ class RecordScanner {
                 valueIndexArrWrapper = new ValueIndexArrWrapper();
             }
 
-            skipFieldNameAndUpdateStates();
-            long curOffset = retByteBuffer.limit();
+            skipFieldName();
+            long curOffset = retByteBuffer.position();
             skipField();
             putIntoByteBufferUntilFieldSplitter();
-            long nextOffset = retByteBuffer.limit();
-            valueIndexArrWrapper.addIndex(mappedByteBuffer, curOffset, (short) (nextOffset - curOffset));
+            long nextOffset = retByteBuffer.position();
+            valueIndexArrWrapper.addIndex(fieldNameBuffer, curOffset, (short) (nextOffset - curOffset));
         }
+        // skip '|' and `\n`
+        nextIndex += 2;
         return new RecordKeyValuePair(keyOperation, valueIndexArrWrapper);
     }
 
-    void compute() {
+    public void compute() {
         while (nextIndex < endIndex) {
             recordWrapperArrayList.add(scanOneRecord());
         }

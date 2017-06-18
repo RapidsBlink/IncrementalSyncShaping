@@ -10,9 +10,6 @@ public class ValueIndexArrWrapper {
 
     ValueIndexArrWrapper() {
         valueIndexArr = new IndexPair[RecordField.FILED_NUM];
-        for (IndexPair indexPair : valueIndexArr) {
-            System.out.println(indexPair);
-        }
     }
 
     public IndexPair get(int index) {
@@ -25,6 +22,7 @@ public class ValueIndexArrWrapper {
 
     // used by transform worker
     void addIndex(ByteBuffer keyBytes, long offset, short length) {
+        System.out.println("index:" + RecordField.fieldIndexMap.get(keyBytes) + "\t\tbuffer:" + new String(keyBytes.array(), 0, keyBytes.limit()));
         valueIndexArr[RecordField.fieldIndexMap.get(keyBytes)] = new IndexPair(offset, length);
     }
 
