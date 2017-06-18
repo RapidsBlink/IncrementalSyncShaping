@@ -19,7 +19,7 @@ public class FileTransformTest {
         for (int i = 1; i < 11; i++) {
             transformOneFile(i + ".txt");
         }
-        PipelinedComputation.joinPool();
+        PipelinedComputation.joinFirstPhasePool();
         long endTime = System.currentTimeMillis();
         System.out.println(endTime - startTime);
     }

@@ -7,6 +7,7 @@ import java.util.concurrent.Callable;
 
 /**
  * Created by yche on 6/18/17.
+ * used by transform thread pool
  */
 public class FileTransformTask implements Callable<TransformResultPair> {
     // functionality

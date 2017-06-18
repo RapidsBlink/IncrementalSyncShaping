@@ -1,19 +1,20 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.server.ServerPipelinedComputation;
 
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation.FindResultListener;
 
 /**
  * Created by yche on 6/18/17.
  */
 class BufferedEvalAndSendTask implements Runnable {
     private static PropertyValueFetcher propertyValueFetcher;
-    private static ServerPipelinedComputation.FindResultListener findResultListener;
+    private static FindResultListener findResultListener;
     static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
-    static public void setFindResultListener(ServerPipelinedComputation.FindResultListener findResultListener) {
+    static public void setFindResultListener(FindResultListener findResultListener) {
         findResultListener = findResultListener;
     }
 

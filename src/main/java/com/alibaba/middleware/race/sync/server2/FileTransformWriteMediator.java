@@ -17,14 +17,16 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
 /**
  * Created by yche on 6/16/17.
+ * used by the master thread
  */
 public class FileTransformWriteMediator {
-    private FileChannel fileChannel;
+    private static long curPropertyFileLen = 0;
+    static BufferedOutputStream bufferedOutputStream;
 
+    private FileChannel fileChannel;
     // input
     private MappedByteBuffer mappedByteBuffer;
     // output
-    private BufferedOutputStream bufferedOutputStream;
 
     private int nextIndex;
     private int maxIndex;   // inclusive
@@ -35,12 +37,8 @@ public class FileTransformWriteMediator {
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
-    public FileTransformWriteMediator(String fileName, String srcFolder, String dstFolder) throws IOException {
-        // 1st: file length
-        String srcFilePath = srcFolder + File.separator + fileName;
-        String dstFilePath = dstFolder + File.separator + fileName;
-
-        File file = new File(srcFilePath);
+    public FileTransformWriteMediator(String filePath) throws IOException {
+        File file = new File(filePath);
         int fileSize = (int) file.length();
         this.lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
 
@@ -48,8 +46,7 @@ public class FileTransformWriteMediator {
         this.maxIndex = fileSize % CHUNK_SIZE != 0 ? fileSize / CHUNK_SIZE : fileSize / CHUNK_SIZE - 1;
 
         // 3rd: fileChannel for reading with mmap
-        this.fileChannel = new RandomAccessFile(srcFilePath, "r").getChannel();
-        this.bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dstFilePath));
+        this.fileChannel = new RandomAccessFile(filePath, "r").getChannel();
     }
 
     // 1st work
@@ -154,13 +151,12 @@ public class FileTransformWriteMediator {
     }
 
     // 3rd work
-    private void assignWriterTasks() {
-
+    private void assignComputationAndWriterTasks() {
         while (!byteBufferFutureQueue.isEmpty()) {
             Future<TransformResultPair> future = byteBufferFutureQueue.poll();
-            ByteBuffer result = null;
+            TransformResultPair transformResultPair = null;
             try {
-                result = future.get().retByteBuffer;
+                transformResultPair = future.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 if (Server.logger != null) {
@@ -168,7 +164,26 @@ public class FileTransformWriteMediator {
                     Server.logger.info(e.getMessage());
                 }
             }
-            assignWriterTask(result);
+
+            // 1st: update offset
+            for (RecordKeyValuePair recordKeyValuePair : transformResultPair.recordWrapperArrayList) {
+                recordKeyValuePair.valueIndexArrWrapper.addGlobalOffset(curPropertyFileLen);
+            }
+            curPropertyFileLen += transformResultPair.retByteBuffer.limit();
+
+            // 2nd: compute key change
+            final TransformResultPair finalTransformResultPair = transformResultPair;
+            computationPool.submit(new Runnable() {
+                @Override
+                public void run() {
+                    for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
+                        restoreComputation.compute(recordKeyValuePair);
+                    }
+                }
+            });
+
+            // 3rd: write properties into file
+            assignWriterTask(transformResultPair.retByteBuffer);
         }
     }
 
@@ -183,7 +198,7 @@ public class FileTransformWriteMediator {
             }
         }
         assignTransformTasks();
-        assignWriterTasks();
+        assignComputationAndWriterTasks();
     }
 
     private void finish() {

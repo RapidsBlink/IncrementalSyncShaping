@@ -77,7 +77,7 @@ public class Server {
         }
 
         long copyStartTimer = System.currentTimeMillis();
-        PipelinedComputation.joinPool();
+        PipelinedComputation.joinFirstPhasePool();
         long copyEndTimer = System.currentTimeMillis();
         logger.info("sync time cost:" + (copyEndTimer - copyStartTimer));
 
