@@ -53,4 +53,8 @@ public interface Constants {
     char INSERT_OPERATION = 'I';
     char DELETE_OPERATION = 'D';
     char UPDATE_OPERATION = 'U';
+
+    byte I_OPERATION = 'I';
+    byte D_OPERATION = 'D';
+    byte U_OPERATION = 'U';
 }

@@ -13,6 +13,7 @@ import static com.alibaba.middleware.race.sync.server2.FileTransform.LINE_SPLITT
  */
 public class RecordField {
     public static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
+    public static int FILED_NUM;
 
     public static boolean isInit() {
         return fieldIndexMap.size() > 0;
@@ -63,11 +64,13 @@ public class RecordField {
 
         // peek next char after `|`
         while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-            ByteBuffer nextField=getNextField();
+            ByteBuffer nextField = getNextField();
             fieldIndexMap.put(nextField, nextFieldIndex);
             nextFieldIndex++;
             skipField();
             skipField();
         }
+
+        FILED_NUM = fieldIndexMap.size();
     }
 }
