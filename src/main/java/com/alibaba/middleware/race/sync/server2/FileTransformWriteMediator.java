@@ -22,7 +22,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  */
 public class FileTransformWriteMediator {
     private static long curPropertyFileLen = 0;
-    static BufferedOutputStream bufferedOutputStream ;
+    static BufferedOutputStream bufferedOutputStream;
 
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
@@ -137,8 +137,6 @@ public class FileTransformWriteMediator {
             @Override
             public void run() {
                 try {
-//                    System.out.println(new String(byteBuffer.array(),0, byteBuffer.limit()));
-//                    System.out.println("size:"+byteBuffer.limit());
                     bufferedOutputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
                     writeQueue.take();
                 } catch (IOException e) {
@@ -175,14 +173,19 @@ public class FileTransformWriteMediator {
             }
             for (RecordKeyValuePair recordKeyValuePair : transformResultPair.recordWrapperArrayList) {
                 if (recordKeyValuePair.valueIndexArrWrapper != null) {
-                    // for the delete operation
+                    // for the delete operation, and update-pk-only operation
                     recordKeyValuePair.valueIndexArrWrapper.addGlobalOffset(curPropertyFileLen);
                 }
             }
             curPropertyFileLen += transformResultPair.retByteBuffer.limit();
-            System.out.println("curPropertyFileLen:"+curPropertyFileLen);
+            System.out.println("curPropertyFileLen:" + curPropertyFileLen);
             // 2nd: compute key change
             final TransformResultPair finalTransformResultPair = transformResultPair;
+
+//            for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
+//                restoreComputation.compute(recordKeyValuePair);
+//            }
+
 //            computationPool.submit(new Runnable() {
 //                @Override
 //                public void run() {

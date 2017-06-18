@@ -36,9 +36,13 @@ public class ValueIndexArrWrapper {
     }
 
     void mergeLatterOperation(ValueIndexArrWrapper valueIndexArr) {
-        for (int i = 0; i < RecordField.FILED_NUM; i++) {
-            if (valueIndexArr.get(i) != null) {
-                this.set(i, valueIndexArr.get(i));
+        // null only when there is only pk update without other filed updates
+        if (valueIndexArr != null)
+        {
+            for (int i = 0; i < RecordField.FILED_NUM; i++) {
+                if (valueIndexArr.get(i) != null) {
+                    this.set(i, valueIndexArr.get(i));
+                }
             }
         }
     }
