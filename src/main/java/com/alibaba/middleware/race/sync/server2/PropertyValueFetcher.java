@@ -10,10 +10,10 @@ import java.io.RandomAccessFile;
  * Created by yche on 6/18/17.
  * only one globally since only one middle file
  */
-public class PropertyValueFetcher {
+class PropertyValueFetcher {
     private RandomAccessFile raf;
 
-    public PropertyValueFetcher(String filePath) {
+    PropertyValueFetcher(String filePath) {
         try {
             raf = new RandomAccessFile(filePath, "r");
         } catch (FileNotFoundException e) {

@@ -1,6 +1,5 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
@@ -11,11 +10,11 @@ import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
 /**
  * Created by yche on 6/18/17.
  */
-public class RestoreComputation {
+class RestoreComputation {
     private HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
     private TreeSet<Long> inRangeKeys = new TreeSet<>();
 
-    public void compute(RecordKeyValuePair recordWrapper) {
+    void compute(RecordKeyValuePair recordWrapper) {
         KeyOperation keyOperation = recordWrapper.keyOperation;
         if (keyOperation.getOperationType() == D_OPERATION) {
             valueIndexArrMap.remove(keyOperation.getPrevKey());
@@ -46,7 +45,7 @@ public class RestoreComputation {
     }
 
     // used by master thread
-    public void parallelEvalAndSend(ExecutorService evalThreadPool) {
+    void parallelEvalAndSend(ExecutorService evalThreadPool) {
         BufferedEvalAndSendTask bufferedTask = new BufferedEvalAndSendTask();
         for (Long inRangeKey : inRangeKeys) {
             if (bufferedTask.isFull()) {

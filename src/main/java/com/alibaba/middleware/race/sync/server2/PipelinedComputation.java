@@ -13,8 +13,6 @@ import java.util.concurrent.*;
  * whole computation logic
  */
 public class PipelinedComputation {
-
-
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
@@ -25,6 +23,10 @@ public class PipelinedComputation {
 
     static BlockingQueue<Byte> writeQueue = new ArrayBlockingQueue<>(800);
     static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
+
+    static PropertyValueFetcher propertyValueFetcher;
+    static FindResultListener findResultListener;
+    static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public interface FindResultListener {
         void sendToClient(String result);
@@ -49,7 +51,7 @@ public class PipelinedComputation {
         joinSinglePool(computationPool);
     }
 
-    public static void firstPhaseComputation(ArrayList<String> srcFilePaths, String dstFilePath) throws IOException {
+    private static void firstPhaseComputation(ArrayList<String> srcFilePaths, String dstFilePath) throws IOException {
         FileTransformWriteMediator.bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dstFilePath));
         for (String pathString : srcFilePaths) {
             FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
@@ -58,8 +60,16 @@ public class PipelinedComputation {
         joinFirstPhasePool();
     }
 
-    public static void secondPhaseComputation() {
+    private static void secondPhaseComputation(String dstFilePath) {
+        propertyValueFetcher = new PropertyValueFetcher(dstFilePath);
         restoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
+    }
+
+    public static void globalComputation(ArrayList<String> srcFilePaths, String dstFilePath,
+                                         FindResultListener findResultListener) throws IOException {
+        firstPhaseComputation(srcFilePaths, dstFilePath);
+        secondPhaseComputation(dstFilePath);
+        PipelinedComputation.findResultListener = findResultListener;
     }
 }

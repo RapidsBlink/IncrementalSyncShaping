@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.propertyValueFetcher;
+
 /**
  * Created by yche on 6/18/17.
  */
@@ -12,7 +14,7 @@ class RecordObject {
         this.valueIndexArrWrapper = valueIndexArrWrapper;
     }
 
-    String getOneLine(PropertyValueFetcher propertyValueFetcher) {
+    String getOneLine() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(key).append('\t');
         for (int i = 0; i < RecordField.FILED_NUM; i++) {
