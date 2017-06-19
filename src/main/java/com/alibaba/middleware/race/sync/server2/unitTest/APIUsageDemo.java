@@ -36,5 +36,7 @@ public class APIUsageDemo {
         bufferedWriter.close();
         long endTime = System.currentTimeMillis();
         System.out.println("total time:" + (endTime - startTime) + " ms");
+
+        System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
     }
 }

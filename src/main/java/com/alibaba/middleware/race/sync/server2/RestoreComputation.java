@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    private HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
+    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
     public TreeSet<LogOperation> inRangeRecordSet = new TreeSet<>();
 
     void compute(LogOperation logOperation) {
@@ -29,11 +29,12 @@ public class RestoreComputation {
 
             if (logOperation instanceof UpdateKeyOperation) {
                 recordMap.remove(logOperation);
-                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
-                recordMap.put(insertOperation, insertOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
+
+                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
+                recordMap.put(insertOperation, insertOperation);
                 if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
                     inRangeRecordSet.add(insertOperation);
                 }
