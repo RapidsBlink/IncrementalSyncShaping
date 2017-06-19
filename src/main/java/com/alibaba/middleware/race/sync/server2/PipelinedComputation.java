@@ -2,8 +2,6 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
 
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -23,11 +21,8 @@ public class PipelinedComputation {
 
     static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
-    static BlockingQueue<Byte> writeQueue = new ArrayBlockingQueue<>(800);
-    static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
-
-    static FindResultListener findResultListener;
-    static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
+    public static FindResultListener findResultListener;
+    public static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public interface FindResultListener {
         void sendToClient(String result);
@@ -45,45 +40,24 @@ public class PipelinedComputation {
         }
     }
 
-    // should be called after all files transformed
-    public static void joinFirstPhasePool() {
-        writeFilePool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    bufferedOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (Server.logger != null) {
-                        Server.logger.info("assign task exception");
-                        Server.logger.info(e.getMessage());
-                    }
-                }
-            }
-        });
-        joinSinglePool(fileTransformPool);
-        joinSinglePool(writeFilePool);
-        joinSinglePool(computationPool);
-    }
-
-    public static void firstPhaseComputation(ArrayList<String> srcFilePaths, String dstFilePath) throws IOException {
-        bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(dstFilePath));
+    public static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
         for (String pathString : srcFilePaths) {
             FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
             fileTransformWriteMediator.transformFile();
         }
-        joinFirstPhasePool();
+        joinSinglePool(fileTransformPool);
+        joinSinglePool(computationPool);
     }
 
-    private static void secondPhaseComputation(String dstFilePath) {
+    public static void secondPhaseComputation() {
         restoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
 
-    public static void globalComputation(ArrayList<String> srcFilePaths, String dstFilePath,
+    public static void globalComputation(ArrayList<String> srcFilePaths,
                                          FindResultListener findResultListener) throws IOException {
-        firstPhaseComputation(srcFilePaths, dstFilePath);
-        secondPhaseComputation(dstFilePath);
+        firstPhaseComputation(srcFilePaths);
+        secondPhaseComputation();
         PipelinedComputation.findResultListener = findResultListener;
     }
 }

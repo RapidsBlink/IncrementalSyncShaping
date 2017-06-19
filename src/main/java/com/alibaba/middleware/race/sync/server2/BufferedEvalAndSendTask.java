@@ -32,8 +32,8 @@ class BufferedEvalAndSendTask implements Runnable {
     @Override
     public void run() {
         for (int i = 0; i < nextIndex; i++) {
-            String result = recordArr[nextIndex].getOneLine();
-            finalResultMap.put(recordArr[nextIndex].key, result);
+            String result = recordArr[i].getOneLine();
+            finalResultMap.put(recordArr[i].key, result);
             findResultListener.sendToClient(result);
         }
     }
