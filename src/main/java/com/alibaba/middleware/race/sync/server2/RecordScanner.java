@@ -15,8 +15,8 @@ public class RecordScanner {
     private final int endIndex;   // exclusive
 
     // intermediate states
-    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
-    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(128);
+    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(32);
+    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(32);
     private int nextIndex; // start from startIndex
 
 
