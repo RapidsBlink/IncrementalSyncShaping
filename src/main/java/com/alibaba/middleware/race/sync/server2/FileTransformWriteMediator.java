@@ -24,7 +24,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  */
 public class FileTransformWriteMediator {
     static BufferedOutputStream bufferedOutputStream;
-    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(16);
+    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(8);
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 

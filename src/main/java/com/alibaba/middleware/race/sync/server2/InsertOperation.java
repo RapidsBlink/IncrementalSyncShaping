@@ -17,6 +17,10 @@ public class InsertOperation extends LogOperation {
         valueArr[RecordField.fieldIndexMap.get(keyBytes)] = bytes;
     }
 
+    public void addValue(int index, byte[]bytes){
+        valueArr[index] = bytes;
+    }
+
     public void changePK(long newPk) {
         this.relevantKey = newPk;
     }

@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
+import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
 
 /**
  * Created by yche on 6/18/17.
@@ -15,8 +16,8 @@ public class RecordScanner {
     private final int endIndex;   // exclusive
 
     // intermediate states
-    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(32);
-    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(32);
+    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
+    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
 
 
@@ -41,6 +42,10 @@ public class RecordScanner {
         }
     }
 
+    private void skipFieldForInsert(int index) {
+        nextIndex += fieldSkipLen[index];
+    }
+
     private byte[] getNextBytes() {
         if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
             nextIndex++;
@@ -58,19 +63,18 @@ public class RecordScanner {
         return myBytes;
     }
 
+
     private long getNextLong() {
-        tmpBuffer.clear();
         if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER)
             nextIndex++;
 
         byte tmpByte;
+        long result = 0l;
         while ((tmpByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             nextIndex++;
-            tmpBuffer.put(tmpByte);
+            result = (10 * result) + (tmpByte - '0');
         }
-        tmpBuffer.flip();
-
-        return Long.valueOf(new String(tmpBuffer.array(), 0, tmpBuffer.limit()));
+        return result;
     }
 
     private void skipFieldName() {
@@ -84,6 +88,10 @@ public class RecordScanner {
             nextIndex++;
         }
         fieldNameBuffer.flip();
+    }
+
+    private void skipNull(){
+        nextIndex+=5;
     }
 
     private LogOperation scanOneRecord() {
@@ -100,12 +108,12 @@ public class RecordScanner {
         skipField();
         if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
-            skipField();
+            skipNull();
             logOperation = new InsertOperation(getNextLong());
         } else if (operation == D_OPERATION) {
             // delete: pre -> cur(null)
             logOperation = new DeleteOperation(getNextLong());
-            skipField();
+            skipNull();
         } else {
             // update
             long prevKey = getNextLong();
@@ -120,11 +128,14 @@ public class RecordScanner {
         // 3rd: parse ValueIndex
         // must be insert and update
         if (logOperation instanceof InsertOperation) {
+            int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                skipFieldName();
-                skipField();
+//                skipFieldName();
+                skipFieldForInsert(localIndex);
+                skipNull();
                 byte[] nextBytes = getNextBytes();
-                ((InsertOperation) logOperation).addValue(fieldNameBuffer, nextBytes);
+                ((InsertOperation) logOperation).addValue(localIndex, nextBytes);
+                localIndex++;
             }
         } else if (logOperation instanceof UpdateOperation) {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {

@@ -13,7 +13,7 @@ import static com.alibaba.middleware.race.sync.server2.FileTransformWriteMediato
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 8 * 1024 * 1024;
+    static int CHUNK_SIZE = 32 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService computationPool = Executors.newSingleThreadExecutor();
