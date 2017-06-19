@@ -19,7 +19,7 @@ public class PipelinedComputation {
     static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService computationPool = Executors.newSingleThreadExecutor();
-    static RestoreComputation restoreComputation = new RestoreComputation();
+    public static RestoreComputation restoreComputation = new RestoreComputation();
 
     static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 

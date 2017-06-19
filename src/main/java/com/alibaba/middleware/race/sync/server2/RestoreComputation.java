@@ -10,9 +10,9 @@ import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
 /**
  * Created by yche on 6/18/17.
  */
-class RestoreComputation {
+public class RestoreComputation {
     private HashMap<Long, ValueArrWrapper> valueIndexArrMap = new HashMap<>();
-    private TreeSet<Long> inRangeKeys = new TreeSet<>();
+    public TreeSet<Long> inRangeKeys = new TreeSet<>();
 
     void compute(RecordKeyValuePair recordWrapper) {
         KeyOperation keyOperation = recordWrapper.keyOperation;
