@@ -11,12 +11,12 @@ import java.util.TreeSet;
  */
 public class TreeSetTest {
     public static void main(String args[]) {
-        TreeSet<LogOperation> inRangeRecordSet = new TreeSet<>();
-        inRangeRecordSet.add(new InsertOperation(3));
-        System.out.println(inRangeRecordSet.contains(new InsertOperation(3)));
-
-        System.out.println("before:"+inRangeRecordSet.size());
-        inRangeRecordSet.remove(new UpdateOperation(3));
-        System.out.println("after:"+inRangeRecordSet.size());
+//        TreeSet<LogOperation> inRangeRecordSet = new TreeSet<>();
+//        inRangeRecordSet.add(new InsertOperation(3));
+//        System.out.println(inRangeRecordSet.contains(new InsertOperation(3)));
+//
+//        System.out.println("before:"+inRangeRecordSet.size());
+//        inRangeRecordSet.remove(new UpdateOperation(3));
+//        System.out.println("after:"+inRangeRecordSet.size());
     }
 }

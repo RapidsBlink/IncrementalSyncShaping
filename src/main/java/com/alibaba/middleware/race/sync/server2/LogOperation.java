@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import sun.rmi.runtime.Log;
+
 /**
  * Created by yche on 6/19/17.
  */
@@ -9,6 +11,9 @@ public abstract class LogOperation implements Comparable<LogOperation> {
     }
 
     public long relevantKey;
+
+    public LogOperation() {
+    }
 
     public LogOperation(long relevantKey) {
         this.relevantKey = relevantKey;
@@ -28,4 +33,6 @@ public abstract class LogOperation implements Comparable<LogOperation> {
     public int compareTo(LogOperation o) {
         return compare(relevantKey, o.relevantKey);
     }
+
+    public abstract void free();
 }

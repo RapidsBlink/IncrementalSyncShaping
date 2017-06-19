@@ -13,6 +13,10 @@ public class RestoreComputation {
 
     void compute(LogOperation logOperation) {
         if (logOperation instanceof DeleteOperation) {
+            // free previous insertOperation and current peek one
+            recordMap.get(logOperation).free();
+            logOperation.free();
+
             recordMap.remove(logOperation);
             if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                 inRangeRecordSet.remove(logOperation);
@@ -39,6 +43,9 @@ public class RestoreComputation {
                     inRangeRecordSet.add(insertOperation);
                 }
             }
+
+            // free logOperation
+            logOperation.free();
         }
     }
 

@@ -101,19 +101,19 @@ public class RecordScanner {
         if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipField();
-            logOperation = new InsertOperation(getNextLong());
+            logOperation = InsertOperation.newInsertOperation(getNextLong());
         } else if (operation == D_OPERATION) {
             // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
+            logOperation = DeleteOperation.newDeleteOperation(getNextLong());
             skipField();
         } else {
             // update
             long prevKey = getNextLong();
             long curKey = getNextLong();
             if (prevKey == curKey) {
-                logOperation = new UpdateOperation(prevKey);
+                logOperation = UpdateOperation.newUpdateOperation(prevKey);
             } else {
-                logOperation = new UpdateKeyOperation(prevKey, curKey);
+                logOperation = UpdateKeyOperation.newUpdateKeyOperation(prevKey, curKey);
             }
         }
 

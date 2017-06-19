@@ -1,15 +1,19 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by yche on 6/19/17.
  */
 public class InsertOperation extends LogOperation {
+    public static ConcurrentLinkedQueue<InsertOperation> freedPool = new ConcurrentLinkedQueue<>();
+    private static ReentrantLock mallocLock = new ReentrantLock();
+
     public byte[][] valueArr;
 
-    public InsertOperation(long pk) {
-        super(pk);
+    private InsertOperation() {
         valueArr = new byte[RecordField.FILED_NUM][];
     }
 
@@ -39,5 +43,29 @@ public class InsertOperation extends LogOperation {
         }
         stringBuilder.setLength(stringBuilder.length() - 1);
         return stringBuilder.toString();
+    }
+
+    private static void extendQueue() {
+        mallocLock.lock();
+        if (freedPool.size() < 1024) {
+            for (int i = 0; i < 1024 * 512; i++) {
+                freedPool.add(new InsertOperation());
+            }
+        }
+        mallocLock.unlock();
+    }
+
+    public static InsertOperation newInsertOperation(long prevKey) {
+        InsertOperation borrow;
+        while ((borrow = freedPool.poll()) == null) {
+            extendQueue();
+        }
+        borrow.relevantKey = prevKey;
+        return borrow;
+    }
+
+    @Override
+    public void free() {
+        freedPool.add(this);
     }
 }
