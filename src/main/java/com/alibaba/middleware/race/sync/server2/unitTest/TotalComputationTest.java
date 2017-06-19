@@ -18,9 +18,9 @@ public class TotalComputationTest {
             }
         };
         FirstPhaseComputationTest.firstPhaseComp();
-        PipelinedComputation.secondPhaseComputation();
 
-//        System.out.println("final map size:"+PipelinedComputation.finalResultMap.size());
+        long startTime = System.currentTimeMillis();
+        PipelinedComputation.secondPhaseComputation();
         // write output
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("/tmp/yche_me.txt"));
         for (String line : PipelinedComputation.finalResultMap.values()) {
@@ -28,5 +28,7 @@ public class TotalComputationTest {
             bufferedWriter.newLine();
         }
         bufferedWriter.close();
+        long endTime = System.currentTimeMillis();
+        System.out.println("second phase:" + (endTime - startTime) + " ms");
     }
 }

@@ -21,8 +21,6 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
-    private static long taskNum = 0;
-    private static long roundNum = 0;
     static BufferedOutputStream bufferedOutputStream;
 
     private FileChannel fileChannel;
@@ -144,17 +142,14 @@ public class FileTransformWriteMediator {
                 }
             }
 
-            taskNum += futureResult.size();
-            roundNum++;
-            System.out.println(taskNum+ ", round:"+roundNum);
             // 2nd: compute key change
 //            final ArrayList<RecordKeyValuePair> finalFutureResult = futureResult;
 //            computationPool.submit(new Runnable() {
 //                @Override
 //                public void run() {
-                    for (RecordKeyValuePair recordKeyValuePair : futureResult) {
-                        restoreComputation.compute(recordKeyValuePair);
-                    }
+            for (RecordKeyValuePair recordKeyValuePair : futureResult) {
+                restoreComputation.compute(recordKeyValuePair);
+            }
 //                }
 //            });
 
