@@ -27,18 +27,15 @@ public class RecordScannerTest {
 
         // usage of RecordScanner
         ByteBuffer byteBuffer = ByteBuffer.wrap(myBytes);
-        ByteBuffer retByteBuffer = ByteBuffer.allocate(1024 * 1024);
         ArrayList<RecordKeyValuePair> recordKeyValuePairArrayList = new ArrayList<>();
-        RecordScanner recordScanner = new RecordScanner(byteBuffer, 0, byteBuffer.limit(), retByteBuffer, recordKeyValuePairArrayList);
+        RecordScanner recordScanner = new RecordScanner(byteBuffer, 0, byteBuffer.limit(), recordKeyValuePairArrayList);
         recordScanner.compute();
 
         // check retByteBuffer correctly work
-        RecordScanner recordScanner2 = new RecordScanner(byteBuffer, 0, byteBuffer.limit(), retByteBuffer, recordKeyValuePairArrayList);
+        RecordScanner recordScanner2 = new RecordScanner(byteBuffer, 0, byteBuffer.limit(),recordKeyValuePairArrayList);
         recordScanner2.compute();
 
         // output result
-        retByteBuffer.flip();
-        System.out.println(new String(retByteBuffer.array(), 0, retByteBuffer.limit()));
         for (RecordKeyValuePair recordKeyValuePair : recordKeyValuePairArrayList) {
             ObjectMapper mapper = new ObjectMapper();
             String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(recordKeyValuePair);

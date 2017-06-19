@@ -19,16 +19,15 @@ public class RecordScanner {
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(128);
     private int nextIndex; // start from startIndex
 
+
     // output
-    private final ByteBuffer retByteBuffer; // fast-consumption object
     private final ArrayList<RecordKeyValuePair> recordWrapperArrayList; // fast-consumption object
 
     public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
-                         ByteBuffer retByteBuffer, ArrayList<RecordKeyValuePair> retRecordWrapperArrayList) {
+                         ArrayList<RecordKeyValuePair> retRecordWrapperArrayList) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
-        this.retByteBuffer = retByteBuffer;
         this.recordWrapperArrayList = retRecordWrapperArrayList;
     }
 
@@ -42,17 +41,21 @@ public class RecordScanner {
         }
     }
 
-    private void putIntoByteBufferUntilFieldSplitter() {
+    private byte[] getNextBytes() {
         if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
             nextIndex++;
         }
+
+        tmpBuffer.clear();
         byte myByte;
         while ((myByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
-            retByteBuffer.put(myByte);
+            tmpBuffer.put(myByte);
             nextIndex++;
         }
-        // add `\n`
-        retByteBuffer.put(LINE_SPLITTER);
+        tmpBuffer.flip();
+        byte[] myBytes = new byte[tmpBuffer.limit()];
+        System.arraycopy(tmpBuffer.array(), 0, myBytes, 0, tmpBuffer.limit());
+        return myBytes;
     }
 
     private long getNextLong() {
@@ -110,18 +113,16 @@ public class RecordScanner {
         }
 
         // 3rd: parse ValueIndex
-        ValueIndexArrWrapper valueIndexArrWrapper = null;
+        ValueArrWrapper valueIndexArrWrapper = null;
         while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
             if (valueIndexArrWrapper == null) {
-                valueIndexArrWrapper = new ValueIndexArrWrapper();
+                valueIndexArrWrapper = new ValueArrWrapper();
             }
 
             skipFieldName();
-            long curOffset = retByteBuffer.position();
             skipField();
-            putIntoByteBufferUntilFieldSplitter();
-            long nextOffset = retByteBuffer.position();
-            valueIndexArrWrapper.addIndex(fieldNameBuffer, curOffset, (short) (nextOffset - curOffset));
+            byte[] nextBytes = getNextBytes();
+            valueIndexArrWrapper.addIndex(fieldNameBuffer, nextBytes);
         }
         // skip '|' and `\n`
         nextIndex += 2;

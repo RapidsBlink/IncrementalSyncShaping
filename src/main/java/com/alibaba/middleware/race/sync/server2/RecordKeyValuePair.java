@@ -5,9 +5,9 @@ package com.alibaba.middleware.race.sync.server2;
  */
 public class RecordKeyValuePair {
     public final KeyOperation keyOperation;
-    public final ValueIndexArrWrapper valueIndexArrWrapper;
+    public final ValueArrWrapper valueIndexArrWrapper;
 
-    public RecordKeyValuePair(KeyOperation keyOperation, ValueIndexArrWrapper valueIndexArrWrapper) {
+    public RecordKeyValuePair(KeyOperation keyOperation, ValueArrWrapper valueIndexArrWrapper) {
         this.keyOperation = keyOperation;
         this.valueIndexArrWrapper = valueIndexArrWrapper;
     }

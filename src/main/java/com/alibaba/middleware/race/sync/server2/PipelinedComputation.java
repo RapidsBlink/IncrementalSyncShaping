@@ -26,7 +26,6 @@ public class PipelinedComputation {
     static BlockingQueue<Byte> writeQueue = new ArrayBlockingQueue<>(800);
     static ExecutorService writeFilePool = Executors.newSingleThreadExecutor();
 
-    static PropertyValueFetcher propertyValueFetcher;
     static FindResultListener findResultListener;
     static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
@@ -77,7 +76,6 @@ public class PipelinedComputation {
     }
 
     private static void secondPhaseComputation(String dstFilePath) {
-        propertyValueFetcher = new PropertyValueFetcher(dstFilePath);
         restoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }

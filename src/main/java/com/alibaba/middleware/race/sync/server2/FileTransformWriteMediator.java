@@ -6,12 +6,12 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
@@ -21,7 +21,8 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
-    private static long curPropertyFileLen = 0;
+    private static long taskNum = 0;
+    private static long roundNum = 0;
     static BufferedOutputStream bufferedOutputStream;
 
     private FileChannel fileChannel;
@@ -32,7 +33,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<TransformResultPair>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
+    private Queue<Future<ArrayList<RecordKeyValuePair>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -127,38 +128,14 @@ public class FileTransformWriteMediator {
         }
     }
 
-    private void assignWriterTask(final ByteBuffer byteBuffer) {
-        try {
-            writeQueue.put((byte) 0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        writeFilePool.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    bufferedOutputStream.write(byteBuffer.array(), 0, byteBuffer.limit());
-                    writeQueue.take();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (Server.logger != null) {
-                        Server.logger.info("assign writer single task exception");
-                        Server.logger.info(e.getMessage());
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
 
     // 3rd work
-    private void assignComputationAndWriterTasks() {
+    private void assignComputationTasks() {
         while (!byteBufferFutureQueue.isEmpty()) {
-            Future<TransformResultPair> future = byteBufferFutureQueue.poll();
-            TransformResultPair transformResultPair = null;
+            Future<ArrayList<RecordKeyValuePair>> future = byteBufferFutureQueue.poll();
+            ArrayList<RecordKeyValuePair> futureResult = null;
             try {
-                transformResultPair = future.get();
+                futureResult = future.get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
                 if (Server.logger != null) {
@@ -167,36 +144,20 @@ public class FileTransformWriteMediator {
                 }
             }
 
-            // 1st: update offset
-            if (transformResultPair == null) {
-                System.out.println("null transform result pair");
-            }
-            for (RecordKeyValuePair recordKeyValuePair : transformResultPair.recordWrapperArrayList) {
-                if (recordKeyValuePair.valueIndexArrWrapper != null) {
-                    // for the delete operation, and update-pk-only operation
-                    recordKeyValuePair.valueIndexArrWrapper.addGlobalOffset(curPropertyFileLen);
-                }
-            }
-            curPropertyFileLen += transformResultPair.retByteBuffer.limit();
-            System.out.println("curPropertyFileLen:" + curPropertyFileLen);
+            taskNum += futureResult.size();
+            roundNum++;
+            System.out.println(taskNum+ ", round:"+roundNum);
             // 2nd: compute key change
-            final TransformResultPair finalTransformResultPair = transformResultPair;
-
-//            for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
-//                restoreComputation.compute(recordKeyValuePair);
-//            }
-
+//            final ArrayList<RecordKeyValuePair> finalFutureResult = futureResult;
 //            computationPool.submit(new Runnable() {
 //                @Override
 //                public void run() {
-//                    for (RecordKeyValuePair recordKeyValuePair : finalTransformResultPair.recordWrapperArrayList) {
-//                        restoreComputation.compute(recordKeyValuePair);
-//                    }
+                    for (RecordKeyValuePair recordKeyValuePair : futureResult) {
+                        restoreComputation.compute(recordKeyValuePair);
+                    }
 //                }
 //            });
 
-            // 3rd: write properties into file
-            assignWriterTask(transformResultPair.retByteBuffer);
         }
     }
 
@@ -211,7 +172,7 @@ public class FileTransformWriteMediator {
             }
         }
         assignTransformTasks();
-        assignComputationAndWriterTasks();
+        assignComputationTasks();
     }
 
     private void finish() {

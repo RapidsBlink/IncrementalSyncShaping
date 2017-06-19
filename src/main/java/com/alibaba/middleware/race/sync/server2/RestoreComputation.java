@@ -11,7 +11,7 @@ import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
  * Created by yche on 6/18/17.
  */
 class RestoreComputation {
-    private HashMap<Long, ValueIndexArrWrapper> valueIndexArrMap = new HashMap<>();
+    private HashMap<Long, ValueArrWrapper> valueIndexArrMap = new HashMap<>();
     private TreeSet<Long> inRangeKeys = new TreeSet<>();
 
     void compute(RecordKeyValuePair recordWrapper) {
@@ -28,7 +28,7 @@ class RestoreComputation {
             }
         } else {
             // update
-            ValueIndexArrWrapper valueIndexArrWrapper = valueIndexArrMap.get(keyOperation.getPrevKey());
+            ValueArrWrapper valueIndexArrWrapper = valueIndexArrMap.get(keyOperation.getPrevKey());
             valueIndexArrWrapper.mergeLatterOperation(recordWrapper.valueIndexArrWrapper);
 
             if (keyOperation.isKeyChanged()) {
