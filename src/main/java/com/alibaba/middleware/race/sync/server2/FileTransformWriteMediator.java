@@ -143,13 +143,13 @@ public class FileTransformWriteMediator {
             }
 
             // 2nd: compute key change
-//            final ArrayList<RecordKeyValuePair> finalFutureResult = futureResult;
+            final ArrayList<LogOperation> finalFutureResult = futureResult;
 //            computationPool.submit(new Runnable() {
 //                @Override
 //                public void run() {
-            for (LogOperation recordKeyValuePair : futureResult) {
-                restoreComputation.compute(recordKeyValuePair);
-            }
+                    for (LogOperation recordKeyValuePair : finalFutureResult) {
+                        restoreComputation.compute(recordKeyValuePair);
+                    }
 //                }
 //            });
 
