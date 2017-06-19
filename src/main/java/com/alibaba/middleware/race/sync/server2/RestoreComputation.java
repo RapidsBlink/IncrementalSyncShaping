@@ -4,41 +4,38 @@ import java.util.HashMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 
-import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
-import static com.alibaba.middleware.race.sync.Constants.I_OPERATION;
-
 /**
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    private HashMap<Long, ValueArrWrapper> valueIndexArrMap = new HashMap<>();
-    public TreeSet<Long> inRangeKeys = new TreeSet<>();
+    private HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
+    public TreeSet<LogOperation> inRangeRecordSet = new TreeSet<>();
 
-    void compute(RecordKeyValuePair recordWrapper) {
-        KeyOperation keyOperation = recordWrapper.keyOperation;
-        if (keyOperation.getOperationType() == D_OPERATION) {
-            valueIndexArrMap.remove(keyOperation.getPrevKey());
-            if (KeyOperation.isKeyInRange(keyOperation.getPrevKey())) {
-                inRangeKeys.remove(keyOperation.getPrevKey());
+    void compute(LogOperation logOperation) {
+        if (logOperation instanceof DeleteOperation) {
+            recordMap.remove(logOperation);
+            if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                inRangeRecordSet.remove(logOperation);
             }
-        } else if (keyOperation.getOperationType() == I_OPERATION) {
-            valueIndexArrMap.put(keyOperation.getCurKey(), recordWrapper.valueIndexArrWrapper);
-            if (KeyOperation.isKeyInRange(keyOperation.getCurKey())) {
-                inRangeKeys.add(keyOperation.getCurKey());
+        } else if (logOperation instanceof InsertOperation) {
+            recordMap.put(logOperation, logOperation);
+            if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                inRangeRecordSet.add(logOperation);
             }
         } else {
             // update
-            ValueArrWrapper valueIndexArrWrapper = valueIndexArrMap.get(keyOperation.getPrevKey());
-            valueIndexArrWrapper.mergeLatterOperation(recordWrapper.valueIndexArrWrapper);
+            InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation);
+            insertOperation.mergeUpdate((UpdateOperation) logOperation);
 
-            if (keyOperation.isKeyChanged()) {
-                valueIndexArrMap.remove(keyOperation.getPrevKey());
-                valueIndexArrMap.put(keyOperation.getCurKey(), valueIndexArrWrapper);
-                if (KeyOperation.isKeyInRange(keyOperation.getPrevKey())) {
-                    inRangeKeys.remove(keyOperation.getPrevKey());
+            if (logOperation instanceof UpdateKeyOperation) {
+                recordMap.remove(logOperation);
+                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
+                recordMap.put(insertOperation, insertOperation);
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.remove(logOperation);
                 }
-                if (KeyOperation.isKeyInRange(keyOperation.getCurKey())) {
-                    inRangeKeys.add(keyOperation.getCurKey());
+                if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+                    inRangeRecordSet.add(insertOperation);
                 }
             }
         }
@@ -47,12 +44,12 @@ public class RestoreComputation {
     // used by master thread
     void parallelEvalAndSend(ExecutorService evalThreadPool) {
         BufferedEvalAndSendTask bufferedTask = new BufferedEvalAndSendTask();
-        for (Long inRangeKey : inRangeKeys) {
+        for (LogOperation logOperation : inRangeRecordSet) {
             if (bufferedTask.isFull()) {
                 evalThreadPool.execute(bufferedTask);
                 bufferedTask = new BufferedEvalAndSendTask();
             }
-            bufferedTask.addData(new RecordObject(inRangeKey, valueIndexArrMap.get(inRangeKey)));
+            bufferedTask.addData((InsertOperation) logOperation);
         }
         evalThreadPool.execute(bufferedTask);
     }

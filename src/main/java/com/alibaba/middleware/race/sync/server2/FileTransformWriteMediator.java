@@ -31,7 +31,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<ArrayList<RecordKeyValuePair>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
+    private Queue<Future<ArrayList<LogOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -130,8 +130,8 @@ public class FileTransformWriteMediator {
     // 3rd work
     private void assignComputationTasks() {
         while (!byteBufferFutureQueue.isEmpty()) {
-            Future<ArrayList<RecordKeyValuePair>> future = byteBufferFutureQueue.poll();
-            ArrayList<RecordKeyValuePair> futureResult = null;
+            Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
+            ArrayList<LogOperation> futureResult = null;
             try {
                 futureResult = future.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -147,7 +147,7 @@ public class FileTransformWriteMediator {
 //            computationPool.submit(new Runnable() {
 //                @Override
 //                public void run() {
-            for (RecordKeyValuePair recordKeyValuePair : futureResult) {
+            for (LogOperation recordKeyValuePair : futureResult) {
                 restoreComputation.compute(recordKeyValuePair);
             }
 //                }

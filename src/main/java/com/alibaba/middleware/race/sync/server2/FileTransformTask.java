@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.sun.corba.se.spi.orb.Operation;
+
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
@@ -9,13 +11,13 @@ import java.util.concurrent.Callable;
  * Created by yche on 6/18/17.
  * used by transform thread pool
  */
-public class FileTransformTask implements Callable<ArrayList<RecordKeyValuePair>> {
+public class FileTransformTask implements Callable<ArrayList<LogOperation>> {
     // functionality
     private RecordScanner backupScanner;
     private final RecordScanner recordScanner;
 
     // result
-    private final ArrayList<RecordKeyValuePair> retRecordWrapperArrayList; // fast-consumption object
+    private final ArrayList<LogOperation> retRecordWrapperArrayList; // fast-consumption object
 
     FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
         this.retRecordWrapperArrayList = new ArrayList<>();
@@ -29,7 +31,7 @@ public class FileTransformTask implements Callable<ArrayList<RecordKeyValuePair>
     }
 
     @Override
-    public ArrayList<RecordKeyValuePair> call() throws Exception {
+    public ArrayList<LogOperation> call() throws Exception {
         if (backupScanner != null) {
             backupScanner.compute();
         }

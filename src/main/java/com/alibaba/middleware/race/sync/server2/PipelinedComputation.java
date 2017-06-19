@@ -56,9 +56,22 @@ public class PipelinedComputation {
 
     public static void globalComputation(ArrayList<String> srcFilePaths,
                                          FindResultListener findResultListener, long start, long end) throws IOException {
-        KeyOperation.initRange(start, end);
+        initRange(start, end);
         PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
         secondPhaseComputation();
     }
+
+    private static long pkLowerBound;
+    private static long pkUpperBound;
+
+    public static void initRange(long lowerBound, long upperBound) {
+        pkLowerBound = lowerBound;
+        pkUpperBound = upperBound;
+    }
+
+    static boolean isKeyInRange(long key) {
+        return pkLowerBound < key && key < pkUpperBound;
+    }
+
 }

@@ -21,10 +21,10 @@ public class RecordScanner {
 
 
     // output
-    private final ArrayList<RecordKeyValuePair> recordWrapperArrayList; // fast-consumption object
+    private final ArrayList<LogOperation> recordWrapperArrayList; // fast-consumption object
 
     public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
-                         ArrayList<RecordKeyValuePair> retRecordWrapperArrayList) {
+                         ArrayList<LogOperation> retRecordWrapperArrayList) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -86,7 +86,7 @@ public class RecordScanner {
         fieldNameBuffer.flip();
     }
 
-    private RecordKeyValuePair scanOneRecord() {
+    private LogOperation scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table
         for (int i = 0; i < 4; i++) {
             skipField();
@@ -94,39 +94,54 @@ public class RecordScanner {
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
+        LogOperation logOperation;
         // skip one splitter and operation byte
         nextIndex += 2;
-        KeyOperation keyOperation = new KeyOperation(operation);
         skipField();
         if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipField();
-            keyOperation.curKey(getNextLong());
+            logOperation = new InsertOperation(getNextLong());
         } else if (operation == D_OPERATION) {
             // delete: pre -> cur(null)
-            keyOperation.preKey(getNextLong());
+            logOperation = new DeleteOperation(getNextLong());
             skipField();
         } else {
             // update
-            keyOperation.preKey(getNextLong());
-            keyOperation.curKey(getNextLong());
+            long prevKey = getNextLong();
+            long curKey = getNextLong();
+            if (prevKey == curKey) {
+                logOperation = new UpdateOperation(prevKey);
+            } else {
+                logOperation = new UpdateKeyOperation(prevKey, curKey);
+            }
         }
 
         // 3rd: parse ValueIndex
-        ValueArrWrapper valueIndexArrWrapper = null;
-        while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-            if (valueIndexArrWrapper == null) {
-                valueIndexArrWrapper = new ValueArrWrapper();
+        // must be insert and update
+        if (logOperation instanceof InsertOperation) {
+            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
+                skipFieldName();
+                skipField();
+                byte[] nextBytes = getNextBytes();
+                ((InsertOperation) logOperation).addValue(fieldNameBuffer, nextBytes);
             }
-
-            skipFieldName();
-            skipField();
-            byte[] nextBytes = getNextBytes();
-            valueIndexArrWrapper.addIndex(fieldNameBuffer, nextBytes);
+        } else if (logOperation instanceof UpdateOperation) {
+            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
+                skipFieldName();
+                skipField();
+                byte[] nextBytes = getNextBytes();
+                ((UpdateOperation) logOperation).addValue(fieldNameBuffer, nextBytes);
+            }
+        } else {
+            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
+                nextIndex++;
+            }
         }
+
         // skip '|' and `\n`
         nextIndex += 2;
-        return new RecordKeyValuePair(keyOperation, valueIndexArrWrapper);
+        return logOperation;
     }
 
     public void compute() {

@@ -9,10 +9,10 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.find
  */
 class BufferedEvalAndSendTask implements Runnable {
     private static int MAX_SIZE = 40000; // tuning it.................
-    private RecordObject[] recordArr = new RecordObject[MAX_SIZE];
+    private InsertOperation[] recordArr = new InsertOperation[MAX_SIZE];
     private int nextIndex = 0;
 
-    void addData(RecordObject line) {
+    void addData(InsertOperation line) {
         recordArr[nextIndex] = line;
         nextIndex++;
     }
@@ -25,7 +25,7 @@ class BufferedEvalAndSendTask implements Runnable {
         return nextIndex;
     }
 
-    public RecordObject get(int idx) {
+    public InsertOperation get(int idx) {
         return recordArr[idx];
     }
 
@@ -33,7 +33,7 @@ class BufferedEvalAndSendTask implements Runnable {
     public void run() {
         for (int i = 0; i < nextIndex; i++) {
             String result = recordArr[i].getOneLine();
-            finalResultMap.put(recordArr[i].key, result);
+            finalResultMap.put(recordArr[i].relevantKey, result);
             findResultListener.sendToClient(result);
         }
     }

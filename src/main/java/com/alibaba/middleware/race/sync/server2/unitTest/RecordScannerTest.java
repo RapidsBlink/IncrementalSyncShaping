@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.RecordKeyValuePair;
+import com.alibaba.middleware.race.sync.server2.LogOperation;
 import com.alibaba.middleware.race.sync.server2.RecordScanner;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -27,7 +27,7 @@ public class RecordScannerTest {
 
         // usage of RecordScanner
         ByteBuffer byteBuffer = ByteBuffer.wrap(myBytes);
-        ArrayList<RecordKeyValuePair> recordKeyValuePairArrayList = new ArrayList<>();
+        ArrayList<LogOperation> recordKeyValuePairArrayList = new ArrayList<>();
         RecordScanner recordScanner = new RecordScanner(byteBuffer, 0, byteBuffer.limit(), recordKeyValuePairArrayList);
         recordScanner.compute();
 
@@ -36,7 +36,7 @@ public class RecordScannerTest {
         recordScanner2.compute();
 
         // output result
-        for (RecordKeyValuePair recordKeyValuePair : recordKeyValuePairArrayList) {
+        for (LogOperation recordKeyValuePair : recordKeyValuePairArrayList) {
             ObjectMapper mapper = new ObjectMapper();
             String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(recordKeyValuePair);
             System.out.println(jsonInString);
