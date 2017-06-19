@@ -55,9 +55,10 @@ public class PipelinedComputation {
     }
 
     public static void globalComputation(ArrayList<String> srcFilePaths,
-                                         FindResultListener findResultListener) throws IOException {
+                                         FindResultListener findResultListener, long start, long end) throws IOException {
+        KeyOperation.initRange(start, end);
+        PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
         secondPhaseComputation();
-        PipelinedComputation.findResultListener = findResultListener;
     }
 }

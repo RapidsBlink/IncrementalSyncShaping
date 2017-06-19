@@ -21,14 +21,9 @@ import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComp
  */
 public class Server {
     public static Logger logger;
-    private static ArrayList<String> dataFiles = new ArrayList<>();
     private static NativeServer nativeServer = null;
-
-    static {
-        for (int i = 1; i < 11; i++) {
-            dataFiles.add(i + ".txt");
-        }
-    }
+    private static long start;
+    private static long end;
 
     /**
      * 初始化系统属性
@@ -51,6 +46,8 @@ public class Server {
         logger.info("Current server time:" + System.currentTimeMillis());
         printArgs(args);
         logger.info(Constants.CODE_VERSION);
+        start = Long.valueOf(args[2]);
+        end = Long.valueOf(args[3]);
     }
 
     public static void main(String[] args) {
@@ -62,33 +59,6 @@ public class Server {
         nativeServer = new NativeServer(args, Constants.SERVER_PORT);
         nativeServer.start();
 
-        // transform file
-
-
-        for (int i = 1; i < 11; i++) {
-            long copyStartTimer = System.currentTimeMillis();
-            try {
-                transferFile(i + ".txt", Constants.DATA_HOME, Constants.MIDDLE_HOME);
-            } catch (IOException e) {
-                logger.info(e.getMessage());
-            }
-            long copyEndTimer = System.currentTimeMillis();
-            logger.info("computation time cost:" + (copyEndTimer - copyStartTimer));
-        }
-
-        long copyStartTimer = System.currentTimeMillis();
-        long copyEndTimer = System.currentTimeMillis();
-        logger.info("sync time cost:" + (copyEndTimer - copyStartTimer));
-
-        // initialization for computations
-        ServerPipelinedComputation.initRange(Long.parseLong(args[2]), Long.parseLong(args[3]));
-        ServerPipelinedComputation.initFindResultListener(new ServerPipelinedComputation.FindResultListener() {
-
-            @Override
-            public void sendToClient(String result) {
-                nativeServer.send(result);
-            }
-        });
 
         try {
             new Server(args).start();
@@ -98,16 +68,17 @@ public class Server {
     }
 
     public void start() throws IOException {
-        // pipelined computation
-        for (int i = 10; i > 0; i--) {
-            OneRoundComputation(Constants.MIDDLE_HOME + File.separator + dataFiles.get(i - 1));
+        ArrayList<String> filePathList = new ArrayList<>();
+        for (int i = 1; i < 11; i++) {
+            filePathList.add(Constants.DATA_HOME + File.separator + i + ".txt");
         }
-
-        // join computation thread
-        JoinComputationThread();
-
-        logger.info("JoinComputationThread finished.");
-
+        PipelinedComputation.FindResultListener findResultListener = new PipelinedComputation.FindResultListener() {
+            @Override
+            public void sendToClient(String result) {
+                nativeServer.send(result);
+            }
+        };
+        PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
         nativeServer.finish();
 
         int i = 0;
