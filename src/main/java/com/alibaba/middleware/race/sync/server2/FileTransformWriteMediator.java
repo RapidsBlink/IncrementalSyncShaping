@@ -7,6 +7,8 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -19,6 +21,8 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
+    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(16);
+
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 
@@ -114,7 +118,7 @@ public class FileTransformWriteMediator {
 
             if (byteBufferFutureQueue.size() >= 16) {
                 while (byteBufferFutureQueue.size() >= 8) {
-                    waitAndCompute();
+                    assignComputationTask();
                 }
             }
             fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
@@ -128,15 +132,41 @@ public class FileTransformWriteMediator {
         }
     }
 
-    private void waitAndCompute() {
+    private void assignComputationTask() {
         Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
+        ArrayList<LogOperation> futureResult = null;
         try {
-            ArrayList<LogOperation> futureResult = future.get();
-            for (int i = 0; i < futureResult.size(); i++) {
-                restoreComputation.compute(futureResult.get(i));
-            }
+            futureResult = future.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+        }
+
+        // 2nd: compute key change
+        try {
+            blockingQueue.put((byte) 0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        final ArrayList<LogOperation> finalFutureResult = futureResult;
+        computationPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                for (LogOperation recordKeyValuePair : finalFutureResult) {
+                    restoreComputation.compute(recordKeyValuePair);
+                }
+                try {
+                    blockingQueue.take();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+    private void assignComputationTasks() {
+        while (!byteBufferFutureQueue.isEmpty()) {
+            assignComputationTask();
         }
     }
 
@@ -149,9 +179,7 @@ public class FileTransformWriteMediator {
         assignTransformTasks();
 
         // finish left work
-        while (!byteBufferFutureQueue.isEmpty()) {
-            waitAndCompute();
-        }
+        assignComputationTasks();
     }
 
     private void finish() {

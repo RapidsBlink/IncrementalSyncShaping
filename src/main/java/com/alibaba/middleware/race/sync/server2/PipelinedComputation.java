@@ -17,6 +17,7 @@ public class PipelinedComputation {
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
+    static ExecutorService computationPool = Executors.newFixedThreadPool(1);
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
@@ -45,7 +46,7 @@ public class PipelinedComputation {
             fileTransformWriteMediator.transformFile();
         }
         joinSinglePool(fileTransformPool);
-//        joinSinglePool(computationPool);
+        joinSinglePool(computationPool);
     }
 
     public static void secondPhaseComputation() {
