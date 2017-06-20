@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
@@ -19,17 +18,13 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
+    private final TransformComputation transformComputation;
 
-
-    // output
-    private final ArrayList<LogOperation> recordWrapperArrayList; // fast-consumption object
-
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
-                         ArrayList<LogOperation> retRecordWrapperArrayList) {
+    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, TransformComputation transformComputation) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
-        this.recordWrapperArrayList = retRecordWrapperArrayList;
+        this.transformComputation = transformComputation;
     }
 
     // stop at `|`
@@ -77,7 +72,7 @@ public class RecordScanner {
         return result;
     }
 
-    private void skipFieldName() {
+    private void fetchFieldName() {
         // skip '|'
         nextIndex++;
         // stop at '|'
@@ -90,11 +85,11 @@ public class RecordScanner {
         fieldNameBuffer.flip();
     }
 
-    private void skipNull(){
-        nextIndex+=5;
+    private void skipNull() {
+        nextIndex += 5;
     }
 
-    private LogOperation scanOneRecord() {
+    private void scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table
         for (int i = 0; i < 4; i++) {
             skipField();
@@ -102,62 +97,57 @@ public class RecordScanner {
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
-        LogOperation logOperation;
+        RecordOperation logOperation;
         // skip one splitter and operation byte
         nextIndex += 2;
         skipField();
         if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipNull();
-            logOperation = new InsertOperation(getNextLong());
+            logOperation = transformComputation.insertPk(getNextLong());
+            int localIndex = 0;
+            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
+                skipFieldForInsert(localIndex);
+                skipNull();
+                byte[] nextBytes = getNextBytes();
+                transformComputation.updateProperty(logOperation, localIndex, nextBytes);
+                localIndex++;
+            }
         } else if (operation == D_OPERATION) {
             // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
+            transformComputation.deletePk(getNextLong());
             skipNull();
+            // skip next several fields
+            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
+                nextIndex++;
+            }
         } else {
             // update
             long prevKey = getNextLong();
             long curKey = getNextLong();
-            if (prevKey == curKey) {
-                logOperation = new UpdateOperation(prevKey);
-            } else {
-                logOperation = new UpdateKeyOperation(prevKey, curKey);
-            }
-        }
+            logOperation = transformComputation.updatePk(prevKey);
 
-        // 3rd: parse ValueIndex
-        // must be insert and update
-        if (logOperation instanceof InsertOperation) {
-            int localIndex = 0;
+            // update properties
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-//                skipFieldName();
-                skipFieldForInsert(localIndex);
-                skipNull();
-                byte[] nextBytes = getNextBytes();
-                ((InsertOperation) logOperation).addValue(localIndex, nextBytes);
-                localIndex++;
-            }
-        } else if (logOperation instanceof UpdateOperation) {
-            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                skipFieldName();
+                fetchFieldName();
                 skipField();
                 byte[] nextBytes = getNextBytes();
-                ((UpdateOperation) logOperation).addValue(fieldNameBuffer, nextBytes);
+                transformComputation.updateProperty(logOperation, RecordField.fieldIndexMap.get(fieldNameBuffer), nextBytes);
             }
-        } else {
-            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                nextIndex++;
-            }
-        }
 
-        // skip '|' and `\n`
-        nextIndex += 2;
-        return logOperation;
+            if (prevKey != curKey) {
+                // update-key
+                transformComputation.updatePkTransferProperties(prevKey, curKey);
+            }
+
+            // skip '|' and `\n`
+            nextIndex += 2;
+        }
     }
 
     public void compute() {
         while (nextIndex < endIndex) {
-            recordWrapperArrayList.add(scanOneRecord());
+            scanOneRecord();
         }
     }
 }

@@ -6,15 +6,14 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
+import static com.alibaba.middleware.race.sync.server2.RestoreComputation.threadSafeEval;
 import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
@@ -33,7 +32,7 @@ public class FileTransformWriteMediator {
     private int lastChunkLength;
     private int currChunkLength;
 
-    private Queue<Future<ArrayList<LogOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
+    private Queue<Future<HashMap<Long, RecordOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -132,8 +131,8 @@ public class FileTransformWriteMediator {
     // 3rd work
     private void assignComputationTasks() {
         while (!byteBufferFutureQueue.isEmpty()) {
-            Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
-            ArrayList<LogOperation> futureResult = null;
+            Future<HashMap<Long, RecordOperation>> future = byteBufferFutureQueue.poll();
+            HashMap<Long, RecordOperation> futureResult = null;
             try {
                 futureResult = future.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -145,26 +144,13 @@ public class FileTransformWriteMediator {
             }
 
             // 2nd: compute key change
-            try {
-                blockingQueue.put((byte) 0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
+                RestoreComputation.threadSafeEval(entry.getValue());
             }
-            final ArrayList<LogOperation> finalFutureResult = futureResult;
-            computationPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    for (LogOperation recordKeyValuePair : finalFutureResult) {
-                        restoreComputation.compute(recordKeyValuePair);
-                    }
-                    try {
-                        blockingQueue.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
 
+            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
+                RestoreComputation.threadSafeComputation(entry.getKey(), entry.getValue());
+            }
         }
     }
 
