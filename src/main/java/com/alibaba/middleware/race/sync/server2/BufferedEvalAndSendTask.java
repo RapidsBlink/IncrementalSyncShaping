@@ -15,6 +15,7 @@ class BufferedEvalAndSendTask implements Runnable {
 
     void addData(long line, RecordOperation recordOperation) {
         recordKeys[nextIndex] = line;
+        recordOperations[nextIndex] = recordOperation;
         nextIndex++;
     }
 

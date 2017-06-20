@@ -93,6 +93,7 @@ public class RecordScanner {
         // 1st: skip: mysql, ts, schema, table
         for (int i = 0; i < 4; i++) {
             skipField();
+//            System.out.println(new String(getNextBytes()));
         }
 
         // 2nd: parse KeyOperation
@@ -132,17 +133,16 @@ public class RecordScanner {
                 fetchFieldName();
                 skipField();
                 byte[] nextBytes = getNextBytes();
-                transformComputation.updateProperty(logOperation, RecordField.fieldIndexMap.get(fieldNameBuffer), nextBytes);
+                int index = RecordField.fieldIndexMap.get(fieldNameBuffer);
+                transformComputation.updateProperty(logOperation, index, nextBytes);
             }
 
             if (prevKey != curKey) {
                 // update-key
                 transformComputation.updatePkTransferProperties(prevKey, curKey);
             }
-
-            // skip '|' and `\n`
-            nextIndex += 2;
         }
+        nextIndex += 2;
     }
 
     public void compute() {
