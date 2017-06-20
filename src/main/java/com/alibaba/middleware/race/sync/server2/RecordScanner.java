@@ -20,7 +20,6 @@ public class RecordScanner {
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
 
-
     // output
     private final ArrayList<LogOperation> recordWrapperArrayList; // fast-consumption object
 
@@ -42,8 +41,20 @@ public class RecordScanner {
         }
     }
 
+    private void skipHeader() {
+        nextIndex += 15;
+        while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+            nextIndex++;
+        }
+        nextIndex += 34;
+    }
+
     private void skipKey() {
         nextIndex += RecordField.KEY_LEN + 1;
+    }
+
+    private void skipNull() {
+        nextIndex += 5;
     }
 
     private void skipFieldForInsert(int index) {
@@ -66,7 +77,6 @@ public class RecordScanner {
         System.arraycopy(tmpBuffer.array(), 0, myBytes, 0, tmpBuffer.limit());
         return myBytes;
     }
-
 
     private long getNextLong() {
         if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER)
@@ -94,17 +104,6 @@ public class RecordScanner {
         fieldNameBuffer.flip();
     }
 
-    private void skipNull() {
-        nextIndex += 5;
-    }
-
-    private void skipHeader() {
-        nextIndex += 15;
-        while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
-            nextIndex++;
-        }
-        nextIndex += 34;
-    }
 
     private LogOperation scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table

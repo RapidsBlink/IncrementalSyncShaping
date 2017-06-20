@@ -1,7 +1,5 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.Server;
-
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -21,7 +19,6 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
-    static BufferedOutputStream bufferedOutputStream;
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 
@@ -89,7 +86,7 @@ public class FileTransformWriteMediator {
 
     // 2nd work: merge remaining, compute [start, end)
     private void assignTransformTasks() {
-        int avgTask = currChunkLength / TRANSFORM_WORKER_NUM;
+        int avgTask = currChunkLength / WORK_NUM;
 
         // index pair
         int start;
@@ -110,10 +107,16 @@ public class FileTransformWriteMediator {
         byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
 
         // 2nd: subsequent workers
-        for (int i = 1; i < TRANSFORM_WORKER_NUM; i++) {
+        for (int i = 1; i < WORK_NUM; i++) {
             start = end;
-            int smallChunkLastIndex = i < TRANSFORM_WORKER_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
+            int smallChunkLastIndex = i < WORK_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
             end = computeEnd(smallChunkLastIndex);
+
+            if (byteBufferFutureQueue.size() >= 16) {
+                while (byteBufferFutureQueue.size() >= 8) {
+                    waitAndCompute();
+                }
+            }
             fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
             byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
         }
@@ -125,25 +128,15 @@ public class FileTransformWriteMediator {
         }
     }
 
-
-    // 3rd work
-    private void assignComputationTasks() {
-        while (!byteBufferFutureQueue.isEmpty()) {
-            Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
-            ArrayList<LogOperation> futureResult = null;
-            try {
-                futureResult = future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
-                if (Server.logger != null) {
-                    Server.logger.info("assign task exception");
-                    Server.logger.info(e.getMessage());
-                }
+    private void waitAndCompute() {
+        Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
+        try {
+            ArrayList<LogOperation> futureResult = future.get();
+            for (int i = 0; i < futureResult.size(); i++) {
+                restoreComputation.compute(futureResult.get(i));
             }
-
-            for (LogOperation recordKeyValuePair : futureResult) {
-                restoreComputation.compute(recordKeyValuePair);
-            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
         }
     }
 
@@ -152,13 +145,13 @@ public class FileTransformWriteMediator {
             fetchNextMmapChunk();
         } catch (IOException e) {
             e.printStackTrace();
-            if (Server.logger != null) {
-                Server.logger.info("mmap error");
-                Server.logger.info(e.getMessage());
-            }
         }
         assignTransformTasks();
-        assignComputationTasks();
+
+        // finish left work
+        while (!byteBufferFutureQueue.isEmpty()) {
+            waitAndCompute();
+        }
     }
 
     private void finish() {

@@ -14,8 +14,8 @@ import java.util.concurrent.*;
 public class PipelinedComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
+    static int WORK_NUM = TRANSFORM_WORKER_NUM * 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    //    static ExecutorService computationPool = Executors.newSingleThreadExecutor();
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
