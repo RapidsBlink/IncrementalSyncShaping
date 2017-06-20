@@ -2,19 +2,22 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
-import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
+import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 
 /**
  * Created by yche on 6/16/17.
@@ -31,7 +34,6 @@ public class FileTransformWriteMediator {
     private int currChunkLength;
 
     private Queue<Future<HashMap<Long, RecordOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
-    private Queue<Future<?>> waitQueue = new LinkedList<>();
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -143,13 +145,14 @@ public class FileTransformWriteMediator {
             }
 
             // 2nd: compute key change
-            for (RecordOperation recordOperation : futureResult.values()) {
-                RestoreComputation.threadSafeEval(recordOperation);
-            }
-
-            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
-                RestoreComputation.threadSafeComputation(entry.getKey(), entry.getValue());
-            }
+            RestoreComputation.parallelEval(computationPool, futureResult);
+//            for (RecordOperation recordOperation : futureResult.values()) {
+//                RestoreComputation.threadSafeEval(recordOperation);
+//            }
+            RestoreComputation.parallelComp(computationPool, futureResult);
+//            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
+//                RestoreComputation.threadSafeComputation(entry.getKey(), entry.getValue());
+//            }
         }
     }
 

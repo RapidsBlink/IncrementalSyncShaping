@@ -6,17 +6,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-import static com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator.bufferedOutputStream;
-
 /**
  * Created by yche on 6/16/17.
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 64 * 1024 * 1024;
-    static int TRANSFORM_WORKER_NUM = 16;
+    static int CHUNK_SIZE = 4 * 1024 * 1024;
+    static int TRANSFORM_WORKER_NUM = 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    static ExecutorService computationPool = Executors.newSingleThreadExecutor();
+    static ExecutorService computationPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
     static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
