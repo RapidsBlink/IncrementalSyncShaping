@@ -151,9 +151,7 @@ public class FileTransformWriteMediator {
         computationPool.submit(new Runnable() {
             @Override
             public void run() {
-                for (LogOperation recordKeyValuePair : finalFutureResult) {
-                    restoreComputation.compute(recordKeyValuePair);
-                }
+                restoreComputation.compute(finalFutureResult);
                 try {
                     blockingQueue.take();
                 } catch (InterruptedException e) {
