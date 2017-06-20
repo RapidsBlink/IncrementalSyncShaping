@@ -1,6 +1,5 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.unused.server.FileUtil;
 import com.alibaba.middleware.race.sync.server2.RecordField;
 
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Map;
 
+import static com.alibaba.middleware.race.sync.server2.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldIndexMap;
 
 /**
@@ -25,7 +25,7 @@ public class RecordFieldTest {
         // first time init
         if (!RecordField.isInit())
             new RecordField(mappedByteBuffer).initFieldIndexMap();
-        FileUtil.unmap(mappedByteBuffer);
+        unmap(mappedByteBuffer);
 
         // check it
         for (Map.Entry<ByteBuffer, Integer> entry : fieldIndexMap.entrySet()) {

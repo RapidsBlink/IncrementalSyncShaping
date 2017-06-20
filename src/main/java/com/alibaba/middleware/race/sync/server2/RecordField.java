@@ -16,6 +16,7 @@ public class RecordField {
     public static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
     public static int[] fieldSkipLen;
     public static int FILED_NUM;
+    public static int KEY_LEN;
 
     public static boolean isInit() {
         return fieldIndexMap.size() > 0;
@@ -59,8 +60,16 @@ public class RecordField {
     }
 
     public void initFieldIndexMap() {
-        // mysql, ts, schema, table, op, pk name, prev val, cur val
-        for (int i = 0; i < 8; i++) {
+        // mysql, ts, schema, table, op,
+        for (int i = 0; i < 5; i++) {
+            skipField();
+        }
+        // pk name
+        ByteBuffer keyBuffer = getNextField();
+        KEY_LEN = keyBuffer.limit();
+
+        // prev val, cur val
+        for (int i = 0; i < 2; i++) {
             skipField();
         }
 

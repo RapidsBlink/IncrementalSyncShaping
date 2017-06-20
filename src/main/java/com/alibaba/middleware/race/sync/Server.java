@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync;
 
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
-
-import static com.alibaba.middleware.race.sync.unused.server.FileUtil.transferFile;
-import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.JoinComputationThread;
-import static com.alibaba.middleware.race.sync.unused.server.ServerPipelinedComputation.OneRoundComputation;
 
 /**
  * Created by will on 6/6/2017.
@@ -82,12 +77,12 @@ public class Server {
         nativeServer.finish();
 
         int i = 0;
-        for (Map.Entry<Long, String> entry : ServerPipelinedComputation.inRangeRecord.entrySet()) {
+        for (Map.Entry<Long, String> entry : PipelinedComputation.finalResultMap.entrySet()) {
             if (i < 10)
                 logger.info(entry.getValue());
             i++;
         }
-        logger.info("size:" + ServerPipelinedComputation.inRangeRecord.size());
+        logger.info("size:" + PipelinedComputation.finalResultMap.size());
         logger.info("Send finish all package......");
     }
 }

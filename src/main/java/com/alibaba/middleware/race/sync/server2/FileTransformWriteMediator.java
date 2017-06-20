@@ -9,13 +9,11 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
-import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
+import static com.alibaba.middleware.race.sync.server2.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
 /**
@@ -24,7 +22,6 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  */
 public class FileTransformWriteMediator {
     static BufferedOutputStream bufferedOutputStream;
-    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(5);
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 
@@ -144,27 +141,9 @@ public class FileTransformWriteMediator {
                 }
             }
 
-            // 2nd: compute key change
-            try {
-                blockingQueue.put((byte) 0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            for (LogOperation recordKeyValuePair : futureResult) {
+                restoreComputation.compute(recordKeyValuePair);
             }
-            final ArrayList<LogOperation> finalFutureResult = futureResult;
-            computationPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    for (LogOperation recordKeyValuePair : finalFutureResult) {
-                        restoreComputation.compute(recordKeyValuePair);
-                    }
-                    try {
-                        blockingQueue.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-
         }
     }
 

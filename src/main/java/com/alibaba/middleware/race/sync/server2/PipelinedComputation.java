@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-import static com.alibaba.middleware.race.sync.server2.FileTransformWriteMediator.bufferedOutputStream;
 
 /**
  * Created by yche on 6/16/17.
@@ -16,10 +15,10 @@ public class PipelinedComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    static ExecutorService computationPool = Executors.newSingleThreadExecutor();
+    //    static ExecutorService computationPool = Executors.newSingleThreadExecutor();
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
-    static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
+    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
     public static FindResultListener findResultListener;
     public static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
@@ -46,7 +45,7 @@ public class PipelinedComputation {
             fileTransformWriteMediator.transformFile();
         }
         joinSinglePool(fileTransformPool);
-        joinSinglePool(computationPool);
+//        joinSinglePool(computationPool);
     }
 
     public static void secondPhaseComputation() {
@@ -56,10 +55,19 @@ public class PipelinedComputation {
 
     public static void globalComputation(ArrayList<String> srcFilePaths,
                                          FindResultListener findResultListener, long start, long end) throws IOException {
+        if (Server.logger != null) {
+            Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
+        }
         initRange(start, end);
         PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
+        if (Server.logger != null) {
+            Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));
+        }
         secondPhaseComputation();
+        if (Server.logger != null) {
+            Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
+        }
     }
 
     private static long pkLowerBound;

@@ -42,6 +42,10 @@ public class RecordScanner {
         }
     }
 
+    private void skipKey() {
+        nextIndex += RecordField.KEY_LEN + 1;
+    }
+
     private void skipFieldForInsert(int index) {
         nextIndex += fieldSkipLen[index];
     }
@@ -69,7 +73,7 @@ public class RecordScanner {
             nextIndex++;
 
         byte tmpByte;
-        long result = 0l;
+        long result = 0L;
         while ((tmpByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             nextIndex++;
             result = (10 * result) + (tmpByte - '0');
@@ -90,22 +94,28 @@ public class RecordScanner {
         fieldNameBuffer.flip();
     }
 
-    private void skipNull(){
-        nextIndex+=5;
+    private void skipNull() {
+        nextIndex += 5;
+    }
+
+    private void skipHeader() {
+        nextIndex += 15;
+        while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+            nextIndex++;
+        }
+        nextIndex += 34;
     }
 
     private LogOperation scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table
-        for (int i = 0; i < 4; i++) {
-            skipField();
-        }
+        skipHeader();
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
         LogOperation logOperation;
         // skip one splitter and operation byte
         nextIndex += 2;
-        skipField();
+        skipKey();
         if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipNull();
@@ -130,7 +140,6 @@ public class RecordScanner {
         if (logOperation instanceof InsertOperation) {
             int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-//                skipFieldName();
                 skipFieldForInsert(localIndex);
                 skipNull();
                 byte[] nextBytes = getNextBytes();
