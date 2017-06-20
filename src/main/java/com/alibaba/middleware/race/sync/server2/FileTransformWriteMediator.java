@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
-import static com.alibaba.middleware.race.sync.server2.RestoreComputation.threadSafeEval;
 import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
@@ -23,7 +22,6 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  */
 public class FileTransformWriteMediator {
     static BufferedOutputStream bufferedOutputStream;
-    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(5);
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 
@@ -33,6 +31,7 @@ public class FileTransformWriteMediator {
     private int currChunkLength;
 
     private Queue<Future<HashMap<Long, RecordOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
+    private Queue<Future<?>> waitQueue = new LinkedList<>();
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -144,8 +143,8 @@ public class FileTransformWriteMediator {
             }
 
             // 2nd: compute key change
-            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
-                RestoreComputation.threadSafeEval(entry.getValue());
+            for (RecordOperation recordOperation : futureResult.values()) {
+                RestoreComputation.threadSafeEval(recordOperation);
             }
 
             for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
