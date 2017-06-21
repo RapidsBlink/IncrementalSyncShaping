@@ -27,11 +27,14 @@ public class RecordScanner {
     public static int maxSkip = 0;
 
     static ReentrantLock reentrantLock = new ReentrantLock();
+    static ReentrantLock skipLock = new ReentrantLock();
     public static int maxLens[] = new int[5];
 
     public static void updateSkip(int skip) {
+        skipLock.lock();
         minSKip = Math.min(minSKip, skip);
         maxSkip = Math.max(maxSkip, skip);
+        skipLock.unlock();
     }
 
     public static void max(int max, int index) {
@@ -61,10 +64,13 @@ public class RecordScanner {
     }
 
     private void skipHeader() {
+        int skip = 0;
         nextIndex += 15;
         while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             nextIndex++;
+            skip++;
         }
+        updateSkip(skip);
         nextIndex += 34;
     }
 

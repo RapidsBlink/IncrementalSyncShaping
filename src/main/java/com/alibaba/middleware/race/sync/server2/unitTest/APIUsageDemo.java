@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
-import com.alibaba.middleware.race.sync.server2.RecordScanner;
+import com.alibaba.middleware.race.sync.server2.*;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -41,5 +40,11 @@ public class APIUsageDemo {
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
         System.out.println("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
+        System.out.println(RecordScanner.minSKip + ", " + RecordScanner.maxSkip);
+
+        System.out.println("insert:" + InsertOperation.count);
+        System.out.println("delete:" + DeleteOperation.count);
+        System.out.println("update:" + UpdateOperation.count);
+        System.out.println("update pk:" + UpdateKeyOperation.count);
     }
 }

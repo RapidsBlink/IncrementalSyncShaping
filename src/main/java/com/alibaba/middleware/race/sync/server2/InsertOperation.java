@@ -1,15 +1,19 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by yche on 6/19/17.
  */
 public class InsertOperation extends LogOperation {
+    public static AtomicInteger count = new AtomicInteger(0);
+
     public byte[][] valueArr;
 
     public InsertOperation(long pk) {
         super(pk);
+        count.incrementAndGet();
         valueArr = new byte[RecordField.FILED_NUM][];
     }
 
