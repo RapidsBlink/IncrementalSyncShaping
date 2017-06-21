@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.play;
 
+import sun.jvm.hotspot.oops.Array;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.nio.ByteBuffer;
@@ -12,30 +14,50 @@ import java.util.HashSet;
 /**
  * Created by yche on 6/21/17.
  */
+//not thread safe
 public class ChineseCharToInt {
+    static byte[] tmpBytes = new byte[3];
 
-    static int[] INTEGER_CHINESE_CHAR = {-474513408, -474513152, -474512640, -474511104, -474510848, -474507008, -474443776, -474441472, -474440448, -474379264, -474377216, -474371072, -474367488, -474311168, -474112768, -474108160, -474052096, -461067520, -461067008, -461065728, -461006080, -460875776, -460875264, -460743936, -460738304, -460553984, -460418816, -460354304, -460350720, -460344320, -460281856, -459629824, -459371008, -459036416, -458968320, -458775296, -458450688, -457396992, -457338880, -444552192, -444100608, -444100352, -443248896, -443052544, -442978560, -442976768, -442724864, -442718208, -442657024, -442584320, -441478912, -441409792, -426931456, -426533888, -426528768, -426528256, -426526976, -426079744, -425030912, -410154752, -407987712, -407587584, -394151680, -394096384, -393105152, -393040640, -392776448, -392712704, -392656896, -392517632, -392390400, -391540992, -391473152, -390427136};
+    private static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
 
-
-    //    DataOutputStream dataOutputStream=new DataOutputStream()
     public static int toInt(byte[] data) {
-        System.out.println(Arrays.toString(data));
-        int ret = (data[0] << 24) + (data[1] << 16) + (data[2] << 8) + (0 << 0);
+        return toInt(data, 0);
+    }
+
+    public static int toInt(byte[] data , int offset) {
+        int ret = (data[0 + offset] & 0xFF) << 16 | (data[1 + offset] & 0xFF) << 8 | (data[2 + offset] & 0xFF);
         return ret;
+    }
+
+    public static byte getIndexOfChineseChar(byte[] data, int offset){
+        int intC = toInt(data, offset);
+        return (byte)Arrays.binarySearch(INTEGER_CHINESE_CHAR, intC);
     }
 
     public static String toChineseChar(byte index) {
         int intC = INTEGER_CHINESE_CHAR[index];
-        byte[] bytes = new byte[3];
-        bytes[0] = (byte) ((intC >>> 24) & 0xFF);
-        bytes[1] = (byte) ((intC >>> 16) & 0xFF);
-        bytes[2] = (byte) ((intC >>> 8) & 0xFF);
-        System.out.println(Arrays.toString(bytes));
-        return new String(bytes);
+        tmpBytes[0] = (byte) (intC >>> 16);
+        tmpBytes[1] = (byte) (intC >>> 8);
+        tmpBytes[2] = (byte) (intC >>> 0);
+        return new String(tmpBytes);
     }
 
 
     public static void main(String[] args) {
+        String name = "丙七";
+        byte[] nameBytes = name.getBytes();
+        byte index1 = getIndexOfChineseChar(nameBytes, 0);
+        byte index2 = getIndexOfChineseChar(nameBytes, 3);
+
+        System.out.println("Char 1: " + toChineseChar(index1));
+        System.out.println("Char 2: " + toChineseChar(index2));
+
+
+    }
+
+
+
+    private static void generateData(){
         String[] chineseC = {"一", "丁", "七", "三", "上", "丙", "乐", "乙", "九", "二", "五", "京", "人", "他", "依", "侯", "俊", "八",
                 "六", "兲", "军", "刘", "刚", "力", "励", "十", "发", "名", "君", "吴", "周", "四", "城", "天", "女", "娥", "孙", "彭", "徐",
                 "恬", "成", "我", "敏", "明", "景", "晶", "李", "杨", "林", "柳", "民", "江", "王", "甜", "田", "甲", "男", "益", "立", "莉"
@@ -63,9 +85,9 @@ public class ChineseCharToInt {
         int  i = toInt("一".getBytes()) ;
 
         byte[] bytes = new byte[3];
-        bytes[0] = (byte)((i >>> 24) & 0xFF);
-        bytes[1] = (byte)((i >>> 16) & 0xFF);
-        bytes[2] = (byte)((i >>> 8) & 0xFF);
+        bytes[0] = (byte)(i >>> 16);
+        bytes[1] = (byte)(i >>> 8);
+        bytes[2] = (byte)(i >>> 0);
         System.out.println(Arrays.toString(bytes));
 
     }
