@@ -40,6 +40,7 @@ public class APIUsageDemo {
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
         System.out.println("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
+        System.out.println("min len byte[]:" + Arrays.toString(RecordScanner.minLens));
         System.out.println(RecordScanner.minSKip + ", " + RecordScanner.maxSkip);
 
         System.out.println("insert:" + InsertOperation.count);

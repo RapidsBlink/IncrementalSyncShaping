@@ -76,7 +76,7 @@ public class Server {
         };
         PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
         logger.info("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
-        logger.info("max len byte[]:" + Arrays.toString(RecordScanner.minLens));
+        logger.info("min len byte[]:" + Arrays.toString(RecordScanner.minLens));
         logger.info(RecordScanner.minSKip + ", " + RecordScanner.maxSkip);
 
         logger.info("insert:" + InsertOperation.count);
