@@ -13,32 +13,35 @@ public class RestoreComputation {
     public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
-    void compute(LogOperation logOperation) {
-        if (logOperation instanceof DeleteOperation) {
-            recordMap.remove(logOperation);
-            if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                inRangeRecordSet.remove(logOperation);
-            }
-        } else if (logOperation instanceof InsertOperation) {
-            recordMap.put(logOperation, logOperation);
-            if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                inRangeRecordSet.add(logOperation);
-            }
-        } else {
-            // update
-            InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation);
-            insertOperation.mergeUpdate((UpdateOperation) logOperation);
-
-            if (logOperation instanceof UpdateKeyOperation) {
+    void compute(LogOperation[] logOperations) {
+        for (int i = 0; i < logOperations.length; i++) {
+            LogOperation logOperation = logOperations[i];
+            if (logOperation instanceof DeleteOperation) {
                 recordMap.remove(logOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
+            } else if (logOperation instanceof InsertOperation) {
+                recordMap.put(logOperation, logOperation);
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.add(logOperation);
+                }
+            } else {
+                // update
+                InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation);
+                insertOperation.mergeUpdate((UpdateOperation) logOperation);
 
-                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
-                recordMap.put(insertOperation, insertOperation);
-                if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
-                    inRangeRecordSet.add(insertOperation);
+                if (logOperation instanceof UpdateKeyOperation) {
+                    recordMap.remove(logOperation);
+                    if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                        inRangeRecordSet.remove(logOperation);
+                    }
+
+                    insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
+                    recordMap.put(insertOperation, insertOperation);
+                    if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+                        inRangeRecordSet.add(insertOperation);
+                    }
                 }
             }
         }

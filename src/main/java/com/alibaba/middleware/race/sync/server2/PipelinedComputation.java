@@ -18,7 +18,7 @@ public class PipelinedComputation {
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
-    public static BlockingQueue<ArrayList<LogOperation>> blockingQueue = new ArrayBlockingQueue<>(48);
+    public static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(48);
 
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
 
@@ -49,11 +49,10 @@ public class PipelinedComputation {
             public void run() {
                 while (true) {
                     try {
-                        ArrayList<LogOperation> logOperation = blockingQueue.take();
-                        if (logOperation.size() == 0)
+                        LogOperation[] logOperations = blockingQueue.take();
+                        if (logOperations.length == 0)
                             break;
-                        for (int i = 0; i < logOperation.size(); i++)
-                            restoreComputation.compute(logOperation.get(i));
+                            restoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -67,7 +66,7 @@ public class PipelinedComputation {
         }
         joinSinglePool(fileTransformPool);
         try {
-            blockingQueue.put(new ArrayList<LogOperation>(0));
+            blockingQueue.put(new LogOperation[0]);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
