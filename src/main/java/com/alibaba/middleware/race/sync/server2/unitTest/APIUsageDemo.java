@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by yche on 6/19/17.
@@ -39,6 +40,6 @@ public class APIUsageDemo {
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
-        System.out.println("max len byte[]:" + RecordScanner.maxLen);
+        System.out.println("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
     }
 }

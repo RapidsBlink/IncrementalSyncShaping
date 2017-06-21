@@ -18,8 +18,7 @@ public class UpdateOperation extends LogOperation {
         if (valueArr == null)
             valueArr = new byte[RecordField.FILED_NUM][];
         valueArr[index] = bytes;
-        if (index < 3)
-            RecordScanner.max(bytes.length);
+        RecordScanner.max(bytes.length, index);
     }
 
     private void addLastName(byte[] bytes) {

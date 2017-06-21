@@ -23,13 +23,20 @@ public class RecordScanner {
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
 
+    public static int minSKip = 100;
+    public static int maxSkip = 0;
 
     static ReentrantLock reentrantLock = new ReentrantLock();
-    public static int maxLen = -1;
+    public static int maxLens[] = new int[5];
 
-    public static void max(int max) {
+    public static void updateSkip(int skip) {
+        minSKip = Math.min(minSKip, skip);
+        maxSkip = Math.max(maxSkip, skip);
+    }
+
+    public static void max(int max, int index) {
         reentrantLock.lock();
-        maxLen = Math.max(max, maxLen);
+        maxLens[index] = Math.max(max, maxLens[index]);
         reentrantLock.unlock();
     }
 

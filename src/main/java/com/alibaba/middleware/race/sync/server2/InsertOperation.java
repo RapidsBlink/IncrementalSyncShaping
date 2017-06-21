@@ -19,8 +19,7 @@ public class InsertOperation extends LogOperation {
 
     public void addValue(int index, byte[] bytes) {
         valueArr[index] = bytes;
-        if (index < 3)
-            RecordScanner.max(bytes.length);
+        RecordScanner.max(bytes.length, index);
     }
 
     public void changePK(long newPk) {

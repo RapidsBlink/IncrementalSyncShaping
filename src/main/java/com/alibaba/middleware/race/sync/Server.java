@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -75,7 +76,7 @@ public class Server {
             }
         };
         PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
-        logger.info("max len byte[]:" + RecordScanner.maxLen);
+        logger.info("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
         nativeServer.finish();
 
         int i = 0;
