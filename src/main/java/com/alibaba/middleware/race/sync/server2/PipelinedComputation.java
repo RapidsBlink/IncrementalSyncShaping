@@ -17,6 +17,9 @@ public class PipelinedComputation {
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 16;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
+
+    public static BlockingQueue<LogOperation> blockingQueue = new ArrayBlockingQueue<>(1024 * 1024);
+
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
@@ -41,11 +44,32 @@ public class PipelinedComputation {
     }
 
     public static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
+        computationPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        LogOperation logOperation = blockingQueue.take();
+                        if (logOperation == null)
+                            break;
+                        restoreComputation.compute(logOperation);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        });
         for (String pathString : srcFilePaths) {
             FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
             fileTransformWriteMediator.transformFile();
         }
         joinSinglePool(fileTransformPool);
+        try {
+            blockingQueue.put(null);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         joinSinglePool(computationPool);
     }
 

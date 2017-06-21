@@ -5,38 +5,34 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 /**
  * Created by yche on 6/18/17.
  * used by transform thread pool
  */
-public class FileTransformTask implements Callable<ArrayList<LogOperation>> {
+public class FileTransformTask implements Runnable {
     // functionality
     private RecordScanner backupScanner;
     private final RecordScanner recordScanner;
 
     // result
-    private final ArrayList<LogOperation> retRecordWrapperArrayList; // fast-consumption object
 
-    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
-        this.retRecordWrapperArrayList = new ArrayList<>();
-        this.recordScanner = new RecordScanner(mappedByteBuffer, startIndex, endIndex,  this.retRecordWrapperArrayList);
+    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+        this.recordScanner = new RecordScanner(mappedByteBuffer, startIndex, endIndex, prevFuture);
     }
 
     // for the first small chunk
-    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer) {
-        this(mappedByteBuffer, startIndex, endIndex);
-        backupScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(),this.retRecordWrapperArrayList);
+    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer, Future<?> prevFuture) {
+        this(mappedByteBuffer, startIndex, endIndex, prevFuture);
+        backupScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(), prevFuture);
     }
 
     @Override
-    public ArrayList<LogOperation> call() throws Exception {
+    public void run() {
         if (backupScanner != null) {
             backupScanner.compute();
         }
         recordScanner.compute();
-
-        // make it ready for others to read
-        return  retRecordWrapperArrayList;
     }
 }

@@ -2,6 +2,8 @@ package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
@@ -20,15 +22,14 @@ public class RecordScanner {
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
 
-    // output
-    private final ArrayList<LogOperation> recordWrapperArrayList; // fast-consumption object
+    private final ArrayList<LogOperation> localOperations = new ArrayList<>();
+    private final Future<?> prevFuture;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex,
-                         ArrayList<LogOperation> retRecordWrapperArrayList) {
+    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
-        this.recordWrapperArrayList = retRecordWrapperArrayList;
+        this.prevFuture = prevFuture;
     }
 
     // stop at `|`
@@ -165,7 +166,26 @@ public class RecordScanner {
 
     public void compute() {
         while (nextIndex < endIndex) {
-            recordWrapperArrayList.add(scanOneRecord());
+            if (prevFuture.isDone()) {
+                if (!localOperations.isEmpty()) {
+                    PipelinedComputation.blockingQueue.addAll(localOperations);
+                } else {
+                    PipelinedComputation.blockingQueue.add(scanOneRecord());
+                }
+
+            } else {
+                localOperations.add(scanOneRecord());
+            }
+        }
+
+        // wait for producing tasks
+        try {
+            prevFuture.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (!localOperations.isEmpty()) {
+            PipelinedComputation.blockingQueue.addAll(localOperations);
         }
     }
 }

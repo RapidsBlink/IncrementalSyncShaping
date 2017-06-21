@@ -4,13 +4,10 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.server2.FileUtil.unmap;
@@ -21,17 +18,40 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
-    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(16);
 
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
+    private static Future<?> prevFuture = new Future<Object>() {
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            return false;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @Override
+        public Object get() throws InterruptedException, ExecutionException {
+            return null;
+        }
+
+        @Override
+        public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+            return null;
+        }
+    };
 
     private int nextIndex;
     private int maxIndex;   // inclusive
     private int lastChunkLength;
     private int currChunkLength;
-
-    private Queue<Future<ArrayList<LogOperation>>> byteBufferFutureQueue = new LinkedList<>(); // consumed by output stream
 
     private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -103,12 +123,12 @@ public class FileTransformWriteMediator {
         if (prevRemainingBytes.limit() > 0) {
             ByteBuffer tmp = ByteBuffer.allocate(prevRemainingBytes.limit());
             tmp.put(prevRemainingBytes);
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp, prevFuture);
         } else {
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
         }
 
-        byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
+        prevFuture = fileTransformPool.submit(fileTransformTask);
 
         // 2nd: subsequent workers
         for (int i = 1; i < WORK_NUM; i++) {
@@ -116,14 +136,9 @@ public class FileTransformWriteMediator {
             int smallChunkLastIndex = i < WORK_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
             end = computeEnd(smallChunkLastIndex);
 
-            if (byteBufferFutureQueue.size() >= 16) {
-                while (byteBufferFutureQueue.size() >= 8) {
-                    assignComputationTask();
-                }
-            }
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
-            byteBufferFutureQueue.add(fileTransformPool.submit(fileTransformTask));
         }
+        fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
+        prevFuture = fileTransformPool.submit(fileTransformTask);
 
         // current tail, clear and then put
         prevRemainingBytes.clear();
@@ -132,41 +147,6 @@ public class FileTransformWriteMediator {
         }
     }
 
-    private void assignComputationTask() {
-        Future<ArrayList<LogOperation>> future = byteBufferFutureQueue.poll();
-        ArrayList<LogOperation> futureResult = null;
-        try {
-            futureResult = future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-
-        // 2nd: compute key change
-        try {
-            blockingQueue.put((byte) 0);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        final ArrayList<LogOperation> finalFutureResult = futureResult;
-        computationPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                restoreComputation.compute(finalFutureResult);
-                try {
-                    blockingQueue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-    }
-
-    private void assignComputationTasks() {
-        while (!byteBufferFutureQueue.isEmpty()) {
-            assignComputationTask();
-        }
-    }
 
     private void oneChunkComputation() {
         try {
@@ -175,9 +155,6 @@ public class FileTransformWriteMediator {
             e.printStackTrace();
         }
         assignTransformTasks();
-
-        // finish left work
-        assignComputationTasks();
     }
 
     private void finish() {
