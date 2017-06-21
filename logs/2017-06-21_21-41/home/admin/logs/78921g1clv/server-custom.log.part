@@ -1,0 +1,25 @@
+[2017-06-21 21:39:48.115] INFO  c.a.m.r.sync.Server -Current server time:1498052388114
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -Current server time:1498052388125
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -middleware8
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -student
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -1000000
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -8000000
+[2017-06-21 21:39:48.125] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-21 21:39:48.128] INFO  c.a.m.r.sync.Server -first phase start:1498052388128
+[2017-06-21 21:40:24.623] INFO  c.a.m.r.sync.Server -first phase end:1498052424623
+[2017-06-21 21:40:26.334] INFO  c.a.m.r.sync.Server -second phase end:1498052426334
+[2017-06-21 21:40:26.334] INFO  c.a.m.r.sync.Server -score:300039
+[2017-06-21 21:40:26.334] INFO  c.a.m.r.sync.Server -74
+[2017-06-21 21:40:26.335] INFO  c.a.m.r.sync.Server -[一, 丁, 七, 三, 上, 丙, 乐, 乙, 九, 二, 五, 京, 人, 他, 依, 侯, 俊, 八, 六, 兲, 军, 刘, 刚, 力, 励, 十, 发, 名, 君, 吴, 周, 四, 城, 天, 女, 娥, 孙, 彭, 徐, 恬, 成, 我, 敏, 明, 景, 晶, 李, 杨, 林, 柳, 民, 江, 王, 甜, 田, 甲, 男, 益, 立, 莉, 诚, 赵, 邹, 郑, 钱, 铭, 闵, 阮, 陈, 雨, 静, 骏, 高, 黎]
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000001	柳	铭	女	469	181198
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000003	杨	景	男	469	295219
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000007	吴	乙民	女	469	152256
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000009	杨	力	男	469	152867
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000011	徐	发	男	649	294610
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000013	彭	益一	女	220	142258
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000015	阮	民明	女	469	271650
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000017	彭	骏敏	女	649	146246
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000023	杨	黎名	男	649	16672
+[2017-06-21 21:40:27.566] INFO  c.a.m.r.sync.Server -1000029	李	黎	女	649	142142
+[2017-06-21 21:40:27.745] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-21 21:40:27.745] INFO  c.a.m.r.sync.Server -Send finish all package......
