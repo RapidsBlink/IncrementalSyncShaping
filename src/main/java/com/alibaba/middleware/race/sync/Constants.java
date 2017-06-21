@@ -29,7 +29,7 @@ public interface Constants {
 //    // 结果文件目录
 //    String RESULT_HOME = "/tmp/test/user_result";
 //    // 中间结果目录
-//    String MIDDLE_HOME = "/home/lwangay/tmp/middle";
+//    String MIDDLE_HOME = "/home/yche/tmp/middle";
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
 
@@ -53,4 +53,13 @@ public interface Constants {
     char INSERT_OPERATION = 'I';
     char DELETE_OPERATION = 'D';
     char UPDATE_OPERATION = 'U';
+
+    byte I_OPERATION = 'I';
+    byte D_OPERATION = 'D';
+    byte U_OPERATION = 'U';
+
+    static byte FILED_SPLITTER = '|';
+    static byte LINE_SPLITTER = '\n';
+
+    String MIDDLE_FILE_NAME = "properties.rapids";
 }

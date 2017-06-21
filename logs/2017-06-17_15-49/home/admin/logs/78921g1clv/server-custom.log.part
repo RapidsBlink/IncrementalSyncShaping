@@ -1,0 +1,8 @@
+[2017-06-17 15:41:43.710] INFO  c.a.m.r.sync.Server -Current server time:1497685303709
+[2017-06-17 15:41:44.763] INFO  c.a.m.r.sync.Server -computation time cost:1043
+[2017-06-17 15:41:45.580] INFO  c.a.m.r.sync.Server -computation time cost:817
+[2017-06-17 15:41:46.220] INFO  c.a.m.r.sync.Server -computation time cost:640
+[2017-06-17 15:41:46.865] INFO  c.a.m.r.sync.Server -computation time cost:645
+[2017-06-17 15:41:47.571] INFO  c.a.m.r.sync.Server -computation time cost:706
+[2017-06-17 15:41:48.550] INFO  c.a.m.r.sync.Server -computation time cost:979
+[2017-06-17 15:41:50.860] INFO  c.a.m.r.sync.Server -computation time cost:2310
