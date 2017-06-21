@@ -3,6 +3,7 @@ package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.RecordScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +75,7 @@ public class Server {
             }
         };
         PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
+        logger.info("max len byte[]:" + RecordScanner.maxLen);
         nativeServer.finish();
 
         int i = 0;

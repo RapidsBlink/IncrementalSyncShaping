@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
@@ -21,6 +22,16 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
     private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
     private int nextIndex; // start from startIndex
+
+
+    static ReentrantLock reentrantLock = new ReentrantLock();
+    public static int maxLen = -1;
+
+    public static void max(int max) {
+        reentrantLock.lock();
+        maxLen = Math.max(max, maxLen);
+        reentrantLock.unlock();
+    }
 
     private final ArrayList<LogOperation> localOperations = new ArrayList<>();
     private final Future<?> prevFuture;
@@ -170,7 +181,7 @@ public class RecordScanner {
         }
 
         // wait for producing tasks
-        LogOperation[] logOperations=localOperations.toArray(new LogOperation[0]);
+        LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
         prevFuture.get();
         PipelinedComputation.blockingQueue.put(logOperations);
     }

@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.RecordScanner;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,6 +39,6 @@ public class APIUsageDemo {
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
-
+        System.out.println("max len byte[]:" + RecordScanner.maxLen);
     }
 }
