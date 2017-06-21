@@ -29,6 +29,7 @@ public class RecordScanner {
     static ReentrantLock reentrantLock = new ReentrantLock();
     static ReentrantLock skipLock = new ReentrantLock();
     public static int maxLens[] = new int[5];
+    public static int minLens[] = new int[]{999, 999, 999, 999, 999};
 
     public static void updateSkip(int skip) {
         skipLock.lock();
@@ -40,6 +41,7 @@ public class RecordScanner {
     public static void max(int max, int index) {
         reentrantLock.lock();
         maxLens[index] = Math.max(max, maxLens[index]);
+        minLens[index] = Math.min(max, minLens[index]);
         reentrantLock.unlock();
     }
 
