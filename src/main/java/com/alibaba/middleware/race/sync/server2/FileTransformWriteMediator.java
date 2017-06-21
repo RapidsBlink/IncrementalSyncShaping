@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +23,7 @@ public class FileTransformWriteMediator {
 
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
+    private Queue<Future<?>> prevFutureQueue = new LinkedList<>();
     private static Future<?> prevFuture = new Future<Object>() {
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
@@ -129,16 +132,18 @@ public class FileTransformWriteMediator {
         }
 
         prevFuture = fileTransformPool.submit(fileTransformTask);
+        prevFutureQueue.add(prevFuture);
 
         // 2nd: subsequent workers
         for (int i = 1; i < WORK_NUM; i++) {
             start = end;
             int smallChunkLastIndex = i < WORK_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
             end = computeEnd(smallChunkLastIndex);
-
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
+            prevFuture = fileTransformPool.submit(fileTransformTask);
+            prevFutureQueue.add(prevFuture);
         }
-        fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
-        prevFuture = fileTransformPool.submit(fileTransformTask);
+
 
         // current tail, clear and then put
         prevRemainingBytes.clear();
@@ -155,6 +160,13 @@ public class FileTransformWriteMediator {
             e.printStackTrace();
         }
         assignTransformTasks();
+        while (!prevFutureQueue.isEmpty()) {
+            try {
+                prevFutureQueue.poll().get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void finish() {

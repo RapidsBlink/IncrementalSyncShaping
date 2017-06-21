@@ -164,28 +164,27 @@ public class RecordScanner {
         return logOperation;
     }
 
-    public void compute() {
+    public void compute() throws InterruptedException, ExecutionException {
         while (nextIndex < endIndex) {
-            if (prevFuture.isDone()) {
-                if (!localOperations.isEmpty()) {
-                    PipelinedComputation.blockingQueue.addAll(localOperations);
-                } else {
-                    PipelinedComputation.blockingQueue.add(scanOneRecord());
-                }
+//            if (prevFuture.isDone()) {
+//                if (!localOperations.isEmpty()) {
+//                    for (int i = 0; i < localOperations.size(); i++) {
+//                        PipelinedComputation.blockingQueue.put(localOperations.get(i));
+//                    }
+//                } else {
+//                    PipelinedComputation.blockingQueue.put(scanOneRecord());
+//                }
 
-            } else {
-                localOperations.add(scanOneRecord());
-            }
+//            } else {
+//                localOperations.add(scanOneRecord());
+//            }
+            localOperations.add(scanOneRecord());
         }
 
         // wait for producing tasks
-        try {
-            prevFuture.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
-        if (!localOperations.isEmpty()) {
-            PipelinedComputation.blockingQueue.addAll(localOperations);
-        }
+        prevFuture.get();
+//        if (!localOperations.isEmpty()) {
+        PipelinedComputation.blockingQueue.put(localOperations);
+//        }
     }
 }

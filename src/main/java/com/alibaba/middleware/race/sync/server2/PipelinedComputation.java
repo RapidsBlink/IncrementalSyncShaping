@@ -14,11 +14,11 @@ import java.util.concurrent.*;
 public class PipelinedComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     static int TRANSFORM_WORKER_NUM = 16;
-    static int WORK_NUM = TRANSFORM_WORKER_NUM * 16;
+    static int WORK_NUM = TRANSFORM_WORKER_NUM * 8;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
-    public static BlockingQueue<LogOperation> blockingQueue = new ArrayBlockingQueue<>(1024 * 1024);
+    public static BlockingQueue<ArrayList<LogOperation>> blockingQueue = new ArrayBlockingQueue<>(48);
 
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
 
@@ -49,10 +49,11 @@ public class PipelinedComputation {
             public void run() {
                 while (true) {
                     try {
-                        LogOperation logOperation = blockingQueue.take();
-                        if (logOperation == null)
+                        ArrayList<LogOperation> logOperation = blockingQueue.take();
+                        if (logOperation.size() == 0)
                             break;
-                        restoreComputation.compute(logOperation);
+                        for (int i = 0; i < logOperation.size(); i++)
+                            restoreComputation.compute(logOperation.get(i));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -66,7 +67,7 @@ public class PipelinedComputation {
         }
         joinSinglePool(fileTransformPool);
         try {
-            blockingQueue.put(null);
+            blockingQueue.put(new ArrayList<LogOperation>(0));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

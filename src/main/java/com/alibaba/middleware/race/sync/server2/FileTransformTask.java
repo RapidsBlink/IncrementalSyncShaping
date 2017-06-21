@@ -3,8 +3,7 @@ package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.util.ArrayList;
-import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 /**
@@ -31,8 +30,16 @@ public class FileTransformTask implements Runnable {
     @Override
     public void run() {
         if (backupScanner != null) {
-            backupScanner.compute();
+            try {
+                backupScanner.compute();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
-        recordScanner.compute();
+        try {
+            recordScanner.compute();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
     }
 }
