@@ -19,13 +19,25 @@ public class ChineseCharToInt {
     static byte[] tmpBytes = new byte[3];
 
     private static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
+    private static int INTEGER_GENDER_MALE = 15176887; // 男
+
+    //男 -> 1, 女 -> 0;
+    public static byte getGenderIndex(byte[] data){
+        int intC = toInt(data);
+        if(intC == INTEGER_GENDER_MALE)
+            return 1;
+        return 0;
+    }
+    public static String getGenderString(byte index){
+        return index == 1 ? "男":"女";
+    }
 
     public static int toInt(byte[] data) {
         return toInt(data, 0);
     }
 
     public static int toInt(byte[] data , int offset) {
-        int ret = (data[0 + offset] & 0xFF) << 16 | (data[1 + offset] & 0xFF) << 8 | (data[2 + offset] & 0xFF);
+        int ret = (data[offset] & 0xFF) << 16 | (data[1 + offset] & 0xFF) << 8 | (data[2 + offset] & 0xFF);
         return ret;
     }
 
@@ -44,6 +56,7 @@ public class ChineseCharToInt {
 
 
     public static void main(String[] args) {
+        System.out.println(toInt("女".getBytes()));
         String name = "丙七";
         byte[] nameBytes = name.getBytes();
         byte index1 = getIndexOfChineseChar(nameBytes, 0);
@@ -52,6 +65,9 @@ public class ChineseCharToInt {
         System.out.println("Char 1: " + toChineseChar(index1));
         System.out.println("Char 2: " + toChineseChar(index2));
 
+        String gender = "男";
+        byte genderIndex = getGenderIndex(gender.getBytes());
+        System.out.println(getGenderString(genderIndex));
 
     }
 
@@ -89,6 +105,9 @@ public class ChineseCharToInt {
         bytes[1] = (byte)(i >>> 8);
         bytes[2] = (byte)(i >>> 0);
         System.out.println(Arrays.toString(bytes));
+
+        System.out.println(toInt("男".getBytes()));
+        System.out.println(toInt("女".getBytes()));
 
     }
 }
