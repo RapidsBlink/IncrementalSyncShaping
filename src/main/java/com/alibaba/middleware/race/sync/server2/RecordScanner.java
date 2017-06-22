@@ -64,7 +64,7 @@ public class RecordScanner {
         nextIndex += fieldSkipLen[index];
     }
 
-    private byte[] getNextBytes() {
+    private void getNextBytesIntoTmp() {
         if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
             nextIndex++;
         }
@@ -76,9 +76,6 @@ public class RecordScanner {
             nextIndex++;
         }
         tmpBuffer.flip();
-        byte[] myBytes = new byte[tmpBuffer.limit()];
-        System.arraycopy(tmpBuffer.array(), 0, myBytes, 0, tmpBuffer.limit());
-        return myBytes;
     }
 
     private long getNextLong() {
@@ -144,16 +141,17 @@ public class RecordScanner {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldForInsert(localIndex);
                 skipNull();
-                byte[] nextBytes = getNextBytes();
-                ((InsertOperation) logOperation).addValue(localIndex, nextBytes);
+                getNextBytesIntoTmp();
+                ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
                 localIndex++;
             }
         } else if (logOperation instanceof UpdateOperation) {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldName();
                 skipField();
-                byte[] nextBytes = getNextBytes();
-                ((UpdateOperation) logOperation).addValue(fieldNameBuffer, nextBytes);
+                getNextBytesIntoTmp();
+                int localIndex = RecordField.fieldIndexMap.get(fieldNameBuffer);
+                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             }
         } else {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {

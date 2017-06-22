@@ -1,16 +1,14 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
+    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>(9 * 1024 * 1024);
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {
@@ -29,7 +27,7 @@ public class RestoreComputation {
             } else {
                 // update
                 InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation);
-                insertOperation.mergeUpdate((UpdateOperation) logOperation);
+                insertOperation.mergeAnother((UpdateOperation) logOperation);
 
                 if (logOperation instanceof UpdateKeyOperation) {
                     recordMap.remove(logOperation);

@@ -113,7 +113,7 @@ public class FileTransformWriteMediator {
         return end;
     }
 
-    // 2nd work: merge remaining, compute [start, end)
+    // 2nd work: mergeAnother remaining, compute [start, end)
     private void assignTransformTasks() {
         int avgTask = currChunkLength / WORK_NUM;
 
