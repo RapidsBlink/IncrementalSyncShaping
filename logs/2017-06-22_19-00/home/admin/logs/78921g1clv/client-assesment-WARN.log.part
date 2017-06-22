@@ -1,0 +1,11 @@
+ is: TIMED_OUT
+ [WARN ] [15:05:19] com.alibaba.middleware.race.TesterHttpServer - cleaning:上传日志文件出错TIMED_OUT
+ [WARN ] [15:05:29] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [WARN ] [15:05:29] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [15:05:29] com.alibaba.middleware.race.TesterHttpServer - cleaning:清除系统缓存出错TIMED_OUT
+ [WARN ] [18:58:37] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ [WARN ] [18:58:57] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [WARN ] [18:58:58] com.alibaba.middleware.race.TesterHttpServer - 停止用户user client程序成功 SUCCESS
+ [WARN ] [18:58:58] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [WARN ] [18:58:58] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ 

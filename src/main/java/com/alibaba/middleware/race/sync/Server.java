@@ -74,7 +74,7 @@ public class Server {
             }
         };
         PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
-
+        Server.logger.info("logical cpu num:" + Runtime.getRuntime().availableProcessors());
         nativeServer.finish();
 
         int i = 0;
