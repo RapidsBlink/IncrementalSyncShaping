@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-//    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
+    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {
@@ -20,14 +20,14 @@ public class RestoreComputation {
                     inRangeRecordSet.remove(logOperation);
                 }
             } else if (logOperation instanceof InsertOperation) {
-//                recordMap.put(logOperation, logOperation);
+                recordMap.put(logOperation, logOperation); //1
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.add(logOperation);
                 }
             } else {
                 // update
-//                InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation);
-//                insertOperation.mergeAnother((UpdateOperation) logOperation);
+                InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
+                insertOperation.mergeAnother((UpdateOperation) logOperation); //3
 
                 if (logOperation instanceof UpdateKeyOperation) {
 //                    recordMap.remove(logOperation);
@@ -35,10 +35,10 @@ public class RestoreComputation {
                         inRangeRecordSet.remove(logOperation);
                     }
 
-//                    insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey);
-//                    recordMap.put(insertOperation, insertOperation);
+                    insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
+                    recordMap.put(insertOperation, insertOperation); //5
 
-                    InsertOperation insertOperation=new InsertOperation(((UpdateKeyOperation) logOperation).changedKey);
+//                    InsertOperation insertOperation=new InsertOperation(((UpdateKeyOperation) logOperation).changedKey);
                     if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
                         inRangeRecordSet.add(insertOperation);
                     }

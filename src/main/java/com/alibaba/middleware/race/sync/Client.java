@@ -36,20 +36,22 @@ public class Client {
 
     public void start() {
         nativeClient.finish();
-        logger.info("" + nativeClient.resultMap.size());
+        logger.info("" + NativeClient.resultMap.size());
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
-        int i = 0;
-        for (String value : nativeClient.resultMap.values()) {
-                if (i < 10)
-                    logger.info(value);
+//            int i = 0;
+            for (String value : NativeClient.resultMap.values()) {
+//                if (i < 10)
+//                    logger.info(value);
                 bw.write(value);
                 bw.newLine();
-                i++;
+//                i++;
             }
             bw.close();
 
+            File file = new File(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME);
+            logger.info("file len:" + file.length());
         } catch (IOException e) {
             e.printStackTrace();
         }
