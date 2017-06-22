@@ -1,13 +1,5 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.LogOperation;
-import com.alibaba.middleware.race.sync.server2.RecordScanner;
-import org.codehaus.jackson.map.ObjectMapper;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-
 /**
  * Created by yche on 6/18/17.
  */

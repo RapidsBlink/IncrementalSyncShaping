@@ -1,8 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
 
-import java.nio.ByteBuffer;
-
 /**
  * Created by yche on 6/19/17.
  */

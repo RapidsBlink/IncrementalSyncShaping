@@ -3,7 +3,6 @@ package com.alibaba.middleware.race.sync.server2;
 import com.alibaba.middleware.race.sync.Server;
 
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
