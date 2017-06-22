@@ -4,6 +4,7 @@ import com.alibaba.middleware.race.sync.Server;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.*;
 
 /**
@@ -22,6 +23,19 @@ public class PipelinedComputation {
 
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
+
+    static int SLAVERS_NUM = 4;
+    static ExecutorService computationSlaverPools[] = new ExecutorService[SLAVERS_NUM];
+    public static HashMap<LogOperation, LogOperation>[] recordMapArr = new HashMap[SLAVERS_NUM];
+    public static ArrayList<LogOperation>[] logOperationsArr = new ArrayList[SLAVERS_NUM];
+
+    static {
+        for (int i = 0; i < SLAVERS_NUM; i++) {
+            computationSlaverPools[i] = Executors.newSingleThreadExecutor();
+            logOperationsArr[i] = new ArrayList<>();
+            recordMapArr[i] = new HashMap<>();
+        }
+    }
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
@@ -53,7 +67,7 @@ public class PipelinedComputation {
                         LogOperation[] logOperations = blockingQueue.take();
                         if (logOperations.length == 0)
                             break;
-                        restoreComputation.compute(logOperations);
+                        RestoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -94,7 +108,12 @@ public class PipelinedComputation {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         joinSinglePool(computationPool);
+        RestoreComputation.submitJobs();
+        RestoreComputation.condWait();
+        for (int i = 0; i < SLAVERS_NUM; i++)
+            joinSinglePool(computationSlaverPools[i]);
 
     }
 
