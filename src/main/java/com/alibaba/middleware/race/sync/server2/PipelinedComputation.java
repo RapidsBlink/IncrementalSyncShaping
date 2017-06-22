@@ -6,14 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
-
 /**
  * Created by yche on 6/16/17.
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 64 * 1024 * 1024;
-    static int TRANSFORM_WORKER_NUM = 16;
+    static int CHUNK_SIZE = 128 * 1024 * 1024;
+    private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 8;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
@@ -52,7 +51,7 @@ public class PipelinedComputation {
                         LogOperation[] logOperations = blockingQueue.take();
                         if (logOperations.length == 0)
                             break;
-                            restoreComputation.compute(logOperations);
+                        restoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

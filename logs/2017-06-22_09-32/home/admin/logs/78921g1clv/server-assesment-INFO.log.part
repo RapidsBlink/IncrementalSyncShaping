@@ -1,0 +1,112 @@
+  
+[INFO] ------------------------------------------------------------------------
+[INFO] Building sync 1.0
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> maven-assembly-plugin:2.5.3:assembly (default-cli) > package @ sync >>>
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ sync ---
+[WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 2 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.1:compile (default-compile) @ sync ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 39 source files to /home/admin/code/78921g1clv/target/classes
+[INFO] /home/admin/code/78921g1clv/src/main/java/com/alibaba/middleware/race/sync/play/ChineseCharToInt.java: /home/admin/code/78921g1clv/src/main/java/com/alibaba/middleware/race/sync/play/ChineseCharToInt.java uses unchecked or unsafe operations.
+[INFO] /home/admin/code/78921g1clv/src/main/java/com/alibaba/middleware/race/sync/play/ChineseCharToInt.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ sync ---
+[INFO] Not copying test resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.6.1:testCompile (default-testCompile) @ sync ---
+[INFO] Not compiling test sources
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ sync ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:2.4:jar (default-jar) @ sync ---
+[INFO] Building jar: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[INFO] 
+[INFO] <<< maven-assembly-plugin:2.5.3:assembly (default-cli) < package @ sync <<<
+[INFO] 
+[INFO] --- maven-assembly-plugin:2.5.3:assembly (default-cli) @ sync ---
+[INFO] Reading assembly descriptor: src/resources/assembly.xml
+[INFO] Copying files to /home/admin/code/78921g1clv/target/sync-1.0
+[WARNING] Assembly file: /home/admin/code/78921g1clv/target/sync-1.0 is not a regular file (it may be a directory). It cannot be attached to the project build for installation or deployment.
+[WARNING] Artifact: com.alibaba.middleware.race:sync:jar:1.0 references the same file as the assembly destination file. Moving it to a temporary location for inclusion.
+[INFO] Building jar: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[WARNING] Configuration options: 'appendAssemblyId' is set to false, and 'classifier' is missing.
+Instead of attaching the assembly file: /home/admin/code/78921g1clv/target/sync-1.0.jar, it will become the file for main project artifact.
+NOTE: If multiple descriptors or descriptor-formats are provided for this project, the value of this file will be non-deterministic!
+[WARNING] Replacing pre-existing project main-artifact file: /home/admin/code/78921g1clv/target/archive-tmp/sync-1.0.jar
+with assembly file: /home/admin/code/78921g1clv/target/sync-1.0.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 7.456 s
+[INFO] Finished at: 2017-06-21T23:35:40+08:00
+[INFO] Final Memory: 36M/480M
+[INFO] ------------------------------------------------------------------------
+success
+
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - assembly code successfully
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyjar.sh /home/admin/code 78921g1clv /home/admin/topkn-workspace 
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：300000
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyjar.sh /home/admin/code 78921g1clv /home/admin/topkn-workspace , execute status is SUCCESS Script execute output: success
+
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - copy jar successfully
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/scp_user_jar.sh 78921g1clv /home/admin/topkn-workspace 
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：300000
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/scp_user_jar.sh 78921g1clv /home/admin/topkn-workspace , execute status is SUCCESS Script execute output: success
+
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 拷贝选手jar到client目录成功
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/cleanCache.sh 
+ [INFO ] [23:35:40] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [23:35:51] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh , execute status is SUCCESS Script execute output: 开始清空系统的缓存
+vm.drop_caches = 3
+success
+
+ [INFO ] [23:35:51] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功清除系统缓存(运行前清理)
+ [INFO ] [23:35:51] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 开始运行选手的服务端程序，此时设定的超时时间为（单位秒）：300
+ [INFO ] [23:35:51] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_server.sh /home/admin/logs/78921g1clv/gc_server.log middleware8 student 1000000 8000000 
+ [INFO ] [23:35:51] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 开始发送HTTP请求启动选手的Client端程序
+ [INFO ] [23:35:59] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 30s ago
+ [INFO ] [23:35:59] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:36:29] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 60s ago
+ [INFO ] [23:36:29] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 收到来自响应: {"invalid":true,"client_cost_time":48608}
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - Client端的运行耗时为:48608
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 您的程序成功通过验证，总耗时时间(单位：毫秒)为：66046
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - end check
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - tsar信息时间点信息为：21/06/17-23:36
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 21/06/17-23:36 
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 21/06/17-23:36 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [23:36:57] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功输出tsar信息SUCCESS
+ [INFO ] [23:36:59] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 90s ago
+ [INFO ] [23:36:59] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/killJava.sh 
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：10000
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 21-06-17-23-37 
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 21-06-17-23-37 , execute status is SUCCESS Script execute output: 需要归档的结果文件不存在
+success
+
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 归档结果文件成功
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv 
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv , execute status is SUCCESS Script execute output: 要删除的中间结果文件为/home/admin/middle/78921g1clv
+成功清除中间结果
+success
+
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功清除中间结果
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv 
+ [INFO ] [23:37:17] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ 

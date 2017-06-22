@@ -1,13 +1,12 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.*;
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by yche on 6/19/17.
@@ -39,13 +38,6 @@ public class APIUsageDemo {
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
-        System.out.println("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
-        System.out.println("min len byte[]:" + Arrays.toString(RecordScanner.minLens));
-        System.out.println(RecordScanner.minSKip + ", " + RecordScanner.maxSkip);
 
-        System.out.println("insert:" + InsertOperation.count);
-        System.out.println("delete:" + DeleteOperation.count);
-        System.out.println("update:" + UpdateOperation.count);
-        System.out.println("update pk:" + UpdateKeyOperation.count);
     }
 }

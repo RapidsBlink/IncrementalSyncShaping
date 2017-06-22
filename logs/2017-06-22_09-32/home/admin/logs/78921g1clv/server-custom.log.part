@@ -1,0 +1,146 @@
+er -use time:296 ms
+[2017-06-21 23:36:17.126] INFO  c.a.m.r.sync.Server -use time:287 ms
+[2017-06-21 23:36:17.404] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:17.679] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:17.956] INFO  c.a.m.r.sync.Server -use time:277 ms
+[2017-06-21 23:36:18.241] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:18.530] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:18.819] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:19.431] INFO  c.a.m.r.sync.Server -use time:612 ms
+[2017-06-21 23:36:19.720] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:19.924] INFO  c.a.m.r.sync.Server -use time:204 ms
+[2017-06-21 23:36:20.210] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:20.488] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:20.767] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:21.049] INFO  c.a.m.r.sync.Server -use time:282 ms
+[2017-06-21 23:36:21.333] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:21.612] INFO  c.a.m.r.sync.Server -use time:279 ms
+[2017-06-21 23:36:21.886] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:22.175] INFO  c.a.m.r.sync.Server -use time:288 ms
+[2017-06-21 23:36:22.461] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:23.113] INFO  c.a.m.r.sync.Server -use time:652 ms
+[2017-06-21 23:36:23.397] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:23.682] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:23.965] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:24.199] INFO  c.a.m.r.sync.Server -use time:234 ms
+[2017-06-21 23:36:24.484] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:24.597] INFO  c.a.m.r.sync.Server -use time:112 ms
+[2017-06-21 23:36:24.871] INFO  c.a.m.r.sync.Server -use time:273 ms
+[2017-06-21 23:36:25.150] INFO  c.a.m.r.sync.Server -use time:279 ms
+[2017-06-21 23:36:25.424] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:25.700] INFO  c.a.m.r.sync.Server -use time:276 ms
+[2017-06-21 23:36:25.984] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:26.607] INFO  c.a.m.r.sync.Server -use time:623 ms
+[2017-06-21 23:36:26.813] INFO  c.a.m.r.sync.Server -use time:206 ms
+[2017-06-21 23:36:27.087] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:27.370] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:27.555] INFO  c.a.m.r.sync.Server -use time:184 ms
+[2017-06-21 23:36:27.830] INFO  c.a.m.r.sync.Server -use time:275 ms
+[2017-06-21 23:36:28.069] INFO  c.a.m.r.sync.Server -use time:239 ms
+[2017-06-21 23:36:28.327] INFO  c.a.m.r.sync.Server -use time:258 ms
+[2017-06-21 23:36:28.563] INFO  c.a.m.r.sync.Server -use time:236 ms
+[2017-06-21 23:36:28.784] INFO  c.a.m.r.sync.Server -use time:221 ms
+[2017-06-21 23:36:29.003] INFO  c.a.m.r.sync.Server -use time:218 ms
+[2017-06-21 23:36:29.140] INFO  c.a.m.r.sync.Server -use time:137 ms
+[2017-06-21 23:36:29.419] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:29.696] INFO  c.a.m.r.sync.Server -use time:277 ms
+[2017-06-21 23:36:30.193] INFO  c.a.m.r.sync.Server -use time:496 ms
+[2017-06-21 23:36:30.478] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:30.750] INFO  c.a.m.r.sync.Server -use time:272 ms
+[2017-06-21 23:36:31.037] INFO  c.a.m.r.sync.Server -use time:286 ms
+[2017-06-21 23:36:31.259] INFO  c.a.m.r.sync.Server -use time:222 ms
+[2017-06-21 23:36:31.529] INFO  c.a.m.r.sync.Server -use time:270 ms
+[2017-06-21 23:36:31.810] INFO  c.a.m.r.sync.Server -use time:280 ms
+[2017-06-21 23:36:32.091] INFO  c.a.m.r.sync.Server -use time:281 ms
+[2017-06-21 23:36:32.355] INFO  c.a.m.r.sync.Server -use time:264 ms
+[2017-06-21 23:36:32.629] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:32.901] INFO  c.a.m.r.sync.Server -use time:272 ms
+[2017-06-21 23:36:33.171] INFO  c.a.m.r.sync.Server -use time:270 ms
+[2017-06-21 23:36:33.651] INFO  c.a.m.r.sync.Server -use time:480 ms
+[2017-06-21 23:36:33.793] INFO  c.a.m.r.sync.Server -use time:142 ms
+[2017-06-21 23:36:34.070] INFO  c.a.m.r.sync.Server -use time:276 ms
+[2017-06-21 23:36:34.360] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:34.646] INFO  c.a.m.r.sync.Server -use time:286 ms
+[2017-06-21 23:36:34.933] INFO  c.a.m.r.sync.Server -use time:286 ms
+[2017-06-21 23:36:35.219] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:35.490] INFO  c.a.m.r.sync.Server -use time:271 ms
+[2017-06-21 23:36:35.753] INFO  c.a.m.r.sync.Server -use time:263 ms
+[2017-06-21 23:36:36.031] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:36.312] INFO  c.a.m.r.sync.Server -use time:281 ms
+[2017-06-21 23:36:36.584] INFO  c.a.m.r.sync.Server -use time:272 ms
+[2017-06-21 23:36:37.123] INFO  c.a.m.r.sync.Server -use time:539 ms
+[2017-06-21 23:36:37.409] INFO  c.a.m.r.sync.Server -use time:286 ms
+[2017-06-21 23:36:37.687] INFO  c.a.m.r.sync.Server -use time:278 ms
+[2017-06-21 23:36:37.972] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:38.234] INFO  c.a.m.r.sync.Server -use time:261 ms
+[2017-06-21 23:36:38.362] INFO  c.a.m.r.sync.Server -use time:128 ms
+[2017-06-21 23:36:38.583] INFO  c.a.m.r.sync.Server -use time:220 ms
+[2017-06-21 23:36:38.814] INFO  c.a.m.r.sync.Server -use time:231 ms
+[2017-06-21 23:36:39.071] INFO  c.a.m.r.sync.Server -use time:257 ms
+[2017-06-21 23:36:39.315] INFO  c.a.m.r.sync.Server -use time:244 ms
+[2017-06-21 23:36:39.599] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:39.879] INFO  c.a.m.r.sync.Server -use time:280 ms
+[2017-06-21 23:36:40.162] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:40.444] INFO  c.a.m.r.sync.Server -use time:282 ms
+[2017-06-21 23:36:40.960] INFO  c.a.m.r.sync.Server -use time:515 ms
+[2017-06-21 23:36:41.241] INFO  c.a.m.r.sync.Server -use time:280 ms
+[2017-06-21 23:36:41.517] INFO  c.a.m.r.sync.Server -use time:276 ms
+[2017-06-21 23:36:41.784] INFO  c.a.m.r.sync.Server -use time:267 ms
+[2017-06-21 23:36:42.065] INFO  c.a.m.r.sync.Server -use time:281 ms
+[2017-06-21 23:36:42.350] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:42.639] INFO  c.a.m.r.sync.Server -use time:288 ms
+[2017-06-21 23:36:42.924] INFO  c.a.m.r.sync.Server -use time:284 ms
+[2017-06-21 23:36:43.205] INFO  c.a.m.r.sync.Server -use time:279 ms
+[2017-06-21 23:36:43.480] INFO  c.a.m.r.sync.Server -use time:274 ms
+[2017-06-21 23:36:43.750] INFO  c.a.m.r.sync.Server -use time:270 ms
+[2017-06-21 23:36:44.337] INFO  c.a.m.r.sync.Server -use time:587 ms
+[2017-06-21 23:36:44.626] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:44.899] INFO  c.a.m.r.sync.Server -use time:273 ms
+[2017-06-21 23:36:45.192] INFO  c.a.m.r.sync.Server -use time:293 ms
+[2017-06-21 23:36:45.488] INFO  c.a.m.r.sync.Server -use time:295 ms
+[2017-06-21 23:36:45.782] INFO  c.a.m.r.sync.Server -use time:293 ms
+[2017-06-21 23:36:46.075] INFO  c.a.m.r.sync.Server -use time:293 ms
+[2017-06-21 23:36:46.358] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:46.634] INFO  c.a.m.r.sync.Server -use time:276 ms
+[2017-06-21 23:36:46.921] INFO  c.a.m.r.sync.Server -use time:287 ms
+[2017-06-21 23:36:47.210] INFO  c.a.m.r.sync.Server -use time:289 ms
+[2017-06-21 23:36:47.497] INFO  c.a.m.r.sync.Server -use time:287 ms
+[2017-06-21 23:36:47.618] INFO  c.a.m.r.sync.Server -use time:120 ms
+[2017-06-21 23:36:48.099] INFO  c.a.m.r.sync.Server -use time:480 ms
+[2017-06-21 23:36:48.378] INFO  c.a.m.r.sync.Server -use time:279 ms
+[2017-06-21 23:36:48.653] INFO  c.a.m.r.sync.Server -use time:275 ms
+[2017-06-21 23:36:48.928] INFO  c.a.m.r.sync.Server -use time:275 ms
+[2017-06-21 23:36:49.199] INFO  c.a.m.r.sync.Server -use time:271 ms
+[2017-06-21 23:36:49.470] INFO  c.a.m.r.sync.Server -use time:271 ms
+[2017-06-21 23:36:49.740] INFO  c.a.m.r.sync.Server -use time:270 ms
+[2017-06-21 23:36:50.018] INFO  c.a.m.r.sync.Server -use time:277 ms
+[2017-06-21 23:36:50.305] INFO  c.a.m.r.sync.Server -use time:287 ms
+[2017-06-21 23:36:50.590] INFO  c.a.m.r.sync.Server -use time:285 ms
+[2017-06-21 23:36:51.287] INFO  c.a.m.r.sync.Server -use time:696 ms
+[2017-06-21 23:36:51.870] INFO  c.a.m.r.sync.Server -use time:583 ms
+[2017-06-21 23:36:52.026] INFO  c.a.m.r.sync.Server -use time:155 ms
+[2017-06-21 23:36:52.178] INFO  c.a.m.r.sync.Server -use time:152 ms
+[2017-06-21 23:36:52.461] INFO  c.a.m.r.sync.Server -use time:283 ms
+[2017-06-21 23:36:52.729] INFO  c.a.m.r.sync.Server -use time:268 ms
+[2017-06-21 23:36:52.837] INFO  c.a.m.r.sync.Server -use time:108 ms
+[2017-06-21 23:36:52.860] INFO  c.a.m.r.sync.Server -first phase end:1498059412860
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -second phase end:1498059414991
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -max len byte[]:[3, 6, 3, 4, 6]
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -min len byte[]:[3, 3, 3, 2, 2]
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -5, 12
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -insert:5240296
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -delete:3199067
+[2017-06-21 23:36:54.991] INFO  c.a.m.r.sync.Server -update:87361483
+[2017-06-21 23:36:54.992] INFO  c.a.m.r.sync.Server -update pk:1979570
+[2017-06-21 23:36:56.250] INFO  c.a.m.r.sync.Server -1000001	邹	铭	女	469	181198
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000003	邹	景	男	469	295219
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000007	邹	乙民	女	469	152256
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000009	邹	力	男	469	152867
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000011	杨	发	男	649	294610
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000013	侯	孙	女	220	142258
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000015	邹	林	女	469	271650
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000017	杨	高	女	649	146246
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000023	杨	黎名	男	649	16672
+[2017-06-21 23:36:56.251] INFO  c.a.m.r.sync.Server -1000029	杨	黎	女	649	142142
+[2017-06-21 23:36:56.326] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-21 23:36:56.326] INFO  c.a.m.r.sync.Server -Send finish all package......

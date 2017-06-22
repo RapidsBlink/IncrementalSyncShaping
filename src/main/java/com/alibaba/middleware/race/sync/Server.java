@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -75,14 +74,7 @@ public class Server {
             }
         };
         PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
-        logger.info("max len byte[]:" + Arrays.toString(RecordScanner.maxLens));
-        logger.info("min len byte[]:" + Arrays.toString(RecordScanner.minLens));
-        logger.info(RecordScanner.minSKip + ", " + RecordScanner.maxSkip);
 
-        logger.info("insert:" + InsertOperation.count);
-        logger.info("delete:" + DeleteOperation.count);
-        logger.info("update:" + UpdateOperation.count);
-        logger.info("update pk:" + UpdateKeyOperation.count);
         nativeServer.finish();
 
         int i = 0;

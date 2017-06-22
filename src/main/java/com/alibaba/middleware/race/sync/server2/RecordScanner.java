@@ -4,7 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
@@ -19,31 +18,9 @@ public class RecordScanner {
     private final int endIndex;   // exclusive
 
     // intermediate states
-    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(64);
-    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(64);
+    private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
+    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(16);
     private int nextIndex; // start from startIndex
-
-    public static int minSKip = 100;
-    public static int maxSkip = 0;
-
-    static ReentrantLock reentrantLock = new ReentrantLock();
-    static ReentrantLock skipLock = new ReentrantLock();
-    public static int maxLens[] = new int[5];
-    public static int minLens[] = new int[]{999, 999, 999, 999, 999};
-
-    public static void updateSkip(int skip) {
-        skipLock.lock();
-        minSKip = Math.min(minSKip, skip);
-        maxSkip = Math.max(maxSkip, skip);
-        skipLock.unlock();
-    }
-
-    public static void max(int max, int index) {
-        reentrantLock.lock();
-        maxLens[index] = Math.max(max, maxLens[index]);
-        minLens[index] = Math.min(max, minLens[index]);
-        reentrantLock.unlock();
-    }
 
     private final ArrayList<LogOperation> localOperations = new ArrayList<>();
     private final Future<?> prevFuture;
@@ -67,12 +44,11 @@ public class RecordScanner {
 
     private void skipHeader() {
         int skip = 0;
-        nextIndex += 15;
+        nextIndex += 20;
         while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             nextIndex++;
             skip++;
         }
-        updateSkip(skip);
         nextIndex += 34;
     }
 

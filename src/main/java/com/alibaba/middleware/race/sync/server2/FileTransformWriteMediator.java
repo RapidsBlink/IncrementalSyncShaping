@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.Server;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -156,7 +156,6 @@ public class FileTransformWriteMediator {
 
 
     private void oneChunkComputation() {
-        long start = System.currentTimeMillis();
         try {
             fetchNextMmapChunk();
         } catch (IOException e) {
@@ -170,9 +169,6 @@ public class FileTransformWriteMediator {
                 e.printStackTrace();
             }
         }
-        long end = System.currentTimeMillis();
-        if (Server.logger != null)
-            Server.logger.info("use time:" + (end - start) + " ms");
     }
 
     private void finish() {
