@@ -24,7 +24,7 @@ public class PipelinedComputation {
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    static int SLAVERS_NUM = 4;
+    static int SLAVERS_NUM = 2;
     static ExecutorService computationSlaverPools[] = new ExecutorService[SLAVERS_NUM];
     public static HashMap<LogOperation, LogOperation>[] recordMapArr = new HashMap[SLAVERS_NUM];
     public static ArrayList<LogOperation>[] logOperationsArr = new ArrayList[SLAVERS_NUM];
