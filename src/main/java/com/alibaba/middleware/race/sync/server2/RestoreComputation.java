@@ -8,14 +8,14 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>(9 * 1024 * 1024);
+    public HashMap<LogOperation, LogOperation> recordMap = new HashMap<>();
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
             LogOperation logOperation = logOperations[i];
             if (logOperation instanceof DeleteOperation) {
-                recordMap.remove(logOperation);
+                //recordMap.remove(logOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
@@ -30,7 +30,7 @@ public class RestoreComputation {
                 insertOperation.mergeAnother((UpdateOperation) logOperation);
 
                 if (logOperation instanceof UpdateKeyOperation) {
-                    recordMap.remove(logOperation);
+//                    recordMap.remove(logOperation);
                     if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                         inRangeRecordSet.remove(logOperation);
                     }

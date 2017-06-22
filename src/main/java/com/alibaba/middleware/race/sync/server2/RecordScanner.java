@@ -19,7 +19,6 @@ public class RecordScanner {
 
     // intermediate states
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
-    private final ByteBuffer fieldNameBuffer = ByteBuffer.allocate(16);
     private int nextIndex; // start from startIndex
 
     private final ArrayList<LogOperation> localOperations = new ArrayList<>();
@@ -34,20 +33,16 @@ public class RecordScanner {
 
     // stop at `|`
     private void skipField() {
-        if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
-            nextIndex++;
-        }
+        nextIndex++;
         while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
             nextIndex++;
         }
     }
 
     private void skipHeader() {
-        int skip = 0;
         nextIndex += 20;
         while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
             nextIndex++;
-            skip++;
         }
         nextIndex += 34;
     }
@@ -65,9 +60,7 @@ public class RecordScanner {
     }
 
     private void getNextBytesIntoTmp() {
-        if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER) {
-            nextIndex++;
-        }
+        nextIndex++;
 
         tmpBuffer.clear();
         byte myByte;
@@ -79,8 +72,7 @@ public class RecordScanner {
     }
 
     private long getNextLong() {
-        if (mappedByteBuffer.get(nextIndex) == FILED_SPLITTER)
-            nextIndex++;
+        nextIndex++;
 
         byte tmpByte;
         long result = 0L;
@@ -91,17 +83,26 @@ public class RecordScanner {
         return result;
     }
 
-    private void skipFieldName() {
-        // skip '|'
-        nextIndex++;
+    private int skipFieldName() {
         // stop at '|'
-        byte myByte;
-        fieldNameBuffer.clear();
-        while ((myByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
-            fieldNameBuffer.put(myByte);
-            nextIndex++;
+        if (mappedByteBuffer.get(nextIndex + 1) == 'f') {
+            nextIndex += 15;
+            return 0;
+        } else if (mappedByteBuffer.get(nextIndex + 1) == 'l') {
+            nextIndex += 14;
+            return 1;
+        } else {
+            if (mappedByteBuffer.get(nextIndex + 2) == 'e') {
+                nextIndex += 8;
+                return 2;
+            } else if (mappedByteBuffer.get(nextIndex + 6) == ':') {
+                nextIndex += 10;
+                return 3;
+            } else {
+                nextIndex += 11;
+                return 4;
+            }
         }
-        fieldNameBuffer.flip();
     }
 
 
@@ -135,7 +136,6 @@ public class RecordScanner {
         }
 
         // 3rd: parse ValueIndex
-        // must be insert and update
         if (logOperation instanceof InsertOperation) {
             int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
@@ -147,15 +147,16 @@ public class RecordScanner {
             }
         } else if (logOperation instanceof UpdateOperation) {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                skipFieldName();
+                int localIndex = skipFieldName();
                 skipField();
                 getNextBytesIntoTmp();
-                int localIndex = RecordField.fieldIndexMap.get(fieldNameBuffer);
                 ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             }
         } else {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                nextIndex++;
+                skipFieldName();
+                skipField();
+                skipNull();
             }
         }
 
