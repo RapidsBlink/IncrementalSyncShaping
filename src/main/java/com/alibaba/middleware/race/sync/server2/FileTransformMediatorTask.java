@@ -1,11 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -15,17 +11,28 @@ import java.util.concurrent.TimeoutException;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.server2.FileUtil.unmap;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.WORK_NUM;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fileTransformPool;
 
 /**
  * Created by yche on 6/16/17.
  * used by the master thread
  */
-public class FileTransformWriteMediator {
-
-    private FileChannel fileChannel;
-    private MappedByteBuffer mappedByteBuffer;
+public class FileTransformMediatorTask {
     private Queue<Future<?>> prevFutureQueue = new LinkedList<>();
+    private MappedByteBuffer mappedByteBuffer;
+    private int currChunkLength;
+    boolean isFinished = false;
+
+    public FileTransformMediatorTask() {
+        isFinished = true;
+    }
+
+    public FileTransformMediatorTask(MappedByteBuffer mappedByteBuffer, int currChunkLength) {
+        this.mappedByteBuffer = mappedByteBuffer;
+        this.currChunkLength = currChunkLength;
+    }
+
     private static Future<?> prevFuture = new Future<Object>() {
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
@@ -53,38 +60,7 @@ public class FileTransformWriteMediator {
         }
     };
 
-    private int nextIndex;
-    private int maxIndex;   // inclusive
-    private int lastChunkLength;
-    private int currChunkLength;
-
-    private ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
-
-    public FileTransformWriteMediator(String filePath) throws IOException {
-        File file = new File(filePath);
-        int fileSize = (int) file.length();
-        this.lastChunkLength = fileSize % CHUNK_SIZE != 0 ? fileSize % CHUNK_SIZE : CHUNK_SIZE;
-
-        // 2nd: index info
-        this.maxIndex = fileSize % CHUNK_SIZE != 0 ? fileSize / CHUNK_SIZE : fileSize / CHUNK_SIZE - 1;
-
-        // 3rd: fileChannel for reading with mmap
-        this.fileChannel = new RandomAccessFile(filePath, "r").getChannel();
-    }
-
-    // 1st work
-    private void fetchNextMmapChunk() throws IOException {
-        currChunkLength = nextIndex != maxIndex ? CHUNK_SIZE : lastChunkLength;
-
-        if (mappedByteBuffer != null) {
-            unmap(mappedByteBuffer);
-        }
-        mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
-        mappedByteBuffer.load();
-        if (!RecordField.isInit()) {
-            new RecordField(mappedByteBuffer).initFieldIndexMap();
-        }
-    }
+    private static ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
     // previous tail, should be copied into task
     private int preparePrevBytes() {
@@ -156,11 +132,6 @@ public class FileTransformWriteMediator {
 
 
     private void oneChunkComputation() {
-        try {
-            fetchNextMmapChunk();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         assignTransformTasks();
         while (!prevFutureQueue.isEmpty()) {
             try {
@@ -175,11 +146,8 @@ public class FileTransformWriteMediator {
         unmap(mappedByteBuffer);
     }
 
-    public void transformFile() {
-        // do chunk transform
-        for (nextIndex = 0; nextIndex <= maxIndex; nextIndex++) {
-            oneChunkComputation();
-        }
+    public void transform() {
+        oneChunkComputation();
 
         // close stream, and unmap
         finish();

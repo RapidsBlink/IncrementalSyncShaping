@@ -11,15 +11,17 @@ import java.util.concurrent.*;
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 64 * 1024 * 1024;
+    static int CHUNK_SIZE = 32 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
-    static int WORK_NUM = TRANSFORM_WORKER_NUM * 8;
+    static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     public static RestoreComputation restoreComputation = new RestoreComputation();
 
     public static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(48);
+    public static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(4);
 
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
+    static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
@@ -56,13 +58,36 @@ public class PipelinedComputation {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
+        mediatorPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        FileTransformMediatorTask fileTransformMediatorTask = mediatorTasks.take();
+                        if (fileTransformMediatorTask.isFinished)
+                            break;
+                        fileTransformMediatorTask.transform();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         for (String pathString : srcFilePaths) {
-            FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
-            fileTransformWriteMediator.transformFile();
+            MmapReader mmapReader = new MmapReader(pathString);
+            mmapReader.fetchChunks();
         }
+
+        try {
+            mediatorTasks.put(new FileTransformMediatorTask());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        joinSinglePool(mediatorPool);
         joinSinglePool(fileTransformPool);
         try {
             blockingQueue.put(new LogOperation[0]);
@@ -70,6 +95,7 @@ public class PipelinedComputation {
             e.printStackTrace();
         }
         joinSinglePool(computationPool);
+
     }
 
     public static void secondPhaseComputation() {
