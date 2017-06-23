@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.TreeMap;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,7 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class NativeClient {
 
-    public static ConcurrentMap<Long, String> resultMap = new ConcurrentSkipListMap<>();
+    public static TreeMap<Long, String> resultMap = new TreeMap<>();
     public BufferedWriter outputChannel;
     public BufferedReader inputChannel;
     public Socket clientSocket;
