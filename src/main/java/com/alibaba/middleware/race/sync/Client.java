@@ -1,6 +1,5 @@
 package com.alibaba.middleware.race.sync;
 
-import com.alibaba.middleware.race.sync.client.MappedFileWriter;
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +39,16 @@ public class Client {
         logger.info("before writing:" + System.currentTimeMillis());
         logger.info("" + NativeClient.resultMap.size());
         try {
-            MappedFileWriter bw = new MappedFileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, 40 * 1024 * 1024);
-            //            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
+//            MappedFileWriter bw = new MappedFileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, 40 * 1024 * 1024);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
 //            int i = 0;
             for (String value : NativeClient.resultMap.values()) {
 //                if (i < 10)
 //                    logger.info(value);
-                bw.write(value.getBytes());
-                bw.write((byte) '\n');
+                bw.write(value);
+//                bw.write(value.getBytes());
+                bw.newLine();
 //                i++;
             }
             bw.close();
