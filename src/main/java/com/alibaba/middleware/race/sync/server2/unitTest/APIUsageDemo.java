@@ -38,6 +38,7 @@ public class APIUsageDemo {
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
         System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
-        System.out.println("logical cpu num:" +Runtime.getRuntime().availableProcessors());
+        System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
+        System.out.println("current db size:" + PipelinedComputation.restoreComputation.recordMap.size());
     }
 }
