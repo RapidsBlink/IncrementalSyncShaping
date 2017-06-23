@@ -9,23 +9,13 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public THashMap<LogOperation,LogOperation> recordMap = new THashMap<>(9*1024*1024);
+    public THashMap<LogOperation, LogOperation> recordMap = new THashMap<>(20 * 1024 * 1024);
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
             LogOperation logOperation = logOperations[i];
-            if (logOperation instanceof DeleteOperation) {
-                recordMap.remove(logOperation);
-                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                    inRangeRecordSet.remove(logOperation);
-                }
-            } else if (logOperation instanceof InsertOperation) {
-                recordMap.put(logOperation, logOperation); //1
-                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                    inRangeRecordSet.add(logOperation);
-                }
-            } else {
+            if (logOperation instanceof UpdateOperation) {
                 // update
                 InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
                 insertOperation.mergeAnother((UpdateOperation) logOperation); //3
@@ -39,10 +29,20 @@ public class RestoreComputation {
                     insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
                     recordMap.put(insertOperation, insertOperation); //5
 
-//                    InsertOperation insertOperation=new InsertOperation(((UpdateKeyOperation) logOperation).changedKey);
                     if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
                         inRangeRecordSet.add(insertOperation);
                     }
+                }
+            } else if (logOperation instanceof DeleteOperation) {
+                recordMap.remove(logOperation);
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.remove(logOperation);
+                }
+            } else {
+                // insert
+                recordMap.put(logOperation, logOperation); //1
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.add(logOperation);
                 }
             }
         }

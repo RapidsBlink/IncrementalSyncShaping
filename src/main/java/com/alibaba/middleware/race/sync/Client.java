@@ -36,6 +36,7 @@ public class Client {
 
     public void start() {
         nativeClient.finish();
+        logger.info("before writing:" + System.currentTimeMillis());
         logger.info("" + NativeClient.resultMap.size());
         try {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
