@@ -23,7 +23,7 @@ public class RestoreComputation {
                 insertOperation.mergeAnother((UpdateOperation) logOperation); //3
 
                 if (logOperation instanceof UpdateKeyOperation) {
-                    recordMap.remove(logOperation);
+//                    recordMap.remove(logOperation);
                     if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                         inRangeRecordSet.remove(logOperation);
                     }
@@ -37,7 +37,7 @@ public class RestoreComputation {
                     }
                 }
             } else if (logOperation instanceof DeleteOperation) {
-                recordMap.remove(logOperation);
+//                recordMap.remove(logOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
