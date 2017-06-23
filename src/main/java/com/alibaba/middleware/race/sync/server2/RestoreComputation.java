@@ -9,7 +9,9 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public THashMap<LogOperation, LogOperation> recordMap = new THashMap<>(20 * 1024 * 1024);
+
+//    public THashMap<LogOperation, LogOperation> recordMap = new THashMap<>(20 * 1024 * 1024);
+    public YcheHashMap recordMap = new YcheHashMap(20 * 1024 * 1024);
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {
@@ -27,7 +29,8 @@ public class RestoreComputation {
                     }
 
                     insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
-                    recordMap.put(insertOperation, insertOperation); //5
+//                    recordMap.put(insertOperation, insertOperation); //5
+                    recordMap.put(insertOperation); //5
 
                     if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
                         inRangeRecordSet.add(insertOperation);
@@ -40,7 +43,8 @@ public class RestoreComputation {
                 }
             } else {
                 // insert
-                recordMap.put(logOperation, logOperation); //1
+//                recordMap.put(logOperation, logOperation); //1
+                recordMap.put(logOperation); //1
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.add(logOperation);
                 }
