@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race.sync;
 
+import com.alibaba.middleware.race.sync.client.MappedFileWriter;
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,20 +40,21 @@ public class Client {
         logger.info("before writing:" + System.currentTimeMillis());
         logger.info("" + NativeClient.resultMap.size());
         try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
+            MappedFileWriter bw = new MappedFileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, 40 * 1024 * 1024);
+            //            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
 
 //            int i = 0;
             for (String value : NativeClient.resultMap.values()) {
 //                if (i < 10)
 //                    logger.info(value);
-                bw.write(value);
-                bw.newLine();
+                bw.write(value.getBytes());
+                bw.write((byte) '\n');
 //                i++;
             }
             bw.close();
 
-            File file = new File(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME);
-            logger.info("file len:" + file.length());
+//            File file = new File(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME);
+//            logger.info("file len:" + file.length());
         } catch (IOException e) {
             e.printStackTrace();
         }
