@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public YcheHashMap recordMap = new YcheHashMap(16 * 1024 * 1024);
+    public YcheHashMap recordMap = new YcheHashMap(20 * 1024 * 1024);
     public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
 
     void compute(LogOperation[] logOperations) {

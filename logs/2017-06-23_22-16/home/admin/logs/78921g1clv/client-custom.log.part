@@ -1,0 +1,4 @@
+[2017-06-23 22:12:36.648] INFO  c.a.m.r.sync.Client -before writing:1498227156648
+[2017-06-23 22:12:36.780] INFO  c.a.m.r.sync.Client -1209813
+[2017-06-23 22:12:37.124] INFO  c.a.m.r.sync.Client -file len:38334025
+[2017-06-23 22:12:37.124] INFO  c.a.m.r.sync.Client -Current client time:1498227157124
