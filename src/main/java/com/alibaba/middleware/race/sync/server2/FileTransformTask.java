@@ -12,34 +12,53 @@ import java.util.concurrent.Future;
  */
 public class FileTransformTask implements Runnable {
     // functionality
-    private RecordScanner backupScanner;
+    private static class ExtraTaskInfo {
+        int startIndex;
+        int endIndex;
+        ByteBuffer mappedByteBuffer;
+
+        ExtraTaskInfo(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+            this.startIndex = startIndex;
+            this.endIndex = endIndex;
+            this.mappedByteBuffer = mappedByteBuffer;
+        }
+    }
+
     private final RecordScanner recordScanner;
+    private final ExtraTaskInfo taskInfo;
 
     // result
 
     FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.recordScanner = new RecordScanner(mappedByteBuffer, startIndex, endIndex, prevFuture);
+        taskInfo = null;
     }
 
     // for the first small chunk
     FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer, Future<?> prevFuture) {
-        this(mappedByteBuffer, startIndex, endIndex, prevFuture);
-        backupScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(), prevFuture);
+        recordScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(), prevFuture);
+        taskInfo = new ExtraTaskInfo(mappedByteBuffer, startIndex, endIndex);
     }
 
     @Override
     public void run() {
-        if (backupScanner != null) {
+        if (taskInfo != null) {
             try {
-                backupScanner.compute();
+                recordScanner.compute();
+                recordScanner.reuse(taskInfo.mappedByteBuffer, taskInfo.startIndex, taskInfo.endIndex);
+                recordScanner.compute();
+                recordScanner.waitForSend();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                recordScanner.compute();
+                recordScanner.waitForSend();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
-        try {
-            recordScanner.compute();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+
     }
 }

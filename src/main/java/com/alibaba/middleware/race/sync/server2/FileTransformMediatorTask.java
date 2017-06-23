@@ -123,7 +123,7 @@ public class FileTransformMediatorTask {
         }
 
 
-        // current tail, clear and then put
+        // current tail, reuse and then put
         prevRemainingBytes.clear();
         for (int i = end; i < currChunkLength; i++) {
             prevRemainingBytes.put(mappedByteBuffer.get(i));

@@ -63,7 +63,7 @@ public class YcheHashMap extends TObjectHash<LogOperation> {
     public void remove(Object key) {
         int index = index(key);
         if (index >= 0) {
-            removeAt(index);    // clear key,state; adjust size
+            removeAt(index);    // reuse key,state; adjust size
         }
     }
 

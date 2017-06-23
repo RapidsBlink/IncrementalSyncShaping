@@ -14,8 +14,8 @@ import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
  */
 public class RecordScanner {
     // input
-    private final ByteBuffer mappedByteBuffer;
-    private final int endIndex;   // exclusive
+    private ByteBuffer mappedByteBuffer;
+    private int endIndex;   // exclusive
 
     // intermediate states
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
@@ -29,6 +29,12 @@ public class RecordScanner {
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
         this.prevFuture = prevFuture;
+    }
+
+    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+        this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer();
+        this.nextIndex = startIndex;
+        this.endIndex = endIndex;
     }
 
     // stop at `|`
@@ -105,7 +111,6 @@ public class RecordScanner {
         }
     }
 
-
     private LogOperation scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table
         skipHeader();
@@ -165,11 +170,13 @@ public class RecordScanner {
         return logOperation;
     }
 
-    public void compute() throws InterruptedException, ExecutionException {
+    public void compute() {
         while (nextIndex < endIndex) {
             localOperations.add(scanOneRecord());
         }
+    }
 
+    public void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
         prevFuture.get();
