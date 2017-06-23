@@ -23,6 +23,15 @@ public class PipelinedComputation {
     static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
+    public static int RESTORE_SLAVE_NUM = 16;
+    static ExecutorService computationSlaverPools[] = new ExecutorService[RESTORE_SLAVE_NUM];
+
+    static {
+        for (int i = 0; i < RESTORE_SLAVE_NUM; i++) {
+            computationSlaverPools[i] = Executors.newSingleThreadExecutor();
+        }
+    }
+
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
     public static FindResultListener findResultListener;
@@ -53,7 +62,7 @@ public class PipelinedComputation {
                         LogOperation[] logOperations = blockingQueue.take();
                         if (logOperations.length == 0)
                             break;
-                        restoreComputation.compute(logOperations);
+                        RestoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -96,10 +105,13 @@ public class PipelinedComputation {
         }
         joinSinglePool(computationPool);
 
+        for (int i = 0; i < RESTORE_SLAVE_NUM; i++) {
+            joinSinglePool(computationSlaverPools[i]);
+        }
     }
 
     public static void secondPhaseComputation() {
-        restoreComputation.parallelEvalAndSend(evalSendPool);
+        RestoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
 
@@ -107,16 +119,22 @@ public class PipelinedComputation {
                                          FindResultListener findResultListener, long start, long end) throws IOException {
         if (Server.logger != null) {
             Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
+        } else {
+            System.out.println("first phase start:" + String.valueOf(System.currentTimeMillis()));
         }
         initRange(start, end);
         PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
         if (Server.logger != null) {
             Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));
+        } else {
+            System.out.println("first phase end:" + String.valueOf(System.currentTimeMillis()));
         }
         secondPhaseComputation();
         if (Server.logger != null) {
             Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
+        } else {
+            System.out.println("second phase end:" + String.valueOf(System.currentTimeMillis()));
         }
     }
 
