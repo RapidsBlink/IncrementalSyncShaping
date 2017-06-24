@@ -1,8 +1,5 @@
 package com.alibaba.middleware.race.sync.NioSocket;
 
-import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.network.NetworkConstant;
-import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +31,7 @@ public class NioServer {
     ExecutorService serverThreadsPool = Executors.newSingleThreadExecutor();
 
     public NioServer(String[] args, int port) {
-        this.logger = LoggerFactory.getLogger(NativeServer.class);
+        this.logger = LoggerFactory.getLogger(NioServer.class);
         this.port = port;
         this.args = args;
         try {

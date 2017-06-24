@@ -2,8 +2,7 @@ package com.alibaba.middleware.race.sync;
 
 
 import com.alibaba.middleware.race.sync.NioSocket.NioServer;
-import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
-import com.alibaba.middleware.race.sync.server2.*;
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

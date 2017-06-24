@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.network.TransferClass;
+package com.alibaba.middleware.race.sync.NioSocket;
 
 /**
  * Created by will on 8/6/2017.

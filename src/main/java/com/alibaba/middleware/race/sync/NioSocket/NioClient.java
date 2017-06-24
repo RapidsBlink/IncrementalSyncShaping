@@ -1,8 +1,5 @@
 package com.alibaba.middleware.race.sync.NioSocket;
 
-import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
-import com.alibaba.middleware.race.sync.network.TransferClass.ArgumentsPayloadBuilder;
-import org.omg.CORBA.TIMEOUT;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +25,7 @@ public class NioClient {
     ByteBuffer recvSizeBuff = ByteBuffer.allocate(4);// always use int size
 
     public NioClient(String hostName, int port){
-        logger = LoggerFactory.getLogger(NativeClient.class);
+        logger = LoggerFactory.getLogger(NioClient.class);
         this.hostName = hostName;
         this.port = port;
         establishConnection();
@@ -81,7 +78,6 @@ public class NioClient {
             while (recvCount < chunkSize){
                 recvCount += clientChannel.read(recvBuff);
             }
-            recvCount = 0;
             this.args = new ArgumentsPayloadBuilder(new String(recvBuff.array(), 0, chunkSize)).args;
 
             logger.info(Arrays.toString(this.args));
