@@ -16,21 +16,18 @@ public class Client {
 
     private final static int port = Constants.SERVER_PORT;
 
-    static NioClient nativeClient = null;
+    private static NioClient nativeClient = null;
 
     public static void main(String[] args) {
+        initProperties();
+        logger = LoggerFactory.getLogger(Client.class);
         logger.info("Current client time:" + System.currentTimeMillis());
         new Client(args[0]).start();
         logger.info("Current client time:" + System.currentTimeMillis());
     }
 
     public Client(String ip) {
-        initProperties();
-        logger = LoggerFactory.getLogger(Client.class);
-//        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
-//        nettyClient.start();
         nativeClient = new NioClient(ip, Constants.SERVER_PORT);
-
     }
 
     public void start() {
