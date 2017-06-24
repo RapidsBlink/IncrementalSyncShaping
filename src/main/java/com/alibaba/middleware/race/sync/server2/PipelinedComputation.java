@@ -12,9 +12,9 @@ import java.util.concurrent.*;
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 24 * 1024 * 1024;
+    static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
-    static int WORK_NUM = TRANSFORM_WORKER_NUM;
+    static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
