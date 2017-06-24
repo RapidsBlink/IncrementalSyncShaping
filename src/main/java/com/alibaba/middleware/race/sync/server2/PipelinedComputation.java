@@ -19,12 +19,13 @@ public class PipelinedComputation {
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
-    static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
+    static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(3);
 
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
+    static int EVAL_WORKER_NUM=16;
+    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(EVAL_WORKER_NUM);
 
     public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
 
