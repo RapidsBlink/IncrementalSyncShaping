@@ -37,11 +37,24 @@ public class RecordScanner {
         this.endIndex = endIndex;
     }
 
-    // stop at `|`
-    private void skipField() {
-        nextIndex++;
-        while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
-            nextIndex++;
+    private void skipField(int index) {
+        switch (index) {
+            case 0:
+                nextIndex += 4;
+                break;
+            case 1:
+                nextIndex += 4;
+                if (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER)
+                    nextIndex += 3;
+                break;
+            case 2:
+                nextIndex += 4;
+                break;
+            default:
+                nextIndex += 3;
+                while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
+                    nextIndex++;
+                }
         }
     }
 
@@ -153,14 +166,14 @@ public class RecordScanner {
         } else if (logOperation instanceof UpdateOperation) {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 int localIndex = skipFieldName();
-                skipField();
+                skipField(localIndex);
                 getNextBytesIntoTmp();
                 ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             }
         } else {
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                skipFieldName();
-                skipField();
+                int localIndex = skipFieldName();
+                skipField(localIndex);
                 skipNull();
             }
         }
