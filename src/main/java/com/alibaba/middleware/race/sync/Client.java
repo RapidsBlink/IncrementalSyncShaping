@@ -19,6 +19,7 @@ public class Client {
     static NioClient nativeClient = null;
 
     public static void main(String[] args) {
+        logger.info("Current client time:" + System.currentTimeMillis());
         new Client(args[0]).start();
         logger.info("Current client time:" + System.currentTimeMillis());
     }
