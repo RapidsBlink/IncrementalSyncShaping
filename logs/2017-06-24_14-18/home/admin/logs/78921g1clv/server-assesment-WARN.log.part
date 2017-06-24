@@ -1,0 +1,4 @@
+[WARN ] [14:16:02] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [WARN ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/assembly.sh /home/admin/code 78921g1clv  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - assembly happen error FAILED_WITH_EXCEPTION
+ 

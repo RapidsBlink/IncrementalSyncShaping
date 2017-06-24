@@ -1,0 +1,91 @@
+[INFO ] [14:11:00] com.alibaba.middleware.race.testing.tianchi.TaskFecher - 开始根据teamCode创建相应的目录：/home/admin/logs/78921g1clv,/home/admin/middle/78921g1clv,/home/admin/sync_results/78921g1clv
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.tianchi.TaskFecher - 是否存在目录：true
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.tianchi.TaskFecher - 为选手78921g1clv创建对应teamCode的目录(中间结果相关)
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Starting to handling testing task:TaskInfo{type=TOPKN, userid=1095279144495, tairNamespace=-1, gitpath='git@code.aliyun.com:191836400/IncrementalSync.git'taskid=198467, teamCode=78921g1clv}
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - ordersystem task runner created com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner@4f95f1b4
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - startRacetask78921g1clv 1095279144495, and its git path: git@code.aliyun.com:191836400/IncrementalSync.git
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/topkn_downloader.sh git@code.aliyun.com:191836400/IncrementalSync.git /home/admin/code 78921g1clv 24-06-17-14-11-00 
+ [INFO ] [14:11:00] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [14:11:02] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/topkn_downloader.sh git@code.aliyun.com:191836400/IncrementalSync.git /home/admin/code 78921g1clv 24-06-17-14-11-00 , execute status is SUCCESS Script execute output: Cloning into '/home/admin/code/78921g1clv'...
+开始创建代码备份目录： /home/admin/codeBackup
+/home/admin/codeBackup/78921g1clv/24-06-17-14-11-00
+success
+
+ [INFO ] [14:11:02] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - download code successfully
+ [INFO ] [14:11:02] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/assembly.sh /home/admin/code 78921g1clv 
+ [INFO ] [14:11:02] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：300000
+ [INFO ] [14:11:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 30s ago
+ [INFO ] [14:11:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:12:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 60s ago
+ [INFO ] [14:12:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:12:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 90s ago
+ [INFO ] [14:12:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:13:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 120s ago
+ [INFO ] [14:13:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:13:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 150s ago
+ [INFO ] [14:13:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:14:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 180s ago
+ [INFO ] [14:14:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:14:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 210s ago
+ [INFO ] [14:14:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:15:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 240s ago
+ [INFO ] [14:15:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:15:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 270s ago
+ [INFO ] [14:15:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:16:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 300s ago
+ [INFO ] [14:16:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:16:02] com.alibaba.middleware.race.testing.utils.ShellUtils - 正在运行的shell进程信息：java.lang.UNIXProcess@5d4878fb
+ [WARN ] [14:16:02] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [INFO ] [14:16:02] com.alibaba.middleware.race.testing.utils.ShellUtils - 开始杀死指定的JAVA进程
+ [INFO ] [14:16:02] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：20000
+ [INFO ] [14:16:03] com.alibaba.middleware.race.testing.utils.ShellUtils - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [INFO ] [14:16:30] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 330s ago
+ [INFO ] [14:16:30] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [INFO ] [14:17:00] com.alibaba.middleware.race.testing.MiddleWareRaceTester - Running task:[teamCode:78921g1clv, commitid:] from 360s ago
+ [INFO ] [14:17:00] com.alibaba.middleware.race.testing.tianchi.TaskReporter - Starting to report taskinfo
+ [WARN ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/assembly.sh /home/admin/code 78921g1clv  exception, the exitStatus is: TIMED_OUT
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/assembly.sh /home/admin/code 78921g1clv , execute status is TIMED_OUT Script execute output: [INFO] Scanning for projects...
+[WARNING] 
+[WARNING] Some problems were encountered while building the effective model for com.alibaba.middleware.race:sync:jar:1.0
+[WARNING] 'dependencies.dependency.(groupId:artifactId:type:classifier)' must be unique: com.google.guava:guava:jar -> version 20.0 vs 15.0 @ line 72, column 21
+[WARNING] 
+[WARNING] It is highly recommended to fix these problems because they threaten the stability of your build.
+[WARNING] 
+[WARNING] For this reason, future Maven versions might no longer support building such malformed projects.
+[WARNING] 
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building sync 1.0
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ sync ---
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building sync 1.0
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] >>> maven-assembly-plugin:2.5.3:assembly (default-cli) > package @ sync >>>
+Downloading: https://repository.sonatype.org/content/groups/public/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml
+Downloading: http://maven.aliyun.com/nexus/content/groups/public/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml
+Downloading: http://mvnrepo.alibaba-inc.com/mvn/repository/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml
+Downloading: https://oss.sonatype.org/content/repositories/snapshots/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml
+696/696 B               Downloaded: http://maven.aliyun.com/nexus/content/groups/public/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml (696 B at 1.9 KB/sec)
+306/306 B               Downloaded: https://oss.sonatype.org/content/repositories/snapshots/org/eclipse/collections/eclipse-collections-api/maven-metadata.xml (306 B at 0.2 KB/sec)
+            
+ [WARN ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - assembly happen error FAILED_WITH_EXCEPTION
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv 
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：20000
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv , execute status is SUCCESS Script execute output: 要删除的中间结果文件为/home/admin/middle/78921g1clv
+成功清除中间结果
+success
+
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - 成功清除中间结果
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv 
+ [INFO ] [14:17:27] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：20000
+ 
