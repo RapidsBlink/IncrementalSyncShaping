@@ -69,7 +69,7 @@ public class RecordScanner {
     }
 
     private void skipKey() {
-        nextIndex += RecordField.KEY_LEN + 1;
+        nextIndex += RecordField.KEY_LEN + 3;
     }
 
     private void skipNull() {
@@ -134,29 +134,26 @@ public class RecordScanner {
         byte operation = mappedByteBuffer.get(nextIndex + 1);
         LogOperation logOperation;
         // skip one splitter and operation byte
-        nextIndex += 2;
         skipKey();
-        if (operation == I_OPERATION) {
-            // insert: pre(null) -> cur
-            skipNull();
-            logOperation = new InsertOperation(getNextLong());
-        } else if (operation == D_OPERATION) {
-            // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
-            skipNull();
-        } else {
+
+        if (operation == U_OPERATION) {
             // update
             long prevKey = getNextLong();
             long curKey = getNextLong();
             if (prevKey == curKey) {
                 logOperation = new UpdateOperation(prevKey);
+                int localIndex = skipFieldName();
+                skipField(localIndex);
+                getNextBytesIntoTmp();
+                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             } else {
                 logOperation = new UpdateKeyOperation(prevKey, curKey);
             }
-        }
+        } else if (operation == I_OPERATION) {
+            // insert: pre(null) -> cur
+            skipNull();
+            logOperation = new InsertOperation(getNextLong());
 
-        // 3rd: parse ValueIndex
-        if (logOperation instanceof InsertOperation) {
             int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldForInsert(localIndex);
@@ -165,14 +162,10 @@ public class RecordScanner {
                 ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
                 localIndex++;
             }
-        } else if (logOperation instanceof UpdateOperation) {
-            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                int localIndex = skipFieldName();
-                skipField(localIndex);
-                getNextBytesIntoTmp();
-                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
-            }
         } else {
+            // delete: pre -> cur(null)
+            logOperation = new DeleteOperation(getNextLong());
+            skipNull();
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 int localIndex = skipFieldName();
                 skipField(localIndex);
