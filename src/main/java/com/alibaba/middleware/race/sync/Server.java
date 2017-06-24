@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync;
 
 
+import com.alibaba.middleware.race.sync.NioSocket.NioServer;
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeServer;
 import com.alibaba.middleware.race.sync.server2.*;
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 public class Server {
     public static Logger logger;
-    private static NativeServer nativeServer = null;
+    public static NioServer nativeServer = null;
     private static long start;
     private static long end;
 
@@ -51,7 +52,7 @@ public class Server {
         logger = LoggerFactory.getLogger(Server.class);
         logger.info("Current server time:" + System.currentTimeMillis());
 
-        nativeServer = new NativeServer(args, Constants.SERVER_PORT);
+        nativeServer = new NioServer(args, Constants.SERVER_PORT);
         nativeServer.start();
 
 

@@ -113,6 +113,14 @@ public class PipelinedComputation {
         if (Server.logger != null) {
             Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
         }
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(40 * 1024 * 1024);
+        putThingsIntoByteBuffer(byteBuffer);
+        byteBuffer.flip();
+        Server.nativeServer.send(byteBuffer);
+        if (Server.logger != null) {
+            Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
+        }
     }
 
     private static long pkLowerBound;

@@ -1,13 +1,12 @@
 package com.alibaba.middleware.race.sync;
 
+import com.alibaba.middleware.race.sync.NioSocket.NioClient;
 import com.alibaba.middleware.race.sync.network.NativeSocket.NativeClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.channels.FileChannel;
 
 /**
  * Created by will on 6/6/2017.
@@ -18,7 +17,7 @@ public class Client {
 
     private final static int port = Constants.SERVER_PORT;
 
-    static NativeClient nativeClient = null;
+    static NioClient nativeClient = null;
 
     public static void main(String[] args) {
         new Client(args[0]).start();
@@ -30,31 +29,15 @@ public class Client {
         logger = LoggerFactory.getLogger(Client.class);
 //        nettyClient = new NettyClient(ip, Constants.SERVER_PORT);
 //        nettyClient.start();
-        nativeClient = new NativeClient(ip, Constants.SERVER_PORT);
-        nativeClient.start();
+        nativeClient = new NioClient(ip, Constants.SERVER_PORT);
+
     }
 
     public void start() {
-        nativeClient.finish();
-        logger.info("before writing:" + System.currentTimeMillis());
-        logger.info("" + NativeClient.resultMap.size());
         try {
-//            MappedFileWriter bw = new MappedFileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, 40 * 1024 * 1024);
-            BufferedWriter bw = new BufferedWriter(new FileWriter(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME));
-
-//            int i = 0;
-            for (String value : NativeClient.resultMap.values()) {
-//                if (i < 10)
-//                    logger.info(value);
-                bw.write(value);
-//                bw.write(value.getBytes());
-                bw.newLine();
-//                i++;
-            }
-            bw.close();
-
-//            File file = new File(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME);
-//            logger.info("file len:" + file.length());
+            FileChannel fileChannel = new RandomAccessFile(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, "rw").getChannel();
+            nativeClient.start(fileChannel);
+            fileChannel.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
