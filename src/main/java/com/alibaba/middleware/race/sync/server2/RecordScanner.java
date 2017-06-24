@@ -9,6 +9,7 @@ import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
+import static com.alibaba.middleware.race.sync.server2.operations.InsertOperation.getIndexOfChineseChar;
 
 /**
  * Created by yche on 6/18/17.
@@ -132,7 +133,7 @@ public class RecordScanner {
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
-        LogOperation logOperation;
+        LogOperation logOperation = null;
         // skip one splitter and operation byte
         nextIndex += 2;
         skipKey();
@@ -140,23 +141,7 @@ public class RecordScanner {
             // insert: pre(null) -> cur
             skipNull();
             logOperation = new InsertOperation(getNextLong());
-        } else if (operation == D_OPERATION) {
-            // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
-            skipNull();
-        } else {
-            // update
-            long prevKey = getNextLong();
-            long curKey = getNextLong();
-            if (prevKey == curKey) {
-                logOperation = new UpdateOperation(prevKey);
-            } else {
-                logOperation = new UpdateKeyOperation(prevKey, curKey);
-            }
-        }
 
-        // 3rd: parse ValueIndex
-        if (logOperation instanceof InsertOperation) {
             int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldForInsert(localIndex);
@@ -165,21 +150,56 @@ public class RecordScanner {
                 ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
                 localIndex++;
             }
-        } else if (logOperation instanceof UpdateOperation) {
-            while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                int localIndex = skipFieldName();
-                skipField(localIndex);
-                getNextBytesIntoTmp();
-                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
-            }
-        } else {
+        } else if (operation == D_OPERATION) {
+            // delete: pre -> cur(null)
+            logOperation = new DeleteOperation(getNextLong());
+            skipNull();
+
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 int localIndex = skipFieldName();
                 skipField(localIndex);
                 skipNull();
             }
+        } else {
+            // update
+            long prevKey = getNextLong();
+            long curKey = getNextLong();
+            if (prevKey == curKey) {
+                int localIndex = skipFieldName();
+                skipField(localIndex);
+                getNextBytesIntoTmp();
+                switch (localIndex) {
+                    case 0:
+                        logOperation = new UpdateFirstNameOperation(prevKey, getIndexOfChineseChar(tmpBuffer.array(), 0));
+                        break;
+                    case 1:
+                        byte lastNameFirstIndex = getIndexOfChineseChar(tmpBuffer.array(), 0);
+                        byte lastNameSecondIndex = -1;
+                        if (tmpBuffer.limit() == 6)
+                            lastNameSecondIndex = getIndexOfChineseChar(tmpBuffer.array(), 3);
+                        logOperation = new UpdateLastNameOperation(prevKey, lastNameFirstIndex, lastNameSecondIndex);
+                        break;
+                    case 2:
+                        logOperation = new UpdateSex(prevKey, getIndexOfChineseChar(tmpBuffer.array(), 0));
+                        break;
+                    case 3:
+                        short result = 0;
+                        for (int i = 0; i < tmpBuffer.limit(); i++)
+                            result = (short) ((10 * result) + (tmpBuffer.get(i) - '0'));
+                        logOperation = new UpdateScore(prevKey, result);
+                        break;
+                    case 4:
+                        int resultInt = 0;
+                        for (int i = 0; i < tmpBuffer.limit(); i++)
+                            resultInt = ((10 * resultInt) + (tmpBuffer.get(i) - '0'));
+                        logOperation = new UpdateScore2(prevKey, resultInt);
+                        break;
+                }
+            } else {
+                // update key operation
+                logOperation = new UpdateKeyOperation(prevKey, curKey);
+            }
         }
-
         // skip '|' and `\n`
         nextIndex += 2;
         return logOperation;
