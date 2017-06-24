@@ -145,7 +145,7 @@ public class NettyServer {
     }
 
     //send a message, blocking if no space left in send buff
-    public void send(char type, String data) {
+    public void send(byte type, String data) {
         try {
             sendQueue.put(NetworkStringMessage.buildMessage(type, data));
         } catch (InterruptedException e) {
