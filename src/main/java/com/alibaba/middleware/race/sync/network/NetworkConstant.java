@@ -8,10 +8,10 @@ public interface NetworkConstant {
     int MAX_CHUNK_SIZE = 100 * 1024 * 1024; // 100MB
     int SEND_CHUNK_BUFF_SIZE = 1000000;
     String END_OF_TRANSMISSION = "\n";
-    char END_OF_MESSAGE = '`';
+    byte END_OF_MESSAGE = '`';
 
-    char FINISHED_ALL = 'F';
-    char REQUIRE_ARGS = 'A';
-    char LINE_RECORD = 'B';
-    char BUFFERED_RECORD = 'C';
+    byte FINISHED_ALL = 'F';
+    byte REQUIRE_ARGS = 'A';
+    byte LINE_RECORD = 'B';
+    byte BUFFERED_RECORD = 'C';
 }
