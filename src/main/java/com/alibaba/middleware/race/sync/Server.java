@@ -77,7 +77,7 @@ public class Server {
         nativeServer.finish();
 
         Server.logger.info("logical cpu num:" + Runtime.getRuntime().availableProcessors());
-        Server.logger.info("current db size:" + PipelinedComputation.restoreComputation.recordMap.size());
+        Server.logger.info("current db size:" +RestoreComputation.recordMap.size());
         int i = 0;
         for (Map.Entry<Long, String> entry : PipelinedComputation.finalResultMap.entrySet()) {
             if (i < 10)

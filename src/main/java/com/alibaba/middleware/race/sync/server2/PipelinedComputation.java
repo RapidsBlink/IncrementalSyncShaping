@@ -11,14 +11,13 @@ import java.util.concurrent.*;
  * whole computation logic
  */
 public class PipelinedComputation {
-    static int CHUNK_SIZE = 32 * 1024 * 1024;
+    static int CHUNK_SIZE = 24 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    public static RestoreComputation restoreComputation = new RestoreComputation();
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
-    static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(3);
+    static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
 
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
@@ -53,7 +52,7 @@ public class PipelinedComputation {
                         LogOperation[] logOperations = blockingQueue.take();
                         if (logOperations.length == 0)
                             break;
-                        restoreComputation.compute(logOperations);
+                        RestoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -99,7 +98,7 @@ public class PipelinedComputation {
     }
 
     public static void secondPhaseComputation() {
-        restoreComputation.parallelEvalAndSend(evalSendPool);
+        RestoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
 

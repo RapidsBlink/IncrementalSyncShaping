@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -37,8 +38,8 @@ public class APIUsageDemo {
         long endTime = System.currentTimeMillis();
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
-        System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
+        System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
-        System.out.println("current db size:" + PipelinedComputation.restoreComputation.recordMap.size());
+        System.out.println("current db size:" + RestoreComputation.recordMap.size());
     }
 }

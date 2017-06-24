@@ -1,7 +1,5 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import gnu.trove.map.hash.THashMap;
-
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 
@@ -9,10 +7,11 @@ import java.util.concurrent.ExecutorService;
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public YcheHashMap recordMap = new YcheHashMap(20 * 1024 * 1024);
-    public HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
+    public static YcheHashMap recordMap = new YcheHashMap(20 * 1024 * 1024);
 
-    void compute(LogOperation[] logOperations) {
+    public static HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
+
+    static void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
             LogOperation logOperation = logOperations[i];
             if (logOperation instanceof UpdateOperation) {
@@ -21,7 +20,7 @@ public class RestoreComputation {
                 insertOperation.mergeAnother((UpdateOperation) logOperation); //3
 
                 if (logOperation instanceof UpdateKeyOperation) {
-//                    recordMap.remove(logOperation);
+                    recordMap.remove(logOperation);
                     if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                         inRangeRecordSet.remove(logOperation);
                     }
@@ -34,7 +33,7 @@ public class RestoreComputation {
                     }
                 }
             } else if (logOperation instanceof DeleteOperation) {
-//                recordMap.remove(logOperation);
+                recordMap.remove(logOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
@@ -49,7 +48,7 @@ public class RestoreComputation {
     }
 
     // used by master thread
-    void parallelEvalAndSend(ExecutorService evalThreadPool) {
+    static void parallelEvalAndSend(ExecutorService evalThreadPool) {
         BufferedEvalAndSendTask bufferedTask = new BufferedEvalAndSendTask();
         for (LogOperation logOperation : inRangeRecordSet) {
             if (bufferedTask.isFull()) {

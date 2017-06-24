@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class FirstPhaseComputationTest {
 
 
         System.out.println("first phase computation cost:" + (endTime - startTime) + " ms");
-        System.out.println(PipelinedComputation.restoreComputation.inRangeRecordSet.size());
+        System.out.println(RestoreComputation.inRangeRecordSet.size());
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
