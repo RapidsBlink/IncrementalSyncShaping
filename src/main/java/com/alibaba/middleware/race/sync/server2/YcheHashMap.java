@@ -7,25 +7,17 @@ import java.util.Arrays;
 /**
  * Created by yche on 6/23/17.
  */
-public class YcheHashMap extends TLongHash {
+public class YcheHashMap extends YcheLongHash {
     protected transient LogOperation[] _values;
 
     public YcheHashMap(int initialCapacity) {
         super(initialCapacity);
+        setUp(initialCapacity);
     }
 
     public int setUp(int initialCapacity) {
-        int capacity;
-
-        capacity = super.setUp(initialCapacity);
-        //noinspection unchecked
-        _values = new LogOperation[capacity];
-        return capacity;
-    }
-
-    @Override
-    protected void rehash(int newCapacity) {
-
+        _values = new LogOperation[initialCapacity];
+        return initialCapacity;
     }
 
     public LogOperation get(Object key) {
@@ -34,16 +26,10 @@ public class YcheHashMap extends TLongHash {
     }
 
     private void doPut(LogOperation value, int index) {
-        boolean isNewMapping = true;
         if (index < 0) {
             index = -index - 1;
-            isNewMapping = false;
         }
         _values[index] = value;
-        if (isNewMapping) {
-            postInsertHook(consumeFreeSlot);
-        }
-
     }
 
     public void put(LogOperation key) {

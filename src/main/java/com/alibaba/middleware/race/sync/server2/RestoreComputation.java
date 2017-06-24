@@ -32,6 +32,7 @@ public class RestoreComputation {
                     }
                 }
             } else if (logOperation instanceof DeleteOperation) {
+//                recordMap.remove(logOperation);
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }

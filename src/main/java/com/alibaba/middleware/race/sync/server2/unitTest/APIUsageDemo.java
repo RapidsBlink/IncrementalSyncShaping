@@ -33,6 +33,6 @@ public class APIUsageDemo {
 
         System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
-        System.out.println("current db size:" + RestoreComputation.recordMap.size());
+//        System.out.println("current db size:" + RestoreComputation.recordMap.size());
     }
 }
