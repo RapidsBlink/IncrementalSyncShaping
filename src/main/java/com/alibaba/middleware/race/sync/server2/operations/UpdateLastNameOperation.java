@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.sync.server2.operations;
 /**
  * Created by yche on 6/24/17.
  */
-public class UpdateLastNameOperation extends UpdateOperation {
+public class UpdateLastNameOperation extends LogOperation {
     byte lastNameFirstIndex = -1;
     byte lastNameSecondIndex = -1;
 

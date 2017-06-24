@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.operations.InsertOperation;
 import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
-import com.alibaba.middleware.race.sync.server2.operations.UpdateOperation;
 
 import java.util.TreeSet;
 
@@ -16,7 +15,7 @@ public class TreeSetTest {
         System.out.println(inRangeRecordSet.contains(new InsertOperation(3)));
 
         System.out.println("before:"+inRangeRecordSet.size());
-        inRangeRecordSet.remove(new UpdateOperation(3));
+//        inRangeRecordSet.remove(new UpdateOperation(3));
         System.out.println("after:"+inRangeRecordSet.size());
     }
 }

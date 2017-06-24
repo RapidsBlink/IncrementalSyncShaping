@@ -68,7 +68,7 @@ public class InsertOperation extends LogOperation {
         }
     }
 
-    public void mergeAnother(UpdateOperation nonDeleteOperation) {
+    public void mergeAnother(LogOperation nonDeleteOperation) {
         if (nonDeleteOperation instanceof UpdateFirstNameOperation) {
             this.firstNameIndex = ((UpdateFirstNameOperation) nonDeleteOperation).firstNameIndex;
         }
