@@ -1,0 +1,11 @@
+[2017-06-24 19:46:09.266] INFO  c.a.m.r.sync.Server -Current server time:1498304769264
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -Current server time:1498304769286
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -middleware8
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -student
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -1000000
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -8000000
+[2017-06-24 19:46:09.286] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-24 19:46:09.288] INFO  c.a.m.r.sync.Server -first phase start:1498304769288
+[2017-06-24 19:46:18.089] INFO  c.a.m.r.sync.Server -first phase end:1498304778089
+[2017-06-24 19:46:18.677] INFO  c.a.m.r.sync.Server -second phase end:1498304778677
+[2017-06-24 19:46:18.807] INFO  c.a.m.r.sync.Server -second phase end:1498304778807
