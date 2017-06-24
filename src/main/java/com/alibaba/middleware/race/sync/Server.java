@@ -67,21 +67,15 @@ public class Server {
         for (int i = 1; i < 11; i++) {
             filePathList.add(Constants.DATA_HOME + File.separator + i + ".txt");
         }
-        PipelinedComputation.FindResultListener findResultListener = new PipelinedComputation.FindResultListener() {
-            @Override
-            public void sendToClient(String result) {
-                nativeServer.send(result);
-            }
-        };
-        PipelinedComputation.globalComputation(filePathList, findResultListener, start, end);
+        PipelinedComputation.globalComputation(filePathList, start, end);
         nativeServer.finish();
 
         Server.logger.info("logical cpu num:" + Runtime.getRuntime().availableProcessors());
         Server.logger.info("current db size:" +RestoreComputation.recordMap.size());
         int i = 0;
-        for (Map.Entry<Long, String> entry : PipelinedComputation.finalResultMap.entrySet()) {
+        for (Map.Entry<Long, byte[]> entry : PipelinedComputation.finalResultMap.entrySet()) {
             if (i < 10)
-                logger.info(entry.getValue());
+                logger.info(new String(entry.getValue()));
             i++;
         }
         logger.info("size:" + PipelinedComputation.finalResultMap.size());

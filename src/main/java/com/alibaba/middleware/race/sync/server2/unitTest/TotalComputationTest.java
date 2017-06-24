@@ -11,21 +11,16 @@ import java.io.IOException;
  */
 public class TotalComputationTest {
     public static void main(String[] args) throws IOException, InterruptedException {
-        PipelinedComputation.findResultListener = new PipelinedComputation.FindResultListener() {
-            @Override
-            public void sendToClient(String result) {
-//                System.out.println(result);
-            }
-        };
+
         FirstPhaseComputationTest.firstPhaseComp();
 
         long startTime = System.currentTimeMillis();
         PipelinedComputation.secondPhaseComputation();
         // write output
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("/tmp/yche_me.txt"));
-        for (String line : PipelinedComputation.finalResultMap.values()) {
-            bufferedWriter.write(line);
-            bufferedWriter.newLine();
+        for (byte[] line : PipelinedComputation.finalResultMap.values()) {
+            bufferedWriter.write(new String(line));
+//            bufferedWriter.newLine();
         }
         bufferedWriter.close();
         long endTime = System.currentTimeMillis();

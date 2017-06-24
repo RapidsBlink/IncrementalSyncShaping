@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync.server2;
 
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.finalResultMap;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.findResultListener;
 
 /**
  * Created by yche on 6/18/17.
@@ -32,9 +31,7 @@ class BufferedEvalAndSendTask implements Runnable {
     @Override
     public void run() {
         for (int i = 0; i < nextIndex; i++) {
-            String result = recordArr[i].getOneLine();
-            finalResultMap.put(recordArr[i].relevantKey, result);
-            findResultListener.sendToClient(result);
+            finalResultMap.put(recordArr[i].relevantKey, recordArr[i].getOneLineBytes());
         }
     }
 }

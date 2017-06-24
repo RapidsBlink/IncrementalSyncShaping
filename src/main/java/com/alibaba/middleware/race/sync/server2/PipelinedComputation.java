@@ -24,12 +24,12 @@ public class PipelinedComputation {
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
-    public static FindResultListener findResultListener;
-    public static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
+//    public static FindResultListener findResultListener;
+    public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
 
-    public interface FindResultListener {
-        void sendToClient(String result);
-    }
+//    public interface FindResultListener {
+//        void sendToClient(String result);
+//    }
 
     private static void joinSinglePool(ExecutorService executorService) {
         executorService.shutdown();
@@ -103,12 +103,12 @@ public class PipelinedComputation {
     }
 
     public static void globalComputation(ArrayList<String> srcFilePaths,
-                                         FindResultListener findResultListener, long start, long end) throws IOException {
+                                         long start, long end) throws IOException {
         if (Server.logger != null) {
             Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
         }
         initRange(start, end);
-        PipelinedComputation.findResultListener = findResultListener;
+//        PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
         if (Server.logger != null) {
             Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));

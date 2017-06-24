@@ -9,8 +9,8 @@ public class InsertOperation extends NonDeleteOperation {
         super(relevantKey);
     }
 
-    public void changePK(long pk){
-        relevantKey=pk;
+    public void changePK(long pk) {
+        relevantKey = pk;
     }
 
     private static String toChineseChar(byte index) {
@@ -43,5 +43,29 @@ public class InsertOperation extends NonDeleteOperation {
 
         stringBuilder.setLength(stringBuilder.length() - 1);
         return stringBuilder.toString();
+    }
+
+    byte[] getOneLineBytes() {
+        StringBuilder stringBuilder = new StringBuilder();
+        // key
+        stringBuilder.append(relevantKey).append('\t');
+        // first name
+        stringBuilder.append(toChineseChar(firstNameIndex)).append('\t');
+        // last name
+        stringBuilder.append(toChineseChar(lastNameFirstIndex));
+        if (lastNameSecondIndex != -1)
+            stringBuilder.append(toChineseChar(lastNameSecondIndex));
+        stringBuilder.append('\t');
+        // sex
+        stringBuilder.append(toChineseChar(sexIndex)).append('\t');
+        // score
+        stringBuilder.append(score).append('\t');
+        // score2
+        if (score2 != -1)
+            stringBuilder.append(score2).append('\t');
+
+        stringBuilder.setLength(stringBuilder.length() - 1);
+        stringBuilder.append('\n');
+        return stringBuilder.toString().getBytes();
     }
 }
