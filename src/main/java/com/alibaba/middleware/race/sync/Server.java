@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Map;
+
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.putThingsIntoByteBuffer;
 
 /**
  * Created by will on 6/6/2017.
@@ -69,10 +72,15 @@ public class Server {
             filePathList.add(Constants.DATA_HOME + File.separator + i + ".txt");
         }
         PipelinedComputation.globalComputation(filePathList, start, end);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocate(40 * 1024 * 1024);
+        putThingsIntoByteBuffer(byteBuffer);
+        byteBuffer.flip();
+        Server.nativeServer.send(byteBuffer);
+        logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
         nativeServer.finish();
 
         Server.logger.info("logical cpu num:" + Runtime.getRuntime().availableProcessors());
-//        Server.logger.info("current db size:" +RestoreComputation.recordMap.size());
         int i = 0;
         for (Map.Entry<Long, byte[]> entry : PipelinedComputation.finalResultMap.entrySet()) {
             if (i < 10)
