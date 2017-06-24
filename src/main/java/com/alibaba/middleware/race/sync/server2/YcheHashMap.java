@@ -1,8 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import gnu.trove.impl.hash.TLongHash;
-
-import java.util.Arrays;
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 /**
  * Created by yche on 6/23/17.

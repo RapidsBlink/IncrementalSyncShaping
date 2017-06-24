@@ -1,5 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.server2.operations.*;
+
 import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 
@@ -18,18 +20,17 @@ public class RestoreComputation {
                 // update
                 InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
                 insertOperation.mergeAnother((UpdateOperation) logOperation); //3
+            } else if (logOperation instanceof UpdateKeyOperation) {
+                InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.remove(logOperation);
+                }
 
-                if (logOperation instanceof UpdateKeyOperation) {
-                    if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                        inRangeRecordSet.remove(logOperation);
-                    }
+                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
+                recordMap.put(insertOperation); //5
 
-                    insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
-                    recordMap.put(insertOperation); //5
-
-                    if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
-                        inRangeRecordSet.add(insertOperation);
-                    }
+                if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+                    inRangeRecordSet.add(insertOperation);
                 }
             } else if (logOperation instanceof DeleteOperation) {
 //                recordMap.remove(logOperation);
@@ -44,6 +45,7 @@ public class RestoreComputation {
                 }
             }
         }
+
     }
 
     // used by master thread

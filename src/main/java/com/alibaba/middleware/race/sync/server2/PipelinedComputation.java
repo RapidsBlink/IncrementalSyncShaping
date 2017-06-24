@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -13,7 +14,7 @@ import java.util.concurrent.*;
  */
 public class PipelinedComputation {
     static int CHUNK_SIZE = 32 * 1024 * 1024;
-    private static int TRANSFORM_WORKER_NUM = 4;
+    private static int TRANSFORM_WORKER_NUM = 8;
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
