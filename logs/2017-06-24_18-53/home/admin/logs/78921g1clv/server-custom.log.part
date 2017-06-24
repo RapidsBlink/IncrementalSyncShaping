@@ -1,0 +1,42 @@
+[2017-06-24 18:52:00.521] INFO  c.a.m.r.sync.Server -Current server time:1498301520519
+[2017-06-24 18:52:00.541] INFO  c.a.m.r.sync.Server -Current server time:1498301520541
+[2017-06-24 18:52:00.542] INFO  c.a.m.r.sync.Server -middleware8
+[2017-06-24 18:52:00.542] INFO  c.a.m.r.sync.Server -student
+[2017-06-24 18:52:00.542] INFO  c.a.m.r.sync.Server -1000000
+[2017-06-24 18:52:00.542] INFO  c.a.m.r.sync.Server -8000000
+[2017-06-24 18:52:00.542] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-24 18:52:00.544] INFO  c.a.m.r.sync.Server -first phase start:1498301520544
+[2017-06-24 18:52:15.718] INFO  c.a.m.r.sync.Server -first phase end:1498301535718
+[2017-06-24 18:52:16.175] INFO  c.a.m.r.sync.Server -second phase end:1498301536175
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -second phase end:1498301536323
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -update num:87361483
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -update one property num:85381913
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -update pk num:1979570
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -field update:1979570
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -field update:0
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -field update:0
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -field update:0
+[2017-06-24 18:52:16.324] INFO  c.a.m.r.sync.Server -field update:0
+[2017-06-24 18:52:16.525] INFO  c.a.m.r.sync.Server -logical cpu num:16
+[2017-06-24 18:52:16.525] INFO  c.a.m.r.sync.Server -1000001	邹	铭	女	469	181198
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000003	邹	景	男	469	295219
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000007	邹	乙民	女	469	152256
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000009	邹	力	男	469	152867
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000011	杨	发	男	649	294610
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000013	侯	孙	女	220	142258
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000015	邹	林	女	469	271650
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000017	杨	高	女	649	146246
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000023	杨	黎名	男	649	16672
+
+[2017-06-24 18:52:16.526] INFO  c.a.m.r.sync.Server -1000029	杨	黎	女	649	142142
+
+[2017-06-24 18:52:16.778] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-24 18:52:16.778] INFO  c.a.m.r.sync.Server -Send finish all package......
