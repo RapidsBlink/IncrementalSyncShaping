@@ -3,10 +3,8 @@ package com.alibaba.middleware.race.sync.server2.unitTest;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 /**
@@ -23,11 +21,12 @@ public class APIUsageDemo {
         }
         PipelinedComputation.globalComputation(filePathList, 100000, 2000000);
 
-        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("/tmp/yche_me.txt"));
-        for (byte[] line : PipelinedComputation.finalResultMap.values()) {
-            bufferedWriter.write(new String(line));
-//            bufferedWriter.newLine();
-        }
+        ByteBuffer byteBuffer = ByteBuffer.allocate(40 * 1024 * 1024);
+        PipelinedComputation.putThingsIntoByteBuffer(byteBuffer);
+        byteBuffer.flip();
+        FileOutputStream bufferedWriter = new FileOutputStream("/tmp/yche_me.txt");
+        bufferedWriter.write(byteBuffer.array(), 0, byteBuffer.limit());
+
         bufferedWriter.close();
         long endTime = System.currentTimeMillis();
         System.out.println("total time:" + (endTime - startTime) + " ms");

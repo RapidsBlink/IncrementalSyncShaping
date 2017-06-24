@@ -3,6 +3,7 @@ package com.alibaba.middleware.race.sync.server2;
 import com.alibaba.middleware.race.sync.Server;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -24,12 +25,7 @@ public class PipelinedComputation {
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
-//    public static FindResultListener findResultListener;
     public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
-
-//    public interface FindResultListener {
-//        void sendToClient(String result);
-//    }
 
     private static void joinSinglePool(ExecutorService executorService) {
         executorService.shutdown();
@@ -131,4 +127,10 @@ public class PipelinedComputation {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
+
+    public static void putThingsIntoByteBuffer(ByteBuffer byteBuffer) {
+        for (byte[] bytes : finalResultMap.values()) {
+            byteBuffer.put(bytes);
+        }
+    }
 }
