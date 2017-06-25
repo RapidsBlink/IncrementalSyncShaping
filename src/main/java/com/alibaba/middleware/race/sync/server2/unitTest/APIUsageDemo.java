@@ -3,7 +3,9 @@ package com.alibaba.middleware.race.sync.server2.unitTest;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -33,6 +35,5 @@ public class APIUsageDemo {
 
         System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
-//        System.out.println("current db size:" + RestoreComputation.recordMap.size());
     }
 }

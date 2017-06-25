@@ -16,7 +16,7 @@ import static com.alibaba.middleware.race.sync.server2.RecordField.fieldIndexMap
  * Created by yche on 6/17/17.
  */
 public class RecordFieldTest {
-    static void initRecordField() throws IOException {
+    private static void initRecordField() throws IOException {
         MappedByteBuffer mappedByteBuffer;
         FileChannel fileChannel = new RandomAccessFile("/tmp/1.txt", "r").getChannel();
         mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, 1024 * 1024);

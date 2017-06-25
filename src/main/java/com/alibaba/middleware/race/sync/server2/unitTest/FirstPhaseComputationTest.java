@@ -11,7 +11,7 @@ import java.util.ArrayList;
  * Created by yche on 6/18/17.
  */
 public class FirstPhaseComputationTest {
-    static void firstPhaseComp() throws InterruptedException, IOException {
+    private static void firstPhaseComp() throws InterruptedException, IOException {
         Thread.sleep(5000);
         long startTime = System.currentTimeMillis();
         PipelinedComputation.initRange(100000, 2000000);
