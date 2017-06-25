@@ -14,9 +14,9 @@ import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
  */
 public class RecordField {
     public static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
-    public static int[] fieldSkipLen;
+    static int[] fieldSkipLen;
     public static int FILED_NUM;
-    public static int KEY_LEN;
+    static int KEY_LEN;
 
     public static boolean isInit() {
         return fieldIndexMap.size() > 0;

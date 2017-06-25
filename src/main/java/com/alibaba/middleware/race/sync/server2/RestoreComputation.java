@@ -17,8 +17,7 @@ public class RestoreComputation {
     public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
 
     static void compute(LogOperation[] logOperations) {
-        for (int i = 0; i < logOperations.length; i++) {
-            LogOperation logOperation = logOperations[i];
+        for (LogOperation logOperation : logOperations) {
             logOperation.act();
         }
     }
@@ -28,7 +27,7 @@ public class RestoreComputation {
         int end;
         LogOperation[] logOperations;
 
-        public EvalTask(int start, int end, LogOperation[] logOperations) {
+        EvalTask(int start, int end, LogOperation[] logOperations) {
             this.start = start;
             this.end = end;
             this.logOperations = logOperations;

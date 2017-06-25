@@ -106,7 +106,6 @@ public class PipelinedComputation {
             Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
         }
         initRange(start, end);
-//        PipelinedComputation.findResultListener = findResultListener;
         firstPhaseComputation(srcFilePaths);
         if (Server.logger != null) {
             Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));

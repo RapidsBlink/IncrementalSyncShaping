@@ -33,7 +33,7 @@ public class RecordScanner {
         this.prevFuture = prevFuture;
     }
 
-    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer();
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -178,13 +178,13 @@ public class RecordScanner {
         return logOperation;
     }
 
-    public void compute() {
+    void compute() {
         while (nextIndex < endIndex) {
             localOperations.add(scanOneRecord());
         }
     }
 
-    public void waitForSend() throws InterruptedException, ExecutionException {
+    void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
         prevFuture.get();
