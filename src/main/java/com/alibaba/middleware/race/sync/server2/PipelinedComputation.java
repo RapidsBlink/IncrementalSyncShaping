@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
-import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -18,13 +17,13 @@ public class PipelinedComputation {
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
-    static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
+    static BlockingQueue<ByteBuffer> blockingQueue = new ArrayBlockingQueue<>(64);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
 
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    static int EVAL_WORKER_NUM=16;
+    static int EVAL_WORKER_NUM = 16;
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(EVAL_WORKER_NUM);
 
     public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
@@ -47,8 +46,8 @@ public class PipelinedComputation {
             public void run() {
                 while (true) {
                     try {
-                        LogOperation[] logOperations = blockingQueue.take();
-                        if (logOperations.length == 0)
+                        ByteBuffer logOperations = blockingQueue.take();
+                        if (logOperations.capacity() == 0)
                             break;
                         RestoreComputation.compute(logOperations);
                     } catch (InterruptedException e) {
@@ -87,7 +86,7 @@ public class PipelinedComputation {
         joinSinglePool(mediatorPool);
         joinSinglePool(fileTransformPool);
         try {
-            blockingQueue.put(new LogOperation[0]);
+            blockingQueue.put(ByteBuffer.allocate(0));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -128,7 +127,6 @@ public class PipelinedComputation {
     static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
-
 
     public static void putThingsIntoByteBuffer(ByteBuffer byteBuffer) {
         for (byte[] bytes : finalResultMap.values()) {

@@ -1,14 +1,17 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.server2.operations.*;
+import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.server2.operations.InsertOperation;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.CHUNK_SIZE;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.WORK_NUM;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
+import static com.alibaba.middleware.race.sync.server2.operations.InsertOperation.getIndexOfChineseChar;
 
 /**
  * Created by yche on 6/18/17.
@@ -23,10 +26,13 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
     private int nextIndex; // start from startIndex
 
-    private final ArrayList<LogOperation> localOperations = new ArrayList<>();
-    private final Future<?> prevFuture;
+    private ByteBuffer byteBuffer = ByteBuffer.allocate(CHUNK_SIZE / WORK_NUM / 2);
+    private Future<?> prevFuture;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+    public RecordScanner() {
+    }
+
+    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -39,7 +45,7 @@ public class RecordScanner {
         this.endIndex = endIndex;
     }
 
-    private void skipField(int index) {
+    private void skipField(byte index) {
         switch (index) {
             case 0:
                 nextIndex += 4;
@@ -104,7 +110,7 @@ public class RecordScanner {
         return result;
     }
 
-    private int skipFieldName() {
+    private byte skipFieldName() {
         // stop at '|'
         if (mappedByteBuffer.get(nextIndex + 1) == 'f') {
             nextIndex += 15;
@@ -126,13 +132,12 @@ public class RecordScanner {
         }
     }
 
-    private LogOperation scanOneRecord() {
+    private void scanOneRecord() {
         // 1st: skip: mysql, ts, schema, table
         skipHeader();
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
-        LogOperation logOperation;
         // skip one splitter and operation byte
         skipKey();
 
@@ -141,33 +146,82 @@ public class RecordScanner {
             long prevKey = getNextLong();
             long curKey = getNextLong();
             if (prevKey == curKey) {
-                logOperation = new UpdateOperation(prevKey);
-                int localIndex = skipFieldName();
+                // update property
+                byte localIndex = skipFieldName();
                 skipField(localIndex);
                 getNextBytesIntoTmp();
-                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
+                switch (localIndex) {
+                    case 0:
+                        byteBuffer.put(U_FIRST_NAME);
+                        byteBuffer.putLong(prevKey);
+                        byteBuffer.put(getIndexOfChineseChar(tmpBuffer.array(), 0));
+                        break;
+                    case 1:
+                        byteBuffer.put(U_LAST_NAME);
+                        byteBuffer.putLong(prevKey);
+                        byteBuffer.put(getIndexOfChineseChar(tmpBuffer.array(), 0));
+                        if (tmpBuffer.limit() == 6)
+                            byteBuffer.put(getIndexOfChineseChar(tmpBuffer.array(), 3));
+                        else {
+                            byte nullByte = -1;
+                            byteBuffer.put(nullByte);
+                        }
+                        break;
+                    case 2:
+                        byteBuffer.put(U_SEX);
+                        byteBuffer.putLong(prevKey);
+                        byteBuffer.put(getIndexOfChineseChar(tmpBuffer.array(), 0));
+                        break;
+                    case 3:
+                        short result = 0;
+                        for (int i = 0; i < tmpBuffer.limit(); i++)
+                            result = (short) ((10 * result) + (tmpBuffer.get(i) - '0'));
+
+                        byteBuffer.put(U_SCORE);
+                        byteBuffer.putLong(prevKey);
+                        byteBuffer.putShort(result);
+                        break;
+                    case 4:
+                        int resultInt = 0;
+                        for (int i = 0; i < tmpBuffer.limit(); i++)
+                            resultInt = ((10 * resultInt) + (tmpBuffer.get(i) - '0'));
+                        byteBuffer.put(U_SCORE2);
+                        byteBuffer.putLong(prevKey);
+                        byteBuffer.putInt(resultInt);
+                        break;
+                    default:
+                        if (Server.logger != null)
+                            Server.logger.info("add data error");
+                        System.err.println("add data error");
+                }
             } else {
-                logOperation = new UpdateKeyOperation(prevKey, curKey);
+                // update key
+                byteBuffer.put(U_PK);
+                byteBuffer.putLong(prevKey);
+                byteBuffer.putLong(curKey);
             }
         } else if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
+            byteBuffer.put(I_OP);
             skipNull();
-            logOperation = new InsertOperation(getNextLong());
+            byteBuffer.putLong(getNextLong());
 
-            int localIndex = 0;
+            byte localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldForInsert(localIndex);
                 skipNull();
                 getNextBytesIntoTmp();
-                ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
+                InsertOperation.addDataIntoByteBuffer(byteBuffer, localIndex, tmpBuffer);
                 localIndex++;
             }
         } else {
             // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
+            byteBuffer.put(D_OP);
+            byteBuffer.putLong(getNextLong());
             skipNull();
+
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
-                int localIndex = skipFieldName();
+                byte localIndex = skipFieldName();
                 skipField(localIndex);
                 skipNull();
             }
@@ -175,19 +229,25 @@ public class RecordScanner {
 
         // skip '|' and `\n`
         nextIndex += 2;
-        return logOperation;
     }
 
     public void compute() {
         while (nextIndex < endIndex) {
-            localOperations.add(scanOneRecord());
+            scanOneRecord();
         }
     }
 
     public void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
-        LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
+        byteBuffer.flip();
+        ByteBuffer tmpByteBuffer = ByteBuffer.allocate(this.byteBuffer.limit());
+        tmpByteBuffer.put(byteBuffer);
+        tmpByteBuffer.flip();
+
+//        System.out.print(byteBuffer.capacity() + "," + tmpByteBuffer.limit() + "\n");
+        byteBuffer.clear();
         prevFuture.get();
-        PipelinedComputation.blockingQueue.put(logOperations);
+//        System.out.println(tmpByteBuffer.limit());
+        PipelinedComputation.blockingQueue.put(tmpByteBuffer);
     }
 }

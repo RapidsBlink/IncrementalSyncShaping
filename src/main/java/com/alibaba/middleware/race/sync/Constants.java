@@ -45,21 +45,21 @@ public interface Constants {
     String MIDDLE_HOME = "/home/admin/middle/" + TEAMCODE;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
-    char SPLIT_CHAR = '|';
-    char FIELD_SPLIT_CHAR = ':';
-    char IS_PRIMARY_KEY = '1';
-    char IS_NUMBER = '1';
-
-    char INSERT_OPERATION = 'I';
-    char DELETE_OPERATION = 'D';
-    char UPDATE_OPERATION = 'U';
-
     byte I_OPERATION = 'I';
     byte D_OPERATION = 'D';
     byte U_OPERATION = 'U';
 
     static byte FILED_SPLITTER = '|';
     static byte LINE_SPLITTER = '\n';
+
+    byte U_FIRST_NAME = 0;
+    byte U_LAST_NAME = 1;
+    byte U_SEX = 2;
+    byte U_SCORE = 3;
+    byte U_SCORE2 = 4;
+    byte U_PK = 5;
+    byte I_OP = 6;
+    byte D_OP = 7;
 
     String MIDDLE_FILE_NAME = "properties.rapids";
 }
