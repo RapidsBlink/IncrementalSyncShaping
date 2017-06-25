@@ -82,21 +82,25 @@ public class NonDeleteOperation extends LogOperation {
     }
 
     public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
+        if (nonDeleteOperation.score != -1) {
+            this.score = nonDeleteOperation.score;
+            return;
+        }
+        if (nonDeleteOperation.score2 != -1) {
+            this.score2 = nonDeleteOperation.score2;
+            return;
+        }
         if (nonDeleteOperation.firstNameIndex != -1) {
             this.firstNameIndex = nonDeleteOperation.firstNameIndex;
+            return;
         }
         if (nonDeleteOperation.lastNameFirstIndex != -1) {
             this.lastNameFirstIndex = nonDeleteOperation.lastNameFirstIndex;
             this.lastNameSecondIndex = nonDeleteOperation.lastNameSecondIndex;
+            return;
         }
         if (nonDeleteOperation.sexIndex != -1) {
             this.sexIndex = nonDeleteOperation.sexIndex;
-        }
-        if (nonDeleteOperation.score != -1) {
-            this.score = nonDeleteOperation.score;
-        }
-        if (nonDeleteOperation.score2 != -1) {
-            this.score2 = nonDeleteOperation.score2;
         }
     }
 }
