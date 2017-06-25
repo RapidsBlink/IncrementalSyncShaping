@@ -1,5 +1,10 @@
 package com.alibaba.middleware.race.sync.server2.operations;
 
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+
+import static com.alibaba.middleware.race.sync.server2.RestoreComputation.inRangeRecordSet;
+import static com.alibaba.middleware.race.sync.server2.RestoreComputation.recordMap;
+
 /**
  * Created by yche on 6/19/17.
  */
@@ -84,5 +89,13 @@ public class InsertOperation extends NonDeleteOperation {
         byte[] retBytes = new byte[nextOffset];
         System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
         return retBytes;
+    }
+
+    @Override
+    public void act(){
+        recordMap.put(this); //1
+        if (PipelinedComputation.isKeyInRange(relevantKey)) {
+            inRangeRecordSet.add(this);
+        }
     }
 }

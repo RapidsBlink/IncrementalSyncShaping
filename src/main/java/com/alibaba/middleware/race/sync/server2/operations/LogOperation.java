@@ -28,4 +28,6 @@ public abstract class LogOperation implements Comparable<LogOperation> {
     public int compareTo(LogOperation o) {
         return compare(relevantKey, o.relevantKey);
     }
+
+    public abstract void act();
 }
