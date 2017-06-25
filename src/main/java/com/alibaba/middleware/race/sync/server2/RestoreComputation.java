@@ -48,7 +48,6 @@ public class RestoreComputation {
                 }
             }
         }
-
     }
 
     private static class EvalTask implements Runnable {
@@ -66,7 +65,7 @@ public class RestoreComputation {
         public void run() {
             for (int i = start; i < end; i++) {
                 InsertOperation insertOperation = (InsertOperation) logOperations[i];
-                finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytes());
+                finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytesEfficient());
             }
         }
     }

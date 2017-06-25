@@ -13,59 +13,76 @@ public class InsertOperation extends NonDeleteOperation {
         relevantKey = pk;
     }
 
-    private static String toChineseChar(byte index) {
-        int intC = INTEGER_CHINESE_CHAR[index];
-        byte[] tmpBytes = new byte[3];
-        tmpBytes[0] = (byte) (intC >>> 16);
-        tmpBytes[1] = (byte) (intC >>> 8);
-        tmpBytes[2] = (byte) (intC >>> 0);
-        return new String(tmpBytes);
+    public static int getLongLen(long pk) {
+        int noOfDigit = 1;
+        while ((pk = pk / 10) != 0)
+            ++noOfDigit;
+        return noOfDigit;
     }
 
-    String getOneLine() {
-        StringBuilder stringBuilder = new StringBuilder();
-        // key
-        stringBuilder.append(relevantKey).append('\t');
-        // first name
-        stringBuilder.append(toChineseChar(firstNameIndex)).append('\t');
-        // last name
-        stringBuilder.append(toChineseChar(lastNameFirstIndex));
-        if (lastNameSecondIndex != -1)
-            stringBuilder.append(toChineseChar(lastNameSecondIndex));
-        stringBuilder.append('\t');
-        // sex
-        stringBuilder.append(toChineseChar(sexIndex)).append('\t');
-        // score
-        stringBuilder.append(score).append('\t');
-        // score2
-        if (score2 != -1)
-            stringBuilder.append(score2).append('\t');
-
-        stringBuilder.setLength(stringBuilder.length() - 1);
-        return stringBuilder.toString();
+    public static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
+        long leftLong = pk;
+        for (int i = 0; i < noDigits; i++) {
+            byteArr[offset + noDigits - i - 1] = (byte) (leftLong % 10 + '0');
+            leftLong /= 10;
+        }
     }
 
-    public byte[] getOneLineBytes() {
-        StringBuilder stringBuilder = new StringBuilder();
-        // key
-        stringBuilder.append(relevantKey).append('\t');
-        // first name
-        stringBuilder.append(toChineseChar(firstNameIndex)).append('\t');
-        // last name
-        stringBuilder.append(toChineseChar(lastNameFirstIndex));
-        if (lastNameSecondIndex != -1)
-            stringBuilder.append(toChineseChar(lastNameSecondIndex));
-        stringBuilder.append('\t');
-        // sex
-        stringBuilder.append(toChineseChar(sexIndex)).append('\t');
-        // score
-        stringBuilder.append(score).append('\t');
-        // score2
-        if (score2 != -1)
-            stringBuilder.append(score2).append('\t');
+    public static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+        System.arraycopy(NonDeleteOperation.BYTES_POINTERS[index], 0, byteArr, offset, 3);
+    }
 
-        stringBuilder.setLength(stringBuilder.length() - 1);
-        stringBuilder.append('\n');
-        return stringBuilder.toString().getBytes();
+    public byte[] getOneLineBytesEfficient() {
+        byte[] tmpBytes = new byte[48];
+        int nextOffset = 0;
+        // 1st: pk
+        int pkDigits = getLongLen(relevantKey);
+        parseLong(relevantKey, tmpBytes, nextOffset, pkDigits);
+        nextOffset += pkDigits;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 2nd: first name
+        parseSingleChar(firstNameIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 3rd: second name
+        parseSingleChar(lastNameFirstIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        if (lastNameSecondIndex != -1) {
+            parseSingleChar(lastNameSecondIndex, tmpBytes, nextOffset);
+            nextOffset += 3;
+        }
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 4th: sex
+        parseSingleChar(sexIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 5th score
+        pkDigits = getLongLen(score);
+        parseLong(score, tmpBytes, nextOffset, pkDigits);
+        nextOffset += pkDigits;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 6th score2
+        if (score2 != -1) {
+            pkDigits = getLongLen(score);
+            parseLong(score, tmpBytes, nextOffset, pkDigits);
+            nextOffset += pkDigits;
+            tmpBytes[nextOffset] = '\t';
+            nextOffset += 1;
+        }
+        tmpBytes[nextOffset - 1] = '\n';
+
+        byte[] retBytes = new byte[nextOffset];
+        System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
+        return retBytes;
     }
 }
