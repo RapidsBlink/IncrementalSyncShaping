@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.server2.operations.*;
+import gnu.trove.set.hash.THashSet;
 
-import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
@@ -14,7 +14,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
 public class RestoreComputation {
     public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
 
-    public static HashSet<LogOperation> inRangeRecordSet = new HashSet<>();
+    public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
 
     static void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
