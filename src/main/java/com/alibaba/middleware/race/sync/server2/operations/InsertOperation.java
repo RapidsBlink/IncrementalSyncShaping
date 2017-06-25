@@ -73,8 +73,8 @@ public class InsertOperation extends NonDeleteOperation {
 
         // 6th score2
         if (score2 != -1) {
-            pkDigits = getLongLen(score);
-            parseLong(score, tmpBytes, nextOffset, pkDigits);
+            pkDigits = getLongLen(score2);
+            parseLong(score2, tmpBytes, nextOffset, pkDigits);
             nextOffset += pkDigits;
             tmpBytes[nextOffset] = '\t';
             nextOffset += 1;
