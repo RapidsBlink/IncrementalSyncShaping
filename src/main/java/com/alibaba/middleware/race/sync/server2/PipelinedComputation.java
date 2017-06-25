@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 public class PipelinedComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
-    static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
+    static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
@@ -24,7 +24,7 @@ public class PipelinedComputation {
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    static int EVAL_WORKER_NUM=16;
+    static int EVAL_WORKER_NUM = 16;
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(EVAL_WORKER_NUM);
 
     public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
