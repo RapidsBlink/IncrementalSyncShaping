@@ -17,7 +17,7 @@ public class PipelinedComputation {
     static int WORK_NUM = TRANSFORM_WORKER_NUM * 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
 
-    static BlockingQueue<ByteBuffer> blockingQueue = new ArrayBlockingQueue<>(64);
+    static BlockingQueue<ByteBuffer> blockingQueue = new ArrayBlockingQueue<>(512);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
 
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
