@@ -27,10 +27,17 @@ public class PipelinedComputation {
     }
 
     // 1st phase
-    static int CHUNK_SIZE = 64 * 1024 * 1024;
-    private static int TRANSFORM_WORKER_NUM = 16;
+    static int CHUNK_SIZE = 32 * 1024 * 1024;
+    private static int TRANSFORM_WORKER_NUM = 8;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
+    static ExecutorService computationCoroutinePool[] = new ExecutorService[RestoreComputation.WORKER_NUM];
+
+    static {
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            computationCoroutinePool[i] = Executors.newSingleThreadExecutor();
+        }
+    }
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
@@ -59,8 +66,6 @@ public class PipelinedComputation {
         computationPool.execute(new Runnable() {
             @Override
             public void run() {
-                RestoreComputation.recordMap = new YcheHashMap(24 * 1024 * 1024);
-                RestoreComputation.inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
                 while (true) {
                     try {
                         LogOperation[] logOperations = blockingQueue.take();
@@ -120,6 +125,10 @@ public class PipelinedComputation {
             e.printStackTrace();
         }
         joinSinglePool(computationPool);
+
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            joinSinglePool(computationCoroutinePool[i]);
+        }
     }
 
     private static void secondPhaseComputation() {
