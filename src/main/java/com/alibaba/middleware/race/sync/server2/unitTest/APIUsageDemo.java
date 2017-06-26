@@ -6,6 +6,8 @@ import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
@@ -14,7 +16,7 @@ import java.util.ArrayList;
  */
 public class APIUsageDemo {
     public static void main(String[] args) throws IOException, InterruptedException {
-        Thread.sleep(5000);
+//        Thread.sleep(5000);
         long startTime = System.currentTimeMillis();
         String srcFolder = "/tmp";
         ArrayList<String> filePathList = new ArrayList<>();
@@ -33,6 +35,8 @@ public class APIUsageDemo {
         long endTime = System.currentTimeMillis();
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        System.out.println("from jvm start:" + (endTime - bean.getStartTime() + " ms"));
         System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
     }
