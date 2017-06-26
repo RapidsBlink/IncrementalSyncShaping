@@ -59,7 +59,7 @@ public class PipelinedComputation {
         computationPool.execute(new Runnable() {
             @Override
             public void run() {
-                RestoreComputation.recordMap = new YcheHashMap(24 * 1024 * 1024);
+                RestoreComputation.recordMap = new YcheHashMap(48 * 1024 * 1024);
                 RestoreComputation.inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
                 while (true) {
                     try {

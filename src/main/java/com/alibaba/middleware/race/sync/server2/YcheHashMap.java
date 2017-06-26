@@ -7,143 +7,97 @@ import gnu.trove.impl.HashFunctions;
  * Created by yche on 6/23/17.
  */
 public class YcheHashMap {
-    private transient long[] _set;
-    private transient LogOperation[] _values;
+    private LogOperation[] _values;
+    private int slotNum;
 
     YcheHashMap(int initialCapacity) {
-        _set = new long[initialCapacity];
         _values = new LogOperation[initialCapacity];
+        slotNum = initialCapacity;
     }
 
-    /**
-     * Locates the index of <tt>val</tt>.
-     *
-     * @param val an <code>long</code> value
-     * @return the index of <tt>val</tt> or -1 if it isn't in the set.
-     */
-    private int index(long val) {
-        int hash, index, length;
+    private int index(LogOperation val) {
+        int hash, index;
 
-        length = _set.length;
-        hash = HashFunctions.hash(val) & 0x7fffffff;
-        index = hash % length;
-        long state = _set[index];
+        hash = val.hashCode() & 0x7fffffff;
+        index = hash % slotNum;
 
-        if (state == 0)
-            return -1;
-
-        else if (state == val)
+        if (_values[index].relevantKey == val.relevantKey)
             return index;
 
-        return indexRehashed(val, index, hash, state);
+        return indexRehashed(val, index, hash);
     }
 
-    private int indexRehashed(long key, int index, int hash, long state) {
+    private int indexRehashed(LogOperation key, int index, int hash) {
         // see Knuth, p. 529
-        int length = _set.length;
-        int probe = 1 + (hash % (length - 2));
+        int probe = 1 + (hash % (slotNum - 2));
         final int loopIndex = index;
 
         do {
             index -= probe;
             if (index < 0) {
-                index += length;
+                index += slotNum;
             }
-            //
-            if (state == 0)
-                return -1;
 
-            //
-            if (key == _set[index])
+            if (key.relevantKey == _values[index].relevantKey)
                 return index;
         } while (index != loopIndex);
 
         return -1;
     }
 
-    /**
-     * Locates the index at which <tt>val</tt> can be inserted.  if
-     * there is already a value equal()ing <tt>val</tt> in the set,
-     * returns that value as a negative integer.
-     *
-     * @param val an <code>long</code> value
-     * @return an <code>int</code> value
-     */
-    private int insertKey(long val) {
-        int hash, index;
-
-        hash = HashFunctions.hash(val) & 0x7fffffff;
-        index = hash % _set.length;
-        long state = _set[index];
-
-
-        if (state == 0) {
-            insertKeyAt(index, val);
-
-            return index;       // empty, all done
-        } else if (_set[index] == val) {
-            return -index - 1;   // already stored
-        }
-
-        // already FULL or REMOVED, must probe
-        return insertKeyRehash(val, index, hash);
-    }
-
-    private int insertKeyRehash(long val, int index, int hash) {
-        // compute the double hash
-        final int length = _set.length;
-        int probe = 1 + (hash % (length - 2));
-        final int loopIndex = index;
-
-        /**
-         * Look until FREE slot or we start to loop
-         */
-        do {
-            index -= probe;
-            if (index < 0) {
-                index += length;
-            }
-            long state = _set[index];
-
-            // A FREE slot stops the search
-            if (state == 0) {
-                insertKeyAt(index, val);
-                return index;
-            }
-
-            if (_set[index] == val) {
-                return -index - 1;
-            }
-
-            // Detect loop
-        } while (index != loopIndex);
-
-        // We inspected all reachable slots and did not find a FREE one
-        // If we found a REMOVED slot we return the first one found
-
-        // Can a resizing strategy be found that resizes the set?
-        throw new IllegalStateException("No free or removed slots available. Key set full?!!");
-    }
-
-    private void insertKeyAt(int index, long val) {
-        _set[index] = val;  // insert value
-    }
-
     public LogOperation get(LogOperation key) {
-        int index = index(key.relevantKey);
+        int index = index(key);
         return index < 0 ? null : _values[index];
     }
 
-    private void doPut(LogOperation value, int index) {
-        if (index < 0) {
-            index = -index - 1;
+    private void insertKeyAt(int index, LogOperation val) {
+        _values[index] = val;  // insert value
+    }
+
+    private void insertKey(LogOperation val) {
+        int hash, index;
+
+        hash = val.hashCode() & 0x7fffffff;
+        index = hash % slotNum;
+        LogOperation state = _values[index];
+
+        if (state == null) {
+            insertKeyAt(index, val);
+            return;
+        } else if (state.relevantKey == val.relevantKey) {
+            return;
         }
-        _values[index] = value;
+
+        // already FULL or REMOVED, must probe
+        insertKeyRehash(val, index, hash);
+    }
+
+    private void insertKeyRehash(LogOperation val, int index, int hash) {
+        // compute the double hash
+        int probe = 1 + (hash % (slotNum - 2));
+        final int loopIndex = index;
+
+        do {
+            index -= probe;
+            if (index < 0) {
+                index += slotNum;
+            }
+            LogOperation state = _values[index];
+
+            // A FREE slot stops the search
+            if (state == null) {
+                insertKeyAt(index, val);
+                return;
+            }
+
+            if (state.relevantKey == val.relevantKey) {
+                return;
+            }
+            // Detect loop
+        } while (index != loopIndex);
     }
 
     public void put(LogOperation key) {
-        // insertKey() inserts the key if a slot if found and returns the index
-        int index = insertKey(key.relevantKey);
-        doPut(key, index);
+        insertKey(key);
     }
 }
