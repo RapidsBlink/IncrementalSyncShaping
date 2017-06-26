@@ -25,7 +25,7 @@ public class RecordField {
     private int nextIndex = 0;
     private int nextFieldIndex = 0;
     private ByteBuffer mappedByteBuffer;
-    private ByteBuffer myBuffer = ByteBuffer.allocate(1024);
+    private ByteBuffer myBuffer = ByteBuffer.allocate(128);
 
     public RecordField(ByteBuffer mappedByteBuffer) {
         this.mappedByteBuffer = mappedByteBuffer;

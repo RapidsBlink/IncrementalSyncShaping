@@ -19,6 +19,4 @@ public class DeleteOperation extends LogOperation {
             inRangeRecordSet.remove(this);
         }
     }
-
-
 }

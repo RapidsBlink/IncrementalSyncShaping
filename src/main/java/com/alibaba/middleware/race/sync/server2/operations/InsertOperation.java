@@ -14,18 +14,18 @@ public class InsertOperation extends NonDeleteOperation {
         super(relevantKey);
     }
 
-    public void changePK(long pk) {
+    void changePK(long pk) {
         relevantKey = pk;
     }
 
-    public static int getLongLen(long pk) {
+    private static int getLongLen(long pk) {
         int noOfDigit = 1;
         while ((pk = pk / 10) != 0)
             ++noOfDigit;
         return noOfDigit;
     }
 
-    public static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
+    private static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
         long leftLong = pk;
         for (int i = 0; i < noDigits; i++) {
             byteArr[offset + noDigits - i - 1] = (byte) (leftLong % 10 + '0');
@@ -33,7 +33,7 @@ public class InsertOperation extends NonDeleteOperation {
         }
     }
 
-    public static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+    private static void parseSingleChar(byte index, byte[] byteArr, int offset) {
         System.arraycopy(NonDeleteOperation.BYTES_POINTERS[index], 0, byteArr, offset, 3);
     }
 

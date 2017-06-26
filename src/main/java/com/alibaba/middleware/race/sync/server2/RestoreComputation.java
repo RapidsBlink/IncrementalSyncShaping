@@ -12,9 +12,8 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
-
-    public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
+    public static YcheHashMap recordMap;
+    public static THashSet<LogOperation> inRangeRecordSet;
 
     static void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
