@@ -30,9 +30,10 @@ public class PipelinedComputation {
     static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
-    static ExecutorService fileTransformPool;
+    static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
+    ;
 
-    static BlockingQueue<LogOperation[]> blockingQueue;
+    static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
 
     // 2nd phase
@@ -79,8 +80,6 @@ public class PipelinedComputation {
         mediatorPool.execute(new Runnable() {
             @Override
             public void run() {
-                fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-                blockingQueue = new ArrayBlockingQueue<>(64);
                 while (true) {
                     try {
                         FileTransformMediatorTask fileTransformMediatorTask = mediatorTasks.take();
@@ -91,13 +90,6 @@ public class PipelinedComputation {
                         e.printStackTrace();
                     }
                 }
-                joinSinglePool(fileTransformPool);
-                try {
-                    blockingQueue.put(new LogOperation[0]);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                joinSinglePool(computationPool);
             }
         });
 
@@ -117,6 +109,13 @@ public class PipelinedComputation {
             e.printStackTrace();
         }
         joinSinglePool(mediatorPool);
+        joinSinglePool(fileTransformPool);
+        try {
+            blockingQueue.put(new LogOperation[0]);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        joinSinglePool(computationPool);
     }
 
     private static void secondPhaseComputation() {

@@ -23,7 +23,7 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
     private int nextIndex; // start from startIndex
 
-    private final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 48);
+    private final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 8);
     private Future<?> prevFuture;
     private int primaryKeyDigitNum = 0;
 
