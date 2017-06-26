@@ -165,7 +165,7 @@ public class YcheLongHash {
         throw new IllegalStateException("No free or removed slots available. Key set full?!!");
     }
 
-    void insertKeyAt(int index, long val) {
+    private void insertKeyAt(int index, long val) {
         _set[index] = val;  // insert value
     }
 }

@@ -18,17 +18,19 @@ import java.util.concurrent.TimeUnit;
  * Created by will on 24/6/2017.
  */
 public class NioServer {
+    private byte FINISHED_ALL = 'F';
+    private byte REQUIRE_ARGS = 'A';
     public Logger logger = null;
     private int port;
     private String[] args;
-    private ArrayBlockingQueue<ByteBuffer> sendQueue = new ArrayBlockingQueue<ByteBuffer>(8);
+    private ArrayBlockingQueue<ByteBuffer> sendQueue = new ArrayBlockingQueue<>(8);
 
     private boolean finished = false;
 
-    ServerSocketChannel serverChannel;
-    SocketChannel clientChannel;
+    private ServerSocketChannel serverChannel;
+    private SocketChannel clientChannel;
 
-    ExecutorService serverThreadsPool = Executors.newSingleThreadExecutor();
+    private ExecutorService serverThreadsPool = Executors.newSingleThreadExecutor();
 
     public NioServer(String[] args, int port) {
         this.logger = LoggerFactory.getLogger(NioServer.class);
@@ -59,7 +61,7 @@ public class NioServer {
 
                     ByteBuffer readBuff = ByteBuffer.allocate(1);
                     clientChannel.read(readBuff);
-                    if (readBuff.get(0) == NetworkConstant.REQUIRE_ARGS) {
+                    if (readBuff.get(0) == REQUIRE_ARGS) {
                         ByteBuffer argsBuff = ByteBuffer.wrap(new ArgumentsPayloadBuilder(args).toString().getBytes());
                         chunkSize.clear();
                         logger.info("data chunk size: " + argsBuff.limit());
@@ -70,12 +72,12 @@ public class NioServer {
                         while (true) {
                             try {
                                 ByteBuffer data = sendQueue.take();
-                                if (data.limit() == 1 && data.get(0) == NetworkConstant.FINISHED_ALL) {
+                                if (data.limit() == 1 && data.get(0) == FINISHED_ALL) {
                                     clientChannel.finishConnect();
                                     clientChannel.close();
                                     finished = true;
                                     break;
-                                }else {
+                                } else {
                                     chunkSize.clear();
                                     logger.info("data chunk size: " + data.limit());
                                     chunkSize.putInt(data.limit());
@@ -94,8 +96,6 @@ public class NioServer {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
             }
         });
     }

@@ -14,7 +14,6 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.medi
  */
 public class MmapReader {
     private FileChannel fileChannel;
-    private MappedByteBuffer mappedByteBuffer;
 
     private int nextIndex;
     private int maxIndex;   // inclusive
@@ -36,7 +35,7 @@ public class MmapReader {
     private void fetchNextMmapChunk() throws IOException {
         int currChunkLength = nextIndex != maxIndex ? CHUNK_SIZE : lastChunkLength;
 
-        mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
+        MappedByteBuffer mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
         mappedByteBuffer.load();
         if (!RecordField.isInit()) {
             new RecordField(mappedByteBuffer).initFieldIndexMap();
