@@ -21,12 +21,12 @@ public class InsertOperation implements Comparable<InsertOperation> {
     }
 
     public long relevantKey;
-    byte firstNameIndex = -1;
-    byte lastNameFirstIndex = -1;
-    byte lastNameSecondIndex = -1;
-    byte sexIndex = -1;
-    short score = -1;
-    int score2 = -1;
+    public byte firstNameIndex = -1;
+    public byte lastNameFirstIndex = -1;
+    public byte lastNameSecondIndex = -1;
+    public byte sexIndex = -1;
+    public short score = -1;
+    public int score2 = -1;
 
     public InsertOperation(long relevantKey) {
         this.relevantKey = relevantKey;
@@ -41,7 +41,7 @@ public class InsertOperation implements Comparable<InsertOperation> {
         byte[] tmpBytes = new byte[3];
         tmpBytes[0] = (byte) (intC >>> 16);
         tmpBytes[1] = (byte) (intC >>> 8);
-        tmpBytes[2] = (byte) (intC >>> 0);
+        tmpBytes[2] = (byte) (intC);
         return new String(tmpBytes);
     }
 
@@ -60,7 +60,7 @@ public class InsertOperation implements Comparable<InsertOperation> {
         }
     }
 
-    public static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+    private static void parseSingleChar(byte index, byte[] byteArr, int offset) {
         System.arraycopy(BYTES_POINTERS[index], 0, byteArr, offset, 3);
     }
 
@@ -165,27 +165,6 @@ public class InsertOperation implements Comparable<InsertOperation> {
         }
     }
 
-    public void updateFirstName(byte firstNameIndex) {
-        this.firstNameIndex = firstNameIndex;
-    }
-
-    public void updateLastName(byte lastNameFirstIndex, byte lastNameSecondIndex) {
-        this.lastNameFirstIndex = lastNameFirstIndex;
-        this.lastNameSecondIndex = lastNameSecondIndex;
-    }
-
-    public void updateSex(byte sexIndex) {
-        this.sexIndex = sexIndex;
-    }
-
-    public void updateScore(short score) {
-        this.score = score;
-    }
-
-    public void updateScore2(int score2) {
-        this.score2 = score2;
-    }
-
     @Override
     public int hashCode() {
         return (int) (relevantKey ^ (relevantKey >>> 32));
@@ -201,7 +180,7 @@ public class InsertOperation implements Comparable<InsertOperation> {
         return compare(relevantKey, o.relevantKey);
     }
 
-    public static int compare(long x, long y) {
+    private static int compare(long x, long y) {
         return (x < y) ? -1 : ((x == y) ? 0 : 1);
     }
 }

@@ -36,24 +36,21 @@ public class RestoreComputation {
                     for (int i = 0; i < RecordField.FILED_NUM; i++) {
                         switch (i) {
                             case 0:
-                                newInsertion.updateFirstName(byteBuffer.get());
+                                newInsertion.firstNameIndex = (byteBuffer.get());
                                 break;
                             case 1:
-                                byte firstIndex = byteBuffer.get();
-                                byte secondIndex = byteBuffer.get();
-                                newInsertion.updateLastName(firstIndex, secondIndex);
+                                newInsertion.lastNameFirstIndex = byteBuffer.get();
+                                newInsertion.lastNameSecondIndex = byteBuffer.get();
                                 break;
                             case 2:
-                                newInsertion.updateSex(byteBuffer.get());
+                                newInsertion.sexIndex = byteBuffer.get();
                                 break;
                             case 3:
-                                newInsertion.updateScore(byteBuffer.getShort());
+                                newInsertion.score = byteBuffer.getShort();
                                 break;
                             case 4:
-                                newInsertion.updateScore2(byteBuffer.getInt());
+                                newInsertion.score2 = byteBuffer.getInt();
                                 break;
-                            default:
-                                System.out.println("something wrong");
                         }
                     }
                     recordMap.put(newInsertion); //1
@@ -64,24 +61,20 @@ public class RestoreComputation {
                 default:
                     InsertOperation insertOperation = recordMap.get(prePk); //2
                     switch (op) {
-                        case Constants.U_FIRST_NAME:
-                            insertOperation.updateFirstName(byteBuffer.get());
-                            break;
-                        case Constants.U_LAST_NAME:
-                            byte firstIndex = byteBuffer.get();
-                            byte secondIndex = byteBuffer.get();
-                            insertOperation.updateLastName(firstIndex, secondIndex);
-                            break;
-                        case Constants.U_SEX:
-                            insertOperation.updateSex(byteBuffer.get());
-                            break;
                         case Constants.U_SCORE:
-                            insertOperation.updateScore(byteBuffer.getShort());
+                            insertOperation.score = byteBuffer.getShort();
                             break;
                         case Constants.U_SCORE2:
-                            insertOperation.updateScore2(byteBuffer.getInt());
+                            insertOperation.score2 = byteBuffer.getInt();
                             break;
-                        default:
+                        case Constants.U_FIRST_NAME:
+                            insertOperation.firstNameIndex = byteBuffer.get();
+                            break;
+                        case Constants.U_LAST_NAME:
+                            insertOperation.lastNameFirstIndex = byteBuffer.get();
+                            insertOperation.lastNameSecondIndex = byteBuffer.get();
+                            break;
+                        case Constants.U_PK:
                             // update pk
                             if (PipelinedComputation.isKeyInRange(prePk)) {
                                 inRangeRecordSet.remove(insertOperation);
@@ -93,6 +86,10 @@ public class RestoreComputation {
                             if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
                                 inRangeRecordSet.add(insertOperation);
                             }
+                            break;
+                        case Constants.U_SEX:
+                            insertOperation.sexIndex = byteBuffer.get();
+                            break;
                     }
             }
         }
@@ -103,7 +100,7 @@ public class RestoreComputation {
         int end;
         InsertOperation[] logOperations;
 
-        public EvalTask(int start, int end, InsertOperation[] logOperations) {
+        EvalTask(int start, int end, InsertOperation[] logOperations) {
             this.start = start;
             this.end = end;
             this.logOperations = logOperations;
