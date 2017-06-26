@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
-import gnu.trove.impl.HashFunctions;
 
 /**
  * Created by yche on 6/23/17.
