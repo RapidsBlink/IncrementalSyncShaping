@@ -14,7 +14,7 @@ public class InsertOperation extends NonDeleteOperation {
         super(relevantKey);
     }
 
-    void changePK(long pk) {
+    public void changePK(long pk) {
         relevantKey = pk;
     }
 
@@ -89,13 +89,5 @@ public class InsertOperation extends NonDeleteOperation {
         byte[] retBytes = new byte[nextOffset];
         System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
         return retBytes;
-    }
-
-    @Override
-    public void act(){
-        recordMap.put(this); //1
-        if (PipelinedComputation.isKeyInRange(relevantKey)) {
-            inRangeRecordSet.add(this);
-        }
     }
 }

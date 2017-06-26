@@ -81,7 +81,7 @@ public abstract class NonDeleteOperation extends LogOperation {
         }
     }
 
-    void mergeAnother(NonDeleteOperation nonDeleteOperation) {
+    public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
         if (nonDeleteOperation.score != -1) {
             this.score = nonDeleteOperation.score;
             return;

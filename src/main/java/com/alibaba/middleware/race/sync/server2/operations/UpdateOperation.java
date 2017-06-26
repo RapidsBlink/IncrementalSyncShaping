@@ -10,10 +10,4 @@ public class UpdateOperation extends NonDeleteOperation {
     public UpdateOperation(long relevantKey) {
         super(relevantKey);
     }
-
-    @Override
-    public void act() {
-        InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
-        insertOperation.mergeAnother(this); //3
-    }
 }
