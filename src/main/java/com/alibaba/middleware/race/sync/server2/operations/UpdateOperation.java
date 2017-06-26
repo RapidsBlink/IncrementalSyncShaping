@@ -12,8 +12,8 @@ public class UpdateOperation extends NonDeleteOperation {
     }
 
     @Override
-    public void act(){
+    public void act() {
         InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
         insertOperation.mergeAnother(this); //3
-    };
+    }
 }
