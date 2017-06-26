@@ -17,17 +17,17 @@ public class PipelinedComputation {
     private static long pkLowerBound;
     private static long pkUpperBound;
 
-    public static void initRange(long lowerBound, long upperBound) {
+    private static void initRange(long lowerBound, long upperBound) {
         pkLowerBound = lowerBound;
         pkUpperBound = upperBound;
     }
 
-    public static boolean isKeyInRange(long key) {
+    static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
     // 1st phase
-    static int CHUNK_SIZE = 32 * 1024 * 1024;
+    static int CHUNK_SIZE = 64 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
@@ -53,14 +53,14 @@ public class PipelinedComputation {
         }
     }
 
-    public static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
+    private static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
         // computation
         final ExecutorService computationPool = Executors.newFixedThreadPool(1);
         computationPool.execute(new Runnable() {
             @Override
             public void run() {
-                RestoreComputation.recordMap = new YcheHashMap(48 * 1024 * 1024);
-                RestoreComputation.inRangeRecordSet = new THashSet<>(8 * 1024 * 1024);
+                RestoreComputation.recordMap = new YcheHashMap(24 * 1024 * 1024);
+                RestoreComputation.inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
                 while (true) {
                     try {
                         LogOperation[] logOperations = blockingQueue.take();
@@ -102,13 +102,18 @@ public class PipelinedComputation {
             }
         }
 
+        // join mediator
         try {
             mediatorTasks.put(new FileTransformMediatorTask());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         joinSinglePool(mediatorPool);
+
+        // join tokenizer
         joinSinglePool(fileTransformPool);
+
+        // join computation
         try {
             blockingQueue.put(new LogOperation[0]);
         } catch (InterruptedException e) {
