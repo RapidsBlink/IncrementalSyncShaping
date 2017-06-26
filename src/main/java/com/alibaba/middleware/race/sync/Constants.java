@@ -17,9 +17,6 @@ public interface Constants {
     // 结果文件的命名
     String RESULT_FILE_NAME = "Result.rs";
 
-    //Client threads number
-    Integer CLIENT_THREADS_NUMBER = 1;
-
     // ------------ 本地测试可以使用自己的路径--------------//
     //%%%%%%%%%%%%%%%%% change bellow %%%%%%%%%%%%%%%%%
     // 工作主目录
@@ -45,21 +42,10 @@ public interface Constants {
     String MIDDLE_HOME = "/home/admin/middle/" + TEAMCODE;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
-    char SPLIT_CHAR = '|';
-    char FIELD_SPLIT_CHAR = ':';
-    char IS_PRIMARY_KEY = '1';
-    char IS_NUMBER = '1';
-
-    char INSERT_OPERATION = 'I';
-    char DELETE_OPERATION = 'D';
-    char UPDATE_OPERATION = 'U';
-
     byte I_OPERATION = 'I';
     byte D_OPERATION = 'D';
     byte U_OPERATION = 'U';
 
-    static byte FILED_SPLITTER = '|';
-    static byte LINE_SPLITTER = '\n';
-
-    String MIDDLE_FILE_NAME = "properties.rapids";
+    byte FILED_SPLITTER = '|';
+    byte LINE_SPLITTER = '\n';
 }
