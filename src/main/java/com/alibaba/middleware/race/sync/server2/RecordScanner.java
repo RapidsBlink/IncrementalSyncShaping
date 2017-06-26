@@ -25,6 +25,7 @@ public class RecordScanner {
 
     private final ArrayList<LogOperation> localOperations = new ArrayList<>();
     private final Future<?> prevFuture;
+    private int primaryKeyDigitNum = 0;
 
     public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
@@ -104,6 +105,20 @@ public class RecordScanner {
         return result;
     }
 
+    private long getNextLongForUpdate() {
+        primaryKeyDigitNum = 0;
+        nextIndex++;
+
+        byte tmpByte;
+        long result = 0L;
+        while ((tmpByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+            nextIndex++;
+            primaryKeyDigitNum++;
+            result = (10 * result) + (tmpByte - '0');
+        }
+        return result;
+    }
+
     private int skipFieldName() {
         // stop at '|'
         if (mappedByteBuffer.get(nextIndex + 1) == 'f') {
@@ -138,15 +153,21 @@ public class RecordScanner {
 
         if (operation == U_OPERATION) {
             // update
-            long prevKey = getNextLong();
-            long curKey = getNextLong();
-            if (prevKey == curKey) {
+            long prevKey = getNextLongForUpdate();
+
+            if (nextIndex + primaryKeyDigitNum + 2 < mappedByteBuffer.limit() &&
+                    mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 1) == '|' &&
+                    (mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 's' ||
+                            mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'f' ||
+                            mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'l')) {
+                nextIndex += primaryKeyDigitNum + 1;
                 logOperation = new UpdateOperation(prevKey);
                 int localIndex = skipFieldName();
                 skipField(localIndex);
                 getNextBytesIntoTmp();
                 ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             } else {
+                long curKey = getNextLong();
                 logOperation = new UpdateKeyOperation(prevKey, curKey);
             }
         } else if (operation == I_OPERATION) {
