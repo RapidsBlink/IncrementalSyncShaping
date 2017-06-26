@@ -27,11 +27,10 @@ public class PipelinedComputation {
     }
 
     // 1st phase
-    static int CHUNK_SIZE = 64 * 1024 * 1024;
+    static int CHUNK_SIZE = 32 * 1024 * 1024;
     private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    ;
 
     static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
