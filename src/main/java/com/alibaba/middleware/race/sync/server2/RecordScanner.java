@@ -29,6 +29,8 @@ public class RecordScanner {
     private ByteBuffer byteBuffer = ByteBuffer.allocate(CHUNK_SIZE / WORK_NUM / 2);
     private Future<?> prevFuture;
 
+    private int primaryKeyDigitNum;
+
     RecordScanner() {
     }
 
@@ -110,6 +112,20 @@ public class RecordScanner {
         return result;
     }
 
+    private long getNextLongForUpdate() {
+        primaryKeyDigitNum = 0;
+        nextIndex++;
+
+        byte tmpByte;
+        long result = 0L;
+        while ((tmpByte = mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+            nextIndex++;
+            primaryKeyDigitNum++;
+            result = (10 * result) + (tmpByte - '0');
+        }
+        return result;
+    }
+
     private byte skipFieldName() {
         // stop at '|'
         if (mappedByteBuffer.get(nextIndex + 1) == 'f') {
@@ -143,10 +159,14 @@ public class RecordScanner {
 
         if (operation == U_OPERATION) {
             // update
-            long prevKey = getNextLong();
-            long curKey = getNextLong();
-            if (prevKey == curKey) {
-                // update property
+            long prevKey = getNextLongForUpdate();
+
+            if (nextIndex + primaryKeyDigitNum + 2 < mappedByteBuffer.limit() &&
+                    mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 1) == '|' &&
+                    (mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 's' ||
+                            mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'f' ||
+                            mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'l')) {
+                nextIndex += primaryKeyDigitNum + 1;
                 byte localIndex = skipFieldName();
                 skipField(localIndex);
                 getNextBytesIntoTmp();
@@ -189,13 +209,9 @@ public class RecordScanner {
                         byteBuffer.putLong(prevKey);
                         byteBuffer.putInt(resultInt);
                         break;
-                    default:
-                        if (Server.logger != null)
-                            Server.logger.info("add data error");
-                        System.err.println("add data error");
                 }
             } else {
-                // update key
+                long curKey = getNextLong();
                 byteBuffer.put(U_PK);
                 byteBuffer.putLong(prevKey);
                 byteBuffer.putLong(curKey);

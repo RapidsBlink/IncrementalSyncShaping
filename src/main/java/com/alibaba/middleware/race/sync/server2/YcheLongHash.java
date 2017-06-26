@@ -132,7 +132,6 @@ public class YcheLongHash {
         final int length = _set.length;
         int probe = 1 + (hash % (length - 2));
         final int loopIndex = index;
-        int firstRemoved = -1;
 
         /**
          * Look until FREE slot or we start to loop
