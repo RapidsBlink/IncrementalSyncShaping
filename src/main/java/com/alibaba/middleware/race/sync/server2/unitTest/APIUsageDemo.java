@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class APIUsageDemo {
     public static void main(String[] args) throws IOException, InterruptedException {
-//        Thread.sleep(5000);
+        Thread.sleep(5000);
         long startTime = System.currentTimeMillis();
         String srcFolder = "/tmp";
         ArrayList<String> filePathList = new ArrayList<>();
