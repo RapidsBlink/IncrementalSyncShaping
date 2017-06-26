@@ -6,16 +6,15 @@ import com.alibaba.middleware.race.sync.server2.operations.InsertOperation;
  * Created by yche on 6/23/17.
  */
 public class YcheLongObjectHashMap extends YcheLongHash {
-    protected transient InsertOperation[] _values;
+    private transient InsertOperation[] _values;
 
-    public YcheLongObjectHashMap(int initialCapacity) {
+    YcheLongObjectHashMap(int initialCapacity) {
         super(initialCapacity);
         setUp(initialCapacity);
     }
 
-    public int setUp(int initialCapacity) {
+    public void setUp(int initialCapacity) {
         _values = new InsertOperation[initialCapacity];
-        return initialCapacity;
     }
 
     public InsertOperation get(long key) {

@@ -26,7 +26,7 @@ public class Server {
     /**
      * 初始化系统属性
      */
-    public static void initProperties() {
+    private static void initProperties() {
         System.setProperty("middleware.test.home", Constants.TESTER_HOME);
         System.setProperty("middleware.teamcode", Constants.TEAMCODE);
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);

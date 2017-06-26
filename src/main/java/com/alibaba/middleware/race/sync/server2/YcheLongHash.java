@@ -12,7 +12,7 @@ public class YcheLongHash {
     /**
      * the set of longs
      */
-    public transient long[] _set;
+    private transient long[] _set;
 
     /**
      * value that represents null
@@ -20,9 +20,9 @@ public class YcheLongHash {
      * NOTE: should not be modified after the Hash is created, but is
      * not final because of Externalization
      */
-    protected long no_entry_value;
+    private long no_entry_value;
 
-    protected boolean consumeFreeSlot;
+    private boolean consumeFreeSlot;
 
     /**
      * Creates a new <code>YcheLongHash</code> instance whose capacity
@@ -31,7 +31,7 @@ public class YcheLongHash {
      *
      * @param initialCapacity an <code>int</code> value
      */
-    public YcheLongHash(int initialCapacity) {
+    YcheLongHash(int initialCapacity) {
         no_entry_value = Constants.DEFAULT_LONG_NO_ENTRY_VALUE;
         _set = new long[initialCapacity];
         //noinspection RedundantCast
@@ -47,9 +47,8 @@ public class YcheLongHash {
      * @param initialCapacity an <code>int</code> value
      * @return the actual capacity chosen
      */
-    protected int setUp(int initialCapacity) {
+    protected void setUp(int initialCapacity) {
         _set = new long[initialCapacity];
-        return initialCapacity;
     }
 
     /**
@@ -58,7 +57,7 @@ public class YcheLongHash {
      * @param val an <code>long</code> value
      * @return the index of <tt>val</tt> or -1 if it isn't in the set.
      */
-    protected int index(long val) {
+    int index(long val) {
         int hash, index, length;
 
         length = _set.length;
@@ -75,7 +74,7 @@ public class YcheLongHash {
         return indexRehashed(val, index, hash, state);
     }
 
-    int indexRehashed(long key, int index, int hash, long state) {
+    private int indexRehashed(long key, int index, int hash, long state) {
         // see Knuth, p. 529
         int length = _set.length;
         int probe = 1 + (hash % (length - 2));
@@ -106,7 +105,7 @@ public class YcheLongHash {
      * @param val an <code>long</code> value
      * @return an <code>int</code> value
      */
-    protected int insertKey(long val) {
+    int insertKey(long val) {
         int hash, index;
 
         hash = HashFunctions.hash(val) & 0x7fffffff;
@@ -128,7 +127,7 @@ public class YcheLongHash {
         return insertKeyRehash(val, index, hash);
     }
 
-    int insertKeyRehash(long val, int index, int hash) {
+    private int insertKeyRehash(long val, int index, int hash) {
         // compute the double hash
         final int length = _set.length;
         int probe = 1 + (hash % (length - 2));
@@ -147,14 +146,9 @@ public class YcheLongHash {
 
             // A FREE slot stops the search
             if (state == no_entry_value) {
-                if (firstRemoved != -1) {
-                    insertKeyAt(firstRemoved, val);
-                    return firstRemoved;
-                } else {
-                    consumeFreeSlot = true;
-                    insertKeyAt(index, val);
-                    return index;
-                }
+                consumeFreeSlot = true;
+                insertKeyAt(index, val);
+                return index;
             }
 
             if (_set[index] == val) {
@@ -166,10 +160,6 @@ public class YcheLongHash {
 
         // We inspected all reachable slots and did not find a FREE one
         // If we found a REMOVED slot we return the first one found
-        if (firstRemoved != -1) {
-            insertKeyAt(firstRemoved, val);
-            return firstRemoved;
-        }
 
         // Can a resizing strategy be found that resizes the set?
         throw new IllegalStateException("No free or removed slots available. Key set full?!!");

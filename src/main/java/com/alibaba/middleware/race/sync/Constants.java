@@ -49,8 +49,8 @@ public interface Constants {
     byte D_OPERATION = 'D';
     byte U_OPERATION = 'U';
 
-    static byte FILED_SPLITTER = '|';
-    static byte LINE_SPLITTER = '\n';
+    byte FILED_SPLITTER = '|';
+    byte LINE_SPLITTER = '\n';
 
     byte U_FIRST_NAME = 0;
     byte U_LAST_NAME = 1;
@@ -60,6 +60,4 @@ public interface Constants {
     byte U_PK = 5;
     byte I_OP = 6;
     byte D_OP = 7;
-
-    String MIDDLE_FILE_NAME = "properties.rapids";
 }
