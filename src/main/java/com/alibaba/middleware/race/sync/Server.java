@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Map;
@@ -80,6 +82,8 @@ public class Server {
         nativeServer.finish();
 
         Server.logger.info("logical cpu num:" + Runtime.getRuntime().availableProcessors());
+        RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
+        Server.logger.info("jvm start time:" + bean.getStartTime());
         int i = 0;
         for (Map.Entry<Long, byte[]> entry : PipelinedComputation.finalResultMap.entrySet()) {
             if (i < 10)
