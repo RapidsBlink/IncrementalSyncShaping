@@ -29,17 +29,17 @@ public class RecordScanner {
     private ByteBuffer byteBuffer = ByteBuffer.allocate(CHUNK_SIZE / WORK_NUM / 2);
     private Future<?> prevFuture;
 
-    public RecordScanner() {
+    RecordScanner() {
     }
 
-    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
         this.prevFuture = prevFuture;
     }
 
-    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer();
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -231,23 +231,21 @@ public class RecordScanner {
         nextIndex += 2;
     }
 
-    public void compute() {
+    void compute() {
         while (nextIndex < endIndex) {
             scanOneRecord();
         }
     }
 
-    public void waitForSend() throws InterruptedException, ExecutionException {
+    void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         byteBuffer.flip();
         ByteBuffer tmpByteBuffer = ByteBuffer.allocate(this.byteBuffer.limit());
         tmpByteBuffer.put(byteBuffer);
         tmpByteBuffer.flip();
 
-//        System.out.print(byteBuffer.capacity() + "," + tmpByteBuffer.limit() + "\n");
         byteBuffer.clear();
         prevFuture.get();
-//        System.out.println(tmpByteBuffer.limit());
         PipelinedComputation.blockingQueue.put(tmpByteBuffer);
     }
 }

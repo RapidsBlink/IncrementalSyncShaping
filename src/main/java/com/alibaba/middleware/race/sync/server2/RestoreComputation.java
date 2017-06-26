@@ -2,9 +2,9 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Constants;
 import com.alibaba.middleware.race.sync.server2.operations.*;
+import gnu.trove.set.hash.THashSet;
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
@@ -14,8 +14,8 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static YcheLongObjectHashMap recordMap = new YcheLongObjectHashMap(20 * 1024 * 1024);
-    public static HashSet<InsertOperation> inRangeRecordSet = new HashSet<>();
+    public static YcheLongObjectHashMap recordMap = new YcheLongObjectHashMap(24 * 1024 * 1024);
+    public static THashSet<InsertOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
     public static InsertOperation tmp = new InsertOperation(-1);
 
     // byteBuffer should be flipped first
@@ -112,8 +112,8 @@ public class RestoreComputation {
         @Override
         public void run() {
             for (int i = start; i < end; i++) {
-                InsertOperation insertOperation = (InsertOperation) logOperations[i];
-                finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytes());
+                InsertOperation insertOperation = logOperations[i];
+                finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytesEfficient());
             }
         }
     }
