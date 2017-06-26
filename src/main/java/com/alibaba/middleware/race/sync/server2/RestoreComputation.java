@@ -1,8 +1,11 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.server2.operations.*;
+import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
@@ -14,23 +17,23 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
 public class RestoreComputation {
     public static YcheHashMap recordMap;
     public static THashSet<LogOperation> inRangeRecordSet;
+    public static TLongIntHashMap keyIntMap = new TLongIntHashMap();
 
     static void compute(LogOperation[] logOperations) {
         for (int i = 0; i < logOperations.length; i++) {
             LogOperation logOperation = logOperations[i];
+
             if (logOperation instanceof UpdateOperation) {
                 InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
                 insertOperation.mergeAnother((UpdateOperation) logOperation); //3
             } else if (logOperation instanceof UpdateKeyOperation) {
-                InsertOperation insertOperation = (InsertOperation) recordMap.get(logOperation); //2
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
-                insertOperation.changePK(((UpdateKeyOperation) logOperation).changedKey); //4
-                recordMap.put(insertOperation); //5
+                recordMap.put(new InsertOperation(((UpdateKeyOperation) logOperation).changedKey)); //5
 
-                if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
-                    inRangeRecordSet.add(insertOperation);
+                if (PipelinedComputation.isKeyInRange((((UpdateKeyOperation) logOperation).changedKey))) {
+                    inRangeRecordSet.add(new InsertOperation(((UpdateKeyOperation) logOperation).changedKey));
                 }
             } else if (logOperation instanceof InsertOperation) {
                 recordMap.put(logOperation); //1
