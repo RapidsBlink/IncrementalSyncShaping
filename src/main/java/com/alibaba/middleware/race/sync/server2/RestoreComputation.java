@@ -33,26 +33,13 @@ public class RestoreComputation {
                     break;
                 case Constants.I_OP:
                     InsertOperation newInsertion = new InsertOperation(prePk);
-                    for (int i = 0; i < RecordField.FILED_NUM; i++) {
-                        switch (i) {
-                            case 0:
-                                newInsertion.firstNameIndex = (byteBuffer.get());
-                                break;
-                            case 1:
-                                newInsertion.lastNameFirstIndex = byteBuffer.get();
-                                newInsertion.lastNameSecondIndex = byteBuffer.get();
-                                break;
-                            case 2:
-                                newInsertion.sexIndex = byteBuffer.get();
-                                break;
-                            case 3:
-                                newInsertion.score = byteBuffer.getShort();
-                                break;
-                            case 4:
-                                newInsertion.score2 = byteBuffer.getInt();
-                                break;
-                        }
-                    }
+                    newInsertion.firstNameIndex = (byteBuffer.get());
+                    newInsertion.lastNameFirstIndex = byteBuffer.get();
+                    newInsertion.lastNameSecondIndex = byteBuffer.get();
+                    newInsertion.sexIndex = byteBuffer.get();
+                    newInsertion.score = byteBuffer.getShort();
+                    if (RecordField.FILED_NUM > 4)
+                        newInsertion.score2 = byteBuffer.getInt();
                     recordMap.put(newInsertion); //1
                     if (PipelinedComputation.isKeyInRange(prePk)) {
                         inRangeRecordSet.add(newInsertion);
@@ -113,6 +100,7 @@ public class RestoreComputation {
                 finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytesEfficient());
             }
         }
+
     }
 
     // used by master thread
