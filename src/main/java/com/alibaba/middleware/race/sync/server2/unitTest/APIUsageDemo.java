@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.RestoreComputation;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
  */
 public class APIUsageDemo {
     public static void main(String[] args) throws IOException, InterruptedException {
-//        Thread.sleep(5000);
+        Thread.sleep(5000);
         long startTime = System.currentTimeMillis();
         String srcFolder = "/tmp";
         ArrayList<String> filePathList = new ArrayList<>();
@@ -39,5 +40,9 @@ public class APIUsageDemo {
         System.out.println("from jvm start:" + (endTime - bean.getStartTime() + " ms"));
         System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
+
+        for(TLongObjectHashMap _map:RestoreComputation.recordMapArr){
+            System.out.println(_map.size());
+        }
     }
 }

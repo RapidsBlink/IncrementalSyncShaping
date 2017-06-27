@@ -1,18 +1,11 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.server2.operations.*;
-import gnu.trove.map.hash.TLongIntHashMap;
 import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.TLongSet;
-import gnu.trove.set.hash.THashSet;
 import gnu.trove.set.hash.TLongHashSet;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.computationCoroutinePool;
@@ -22,16 +15,18 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static int WORKER_NUM = 4;
+    public static int WORKER_NUM = 8;
     public static TLongObjectHashMap[] recordMapArr = new TLongObjectHashMap[WORKER_NUM];
-    //static Queue<Future<?>> futures = new LinkedList<>();
+    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(64);
 
     static {
         for (int i = 0; i < WORKER_NUM; i++) {
-            recordMapArr[i] = new TLongObjectHashMap(16 * 1024 * 1024);
+            recordMapArr[i] = new TLongObjectHashMap(3 * 1024 * 1024);
         }
     }
+
     public static TLongSet inRangeRecordSet = new TLongHashSet(4 * 1024 * 1024);
+
     private static void computeDatabase(LogOperation[] logOperations, int index) {
         for (LogOperation logOperation : logOperations) {
             if (logOperation instanceof UpdateKeyOperation) {
@@ -54,10 +49,21 @@ public class RestoreComputation {
     static void compute(final LogOperation[] logOperations) {
         for (int i = 0; i < WORKER_NUM; i++) {
             final int finalI = i;
+            try {
+                blockingQueue.put((byte) 0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             computationCoroutinePool[i].submit(new Runnable() {
                 @Override
                 public void run() {
                     computeDatabase(logOperations, finalI);
+                    try {
+                        blockingQueue.take();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
         }
@@ -76,7 +82,7 @@ public class RestoreComputation {
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.add(logOperation.relevantKey);
                 }
-            } else if(logOperation instanceof DeleteOperation){
+            } else if (logOperation instanceof DeleteOperation) {
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation.relevantKey);
                 }
