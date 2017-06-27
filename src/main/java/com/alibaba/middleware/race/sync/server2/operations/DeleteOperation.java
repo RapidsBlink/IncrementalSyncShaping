@@ -15,9 +15,7 @@ public class DeleteOperation extends LogOperation {
 
     @Override
     public void act() {
-        if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
-            inRangeRecordSet.remove(this);
-        }
+        inRangeRecordSet.remove(this);
     }
 
 

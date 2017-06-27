@@ -94,8 +94,6 @@ public class InsertOperation extends NonDeleteOperation {
     @Override
     public void act(){
         recordMap.put(this); //1
-        if (PipelinedComputation.isKeyInRange(relevantKey)) {
-            inRangeRecordSet.add(this);
-        }
+        inRangeRecordSet.add(this);
     }
 }
