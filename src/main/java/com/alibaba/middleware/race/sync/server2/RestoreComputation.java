@@ -5,6 +5,7 @@ import gnu.trove.map.hash.TLongObjectHashMap;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 
+import java.util.ArrayList;
 import java.util.concurrent.*;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
@@ -14,7 +15,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static int WORKER_NUM = 16;
+    static int WORKER_NUM = 8;
     public static TLongObjectHashMap[] recordMapArr = new TLongObjectHashMap[WORKER_NUM];
 
     static {
@@ -25,7 +26,7 @@ public class RestoreComputation {
 
     public static TLongSet inRangeRecordSet = new TLongHashSet(4 * 1024 * 1024);
 
-    public static void computeDatabase(LogOperation[] logOperations, int index) {
+    static void computeDatabase(final ArrayList<LogOperation> logOperations, int index) {
         for (LogOperation logOperation : logOperations) {
             if (logOperation instanceof UpdateKeyOperation) {
                 long pk = ((UpdateKeyOperation) logOperation).changedKey;
@@ -39,9 +40,8 @@ public class RestoreComputation {
         }
     }
 
-    static void compute(final LogOperation[] logOperations) {
-        for (int i = 0; i < logOperations.length; i++) {
-            LogOperation logOperation = logOperations[i];
+    static void compute(final ArrayList<LogOperation> logOperations) {
+        for (LogOperation logOperation : logOperations) {
             if (logOperation instanceof UpdateKeyOperation) {
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation.relevantKey);

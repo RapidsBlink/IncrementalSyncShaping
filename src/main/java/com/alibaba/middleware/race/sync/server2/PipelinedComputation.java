@@ -1,7 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
-import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,22 +25,19 @@ public class PipelinedComputation {
     }
 
     // 1st phase
-    static int CHUNK_SIZE = 32 * 1024 * 1024;
-    private static int TRANSFORM_WORKER_NUM = 16;
-    static int WORK_NUM = TRANSFORM_WORKER_NUM;
-    static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    static ExecutorService computationCoroutinePool[] = new ExecutorService[RestoreComputation.WORKER_NUM];
-    static ArrayBlockingQueue<LogOperation[]>[] blockingQueueArr = new ArrayBlockingQueue[RestoreComputation.WORKER_NUM];
-    static BlockingQueue<LogOperation[]> blockingQueue;
-
-    static int BLOCK_QUEUE_SIZE = 64;
+    static int CHUNK_SIZE = 16 * 1024 * 1024;
+    private static int TRANSFORM_WORKER_NUM = 8;
+    static ExecutorService fileTransformPool[] = new ExecutorService[TRANSFORM_WORKER_NUM];
+    static ExecutorService computationPool = Executors.newFixedThreadPool(1);
+    static ExecutorService dbUpdatePool[] = new ExecutorService[RestoreComputation.WORKER_NUM];
 
     static {
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            computationCoroutinePool[i] = Executors.newSingleThreadExecutor();
-            blockingQueueArr[i] = new ArrayBlockingQueue<>(BLOCK_QUEUE_SIZE);
+        for (int i = 0; i < TRANSFORM_WORKER_NUM; i++) {
+            fileTransformPool[i] = Executors.newSingleThreadExecutor();
         }
-        blockingQueue = new ArrayBlockingQueue<>(BLOCK_QUEUE_SIZE);
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            dbUpdatePool[i] = Executors.newSingleThreadExecutor();
+        }
     }
 
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
@@ -65,45 +61,6 @@ public class PipelinedComputation {
     }
 
     private static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
-        // computation
-        final ExecutorService computationPool = Executors.newFixedThreadPool(1);
-        computationPool.execute(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        LogOperation[] logOperations = blockingQueue.take();
-                        if (logOperations.length == 0)
-                            break;
-                        RestoreComputation.compute(logOperations);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            final int finalI = i;
-            final int finalI1 = i;
-            computationCoroutinePool[i].execute(new Runnable() {
-                @Override
-                public void run() {
-                    while (true) {
-                        LogOperation[] logOperations = new LogOperation[0];
-                        try {
-                            logOperations = blockingQueueArr[finalI].take();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        if (logOperations.length == 0)
-                            break;
-                        RestoreComputation.computeDatabase(logOperations, finalI1);
-                    }
-                }
-            });
-        }
-
         // mediator
         ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
         mediatorPool.execute(new Runnable() {
@@ -141,27 +98,13 @@ public class PipelinedComputation {
         joinSinglePool(mediatorPool);
 
         // join tokenizer
-        joinSinglePool(fileTransformPool);
+        for (int i = 0; i < fileTransformPool.length; i++)
+            joinSinglePool(fileTransformPool[i]);
 
         // join computation
-        try {
-            blockingQueue.put(new LogOperation[0]);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            try {
-                blockingQueueArr[i].put(new LogOperation[0]);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            joinSinglePool(computationCoroutinePool[i]);
-        }
         joinSinglePool(computationPool);
-
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            joinSinglePool(computationCoroutinePool[i]);
+        for (int i = 0; i < dbUpdatePool.length; i++) {
+            joinSinglePool(dbUpdatePool[i]);
         }
     }
 

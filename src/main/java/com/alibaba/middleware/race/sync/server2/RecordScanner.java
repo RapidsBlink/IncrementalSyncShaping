@@ -4,8 +4,6 @@ import com.alibaba.middleware.race.sync.server2.operations.*;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
@@ -23,22 +21,21 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
     private int nextIndex; // start from startIndex
 
-    private final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 8);
-    private final ArrayList<LogOperation>[] workerOpeartions = new ArrayList[RestoreComputation.WORKER_NUM];
-    private Future<?> prevFuture;
+    public final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 8);
+    public final ArrayList<LogOperation>[] workerOperations = new ArrayList[RestoreComputation.WORKER_NUM];
     private int primaryKeyDigitNum = 0;
 
     RecordScanner() {
-        for (int i = 0; i < workerOpeartions.length; i++) {
-            workerOpeartions[i] = new ArrayList<>(8 * 1024 / RestoreComputation.WORKER_NUM);
+        for (int i = 0; i < workerOperations.length; i++) {
+            workerOperations[i] = new ArrayList<>(8 * 1024 / RestoreComputation.WORKER_NUM);
         }
     }
 
-    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
-        this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
-        this.nextIndex = startIndex;
-        this.endIndex = endIndex;
-        this.prevFuture = prevFuture;
+    void clear() {
+        localOperations.clear();
+        for (ArrayList<LogOperation> workerOperation : workerOperations) {
+            workerOperation.clear();
+        }
     }
 
     void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
@@ -211,30 +208,9 @@ public class RecordScanner {
             LogOperation logOperation = scanOneRecord();
             localOperations.add(logOperation);
             if (logOperation instanceof UpdateKeyOperation) {
-                workerOpeartions[(int) (((UpdateKeyOperation) logOperation).changedKey % RestoreComputation.WORKER_NUM)].add(logOperation);
+                workerOperations[(int) (((UpdateKeyOperation) logOperation).changedKey % RestoreComputation.WORKER_NUM)].add(logOperation);
             } else {
-                workerOpeartions[(int) (logOperation.relevantKey % RestoreComputation.WORKER_NUM)].add(logOperation);
-            }
-        }
-    }
-
-    void waitForSend() throws InterruptedException, ExecutionException {
-        // wait for producing tasks
-        LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
-        LogOperation[][] logOperationsArr = new LogOperation[RestoreComputation.WORKER_NUM][];
-        localOperations.clear();
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            if (workerOpeartions[i].size() > 0) {
-                logOperationsArr[i] = workerOpeartions[i].toArray(new LogOperation[0]);
-                workerOpeartions[i].clear();
-            }
-        }
-
-        prevFuture.get();
-        PipelinedComputation.blockingQueue.put(logOperations);
-        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
-            if (logOperationsArr[i] != null) {
-                PipelinedComputation.blockingQueueArr[i].put(logOperationsArr[i]);
+                workerOperations[(int) (logOperation.relevantKey % RestoreComputation.WORKER_NUM)].add(logOperation);
             }
         }
     }

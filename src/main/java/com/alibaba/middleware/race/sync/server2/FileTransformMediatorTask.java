@@ -2,24 +2,25 @@ package com.alibaba.middleware.race.sync.server2;
 
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
 import static com.alibaba.middleware.race.sync.server2.FileUtil.unmap;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.WORK_NUM;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fileTransformPool;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.*;
 
 /**
  * Created by yche on 6/16/17.
  * used by the master thread
  */
 class FileTransformMediatorTask {
-    private Queue<Future<?>> prevFutureQueue = new LinkedList<>();
+    private Queue<Future<RecordScanner>> prevFutureQueue = new LinkedList<>();
+    private Queue<Future<?>> computationFutures = new LinkedList<>();
+    private ArrayList<RecordScanner> recordScanners = new ArrayList<>();
+
     private MappedByteBuffer mappedByteBuffer;
     private int currChunkLength;
     boolean isFinished = false;
@@ -32,33 +33,6 @@ class FileTransformMediatorTask {
         this.mappedByteBuffer = mappedByteBuffer;
         this.currChunkLength = currChunkLength;
     }
-
-    private static Future<?> prevFuture = new Future<Object>() {
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            return false;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return false;
-        }
-
-        @Override
-        public boolean isDone() {
-            return true;
-        }
-
-        @Override
-        public Object get() throws InterruptedException, ExecutionException {
-            return null;
-        }
-
-        @Override
-        public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            return null;
-        }
-    };
 
     private static ByteBuffer prevRemainingBytes = ByteBuffer.allocate(32 * 1024);
 
@@ -91,7 +65,7 @@ class FileTransformMediatorTask {
 
     // 2nd work: mergeAnother remaining, compute [start, end)
     private void assignTransformTasks() {
-        int avgTask = currChunkLength / WORK_NUM;
+        int avgTask = currChunkLength / fileTransformPool.length;
 
         // index pair
         int start;
@@ -104,24 +78,21 @@ class FileTransformMediatorTask {
         if (prevRemainingBytes.limit() > 0) {
             ByteBuffer tmp = ByteBuffer.allocate(prevRemainingBytes.limit());
             tmp.put(prevRemainingBytes);
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp, prevFuture);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp);
         } else {
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
         }
 
-        prevFuture = fileTransformPool.submit(fileTransformTask);
-        prevFutureQueue.add(prevFuture);
+        prevFutureQueue.add(fileTransformPool[0].submit(fileTransformTask));
 
         // 2nd: subsequent workers
-        for (int i = 1; i < WORK_NUM; i++) {
+        for (int i = 1; i < fileTransformPool.length; i++) {
             start = end;
-            int smallChunkLastIndex = i < WORK_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
+            int smallChunkLastIndex = i < fileTransformPool.length - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
             end = computeEnd(smallChunkLastIndex);
-            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
-            prevFuture = fileTransformPool.submit(fileTransformTask);
-            prevFutureQueue.add(prevFuture);
+            fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end);
+            prevFutureQueue.add(fileTransformPool[i].submit(fileTransformTask));
         }
-
 
         // current tail, reuse and then put
         prevRemainingBytes.clear();
@@ -130,26 +101,46 @@ class FileTransformMediatorTask {
         }
     }
 
-
-    private void oneChunkComputation() {
+    void transform() {
         assignTransformTasks();
         while (!prevFutureQueue.isEmpty()) {
             try {
-                prevFutureQueue.poll().get();
+                recordScanners.add(prevFutureQueue.poll().get());
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // hash set
+        computationFutures.add(computationPool.submit(new Runnable() {
+            @Override
+            public void run() {
+                for (RecordScanner recordScanner : recordScanners) {
+                    RestoreComputation.compute(recordScanner.localOperations);
+                }
+            }
+        }));
+        // hash map
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            final int finalI = i;
+            computationFutures.add(dbUpdatePool[i].submit(new Runnable() {
+                @Override
+                public void run() {
+                    for (RecordScanner recordScanner : recordScanners) {
+                        RestoreComputation.computeDatabase(recordScanner.workerOperations[finalI], finalI);
+                    }
+                }
+            }));
+        }
+
+        unmap(mappedByteBuffer);
+        while (!computationFutures.isEmpty()) {
+            try {
+                computationFutures.poll().get();
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void finish() {
-        unmap(mappedByteBuffer);
-    }
-
-    void transform() {
-        oneChunkComputation();
-
-        // close stream, and unmap
-        finish();
-    }
 }
