@@ -8,20 +8,18 @@ import gnu.trove.set.hash.TLongHashSet;
 import java.util.concurrent.*;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.EVAL_WORKER_NUM;
-import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.computationCoroutinePool;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.finalResultMap;
 
 /**
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static int WORKER_NUM = 8;
+    public static int WORKER_NUM = 16;
     public static TLongObjectHashMap[] recordMapArr = new TLongObjectHashMap[WORKER_NUM];
-    static BlockingQueue<Byte> blockingQueue = new ArrayBlockingQueue<>(64);
 
     static {
         for (int i = 0; i < WORKER_NUM; i++) {
-            recordMapArr[i] = new TLongObjectHashMap(3 * 1024 * 1024);
+            recordMapArr[i] = new TLongObjectHashMap(24 * 1024 * 1024 / WORKER_NUM);
         }
     }
 

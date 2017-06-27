@@ -2,7 +2,6 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
-import gnu.trove.set.hash.THashSet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,20 +27,23 @@ public class PipelinedComputation {
 
     // 1st phase
     static int CHUNK_SIZE = 32 * 1024 * 1024;
-    private static int TRANSFORM_WORKER_NUM = 8;
+    private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService computationCoroutinePool[] = new ExecutorService[RestoreComputation.WORKER_NUM];
     static ArrayBlockingQueue<LogOperation[]>[] blockingQueueArr = new ArrayBlockingQueue[RestoreComputation.WORKER_NUM];
+    static BlockingQueue<LogOperation[]> blockingQueue;
+
+    static int BLOCK_QUEUE_SIZE = 64;
 
     static {
         for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
             computationCoroutinePool[i] = Executors.newSingleThreadExecutor();
-            blockingQueueArr[i] = new ArrayBlockingQueue<>(64);
+            blockingQueueArr[i] = new ArrayBlockingQueue<>(BLOCK_QUEUE_SIZE);
         }
+        blockingQueue = new ArrayBlockingQueue<>(BLOCK_QUEUE_SIZE);
     }
 
-    static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
     static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(1);
 
     // 2nd phase
