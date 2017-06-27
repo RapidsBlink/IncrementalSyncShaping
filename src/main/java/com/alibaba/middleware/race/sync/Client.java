@@ -35,6 +35,7 @@ public class Client {
             FileChannel fileChannel = new RandomAccessFile(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, "rw").getChannel();
             nativeClient.start(fileChannel);
             fileChannel.close();
+            System.exit(0);
         } catch (IOException e) {
             e.printStackTrace();
         }

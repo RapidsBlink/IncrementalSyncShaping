@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
+import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.isKeyInRange;
 import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
 
 /**
@@ -147,7 +148,8 @@ public class RecordScanner {
 
         // 2nd: parse KeyOperation
         byte operation = mappedByteBuffer.get(nextIndex + 1);
-        LogOperation logOperation;
+        LogOperation logOperation = null;
+        boolean flag = false;
         // skip one splitter and operation byte
         skipKey();
 
@@ -161,11 +163,15 @@ public class RecordScanner {
                             mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'f' ||
                             mappedByteBuffer.get(nextIndex + primaryKeyDigitNum + 2) == 'l')) {
                 nextIndex += primaryKeyDigitNum + 1;
-                logOperation = new UpdateOperation(prevKey);
+                if (isKeyInRange(prevKey)) {
+                    flag = true;
+                    logOperation = new UpdateOperation(prevKey);
+                }
                 int localIndex = skipFieldName();
                 skipField(localIndex);
                 getNextBytesIntoTmp();
-                ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
+                if (flag)
+                    ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             } else {
                 long curKey = getNextLong();
                 logOperation = new UpdateKeyOperation(prevKey, curKey);
@@ -173,19 +179,27 @@ public class RecordScanner {
         } else if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipNull();
-            logOperation = new InsertOperation(getNextLong());
+            long pk = getNextLong();
+            if(isKeyInRange(pk)){
+                logOperation = new InsertOperation(pk);
+                flag = true;
+            }
 
             int localIndex = 0;
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 skipFieldForInsert(localIndex);
                 skipNull();
                 getNextBytesIntoTmp();
-                ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
+                if(flag)
+                    ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
                 localIndex++;
             }
         } else {
             // delete: pre -> cur(null)
-            logOperation = new DeleteOperation(getNextLong());
+            long pk = getNextLong();
+            if(isKeyInRange(pk)) {
+                logOperation = new DeleteOperation(pk);
+            }
             skipNull();
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {
                 int localIndex = skipFieldName();
@@ -201,14 +215,19 @@ public class RecordScanner {
 
     void compute() {
         while (nextIndex < endIndex) {
-            localOperations.add(scanOneRecord());
+            LogOperation logOperation = scanOneRecord();
+            if (logOperation != null) {
+                localOperations.add(logOperation);
+            }
         }
     }
 
     void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
+        localOperations.clear();
         prevFuture.get();
-        PipelinedComputation.blockingQueue.put(logOperations);
+        if (logOperations.length != 0)
+            PipelinedComputation.blockingQueue.put(logOperations);
     }
 }

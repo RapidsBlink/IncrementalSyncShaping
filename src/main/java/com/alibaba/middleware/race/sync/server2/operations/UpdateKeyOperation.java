@@ -18,12 +18,11 @@ public class UpdateKeyOperation extends LogOperation {
 
     @Override
     public void act() {
-        InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
         if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
             inRangeRecordSet.remove(this);
         }
 
-        insertOperation.changePK(this.changedKey); //4
+        InsertOperation insertOperation=new InsertOperation(this.changedKey);
         recordMap.put(insertOperation); //5
 
         if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
