@@ -32,10 +32,12 @@ public class PipelinedComputation {
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService computationCoroutinePool[] = new ExecutorService[RestoreComputation.WORKER_NUM];
+    static ArrayBlockingQueue<LogOperation[]>[] blockingQueueArr = new ArrayBlockingQueue[RestoreComputation.WORKER_NUM];
 
     static {
         for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
             computationCoroutinePool[i] = Executors.newSingleThreadExecutor();
+            blockingQueueArr[i] = new ArrayBlockingQueue<>(64);
         }
     }
 
@@ -78,6 +80,27 @@ public class PipelinedComputation {
                 }
             }
         });
+
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            final int finalI = i;
+            final int finalI1 = i;
+            computationCoroutinePool[i].execute(new Runnable() {
+                @Override
+                public void run() {
+                    while (true) {
+                        LogOperation[] logOperations = new LogOperation[0];
+                        try {
+                            logOperations = blockingQueueArr[finalI].take();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (logOperations.length == 0)
+                            break;
+                        RestoreComputation.computeDatabase(logOperations, finalI1);
+                    }
+                }
+            });
+        }
 
         // mediator
         ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
@@ -123,6 +146,15 @@ public class PipelinedComputation {
             blockingQueue.put(new LogOperation[0]);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            try {
+                blockingQueueArr[i].put(new LogOperation[0]);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            joinSinglePool(computationCoroutinePool[i]);
         }
         joinSinglePool(computationPool);
 

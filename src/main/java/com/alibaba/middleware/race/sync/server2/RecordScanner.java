@@ -24,10 +24,14 @@ public class RecordScanner {
     private int nextIndex; // start from startIndex
 
     private final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 8);
+    private final ArrayList<LogOperation>[] workerOpeartions = new ArrayList[RestoreComputation.WORKER_NUM];
     private Future<?> prevFuture;
     private int primaryKeyDigitNum = 0;
 
     RecordScanner() {
+        for (int i = 0; i < workerOpeartions.length; i++) {
+            workerOpeartions[i] = new ArrayList<>(8 * 1024 / RestoreComputation.WORKER_NUM);
+        }
     }
 
     void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
@@ -204,15 +208,34 @@ public class RecordScanner {
 
     void compute() {
         while (nextIndex < endIndex) {
-            localOperations.add(scanOneRecord());
+            LogOperation logOperation = scanOneRecord();
+            localOperations.add(logOperation);
+            if (logOperation instanceof UpdateKeyOperation) {
+                workerOpeartions[(int) (((UpdateKeyOperation) logOperation).changedKey % RestoreComputation.WORKER_NUM)].add(logOperation);
+            } else {
+                workerOpeartions[(int) (logOperation.relevantKey % RestoreComputation.WORKER_NUM)].add(logOperation);
+            }
         }
     }
 
     void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
+        LogOperation[][] logOperationsArr = new LogOperation[RestoreComputation.WORKER_NUM][];
         localOperations.clear();
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            if (workerOpeartions[i].size() > 0) {
+                logOperationsArr[i] = workerOpeartions[i].toArray(new LogOperation[0]);
+                workerOpeartions[i].clear();
+            }
+        }
+
         prevFuture.get();
         PipelinedComputation.blockingQueue.put(logOperations);
+        for (int i = 0; i < RestoreComputation.WORKER_NUM; i++) {
+            if (logOperationsArr[i] != null) {
+                PipelinedComputation.blockingQueueArr[i].put(logOperationsArr[i]);
+            }
+        }
     }
 }

@@ -27,47 +27,21 @@ public class RestoreComputation {
 
     public static TLongSet inRangeRecordSet = new TLongHashSet(4 * 1024 * 1024);
 
-    private static void computeDatabase(LogOperation[] logOperations, int index) {
+    public static void computeDatabase(LogOperation[] logOperations, int index) {
         for (LogOperation logOperation : logOperations) {
             if (logOperation instanceof UpdateKeyOperation) {
                 long pk = ((UpdateKeyOperation) logOperation).changedKey;
-                if (pk % WORKER_NUM == index)
-                    recordMapArr[index].put(pk, new InsertOperation(((UpdateKeyOperation) logOperation).changedKey)); //5
-                continue;
-            }
-            if (logOperation.relevantKey % WORKER_NUM == index) {
-                if (logOperation instanceof UpdateOperation) {
-                    InsertOperation insertOperation = (InsertOperation) recordMapArr[index].get(logOperation.relevantKey); //2
-                    insertOperation.mergeAnother((UpdateOperation) logOperation); //3
-                } else if (logOperation instanceof InsertOperation) {
-                    recordMapArr[index].put(logOperation.relevantKey, logOperation); //1
-                }
+                recordMapArr[index].put(pk, new InsertOperation(((UpdateKeyOperation) logOperation).changedKey)); //5
+            } else if (logOperation instanceof UpdateOperation) {
+                InsertOperation insertOperation = (InsertOperation) recordMapArr[index].get(logOperation.relevantKey); //2
+                insertOperation.mergeAnother((UpdateOperation) logOperation); //3
+            } else if (logOperation instanceof InsertOperation) {
+                recordMapArr[index].put(logOperation.relevantKey, logOperation); //1
             }
         }
     }
 
     static void compute(final LogOperation[] logOperations) {
-        for (int i = 0; i < WORKER_NUM; i++) {
-            final int finalI = i;
-            try {
-                blockingQueue.put((byte) 0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            computationCoroutinePool[i].submit(new Runnable() {
-                @Override
-                public void run() {
-                    computeDatabase(logOperations, finalI);
-                    try {
-                        blockingQueue.take();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        }
-
         for (int i = 0; i < logOperations.length; i++) {
             LogOperation logOperation = logOperations[i];
             if (logOperation instanceof UpdateKeyOperation) {
