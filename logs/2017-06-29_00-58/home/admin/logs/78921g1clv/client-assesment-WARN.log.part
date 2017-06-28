@@ -1,0 +1,6 @@
+[WARN ] [00:56:09] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ [WARN ] [00:56:13] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [WARN ] [00:56:14] com.alibaba.middleware.race.TesterHttpServer - 停止用户user client程序成功 SUCCESS
+ [WARN ] [00:56:15] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [WARN ] [00:56:15] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ 
