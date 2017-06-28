@@ -11,7 +11,7 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static LogOperation[] ycheArr = new LogOperation[7 * 1024 * 1024];
+    public static LogOperation[] ycheArr = new LogOperation[8 * 1024 * 1024];
 
     static void compute(LogOperation[] logOperations) {
         for (LogOperation logOperation : logOperations) {

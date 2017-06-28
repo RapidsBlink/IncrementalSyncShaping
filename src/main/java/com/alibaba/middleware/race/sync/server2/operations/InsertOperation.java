@@ -88,7 +88,7 @@ public class InsertOperation extends NonDeleteOperation {
     }
 
     @Override
-    public void act(){
-        ycheArr[(int) (this.relevantKey - PipelinedComputation.pkLowerBound)] = this;
+    public void act() {
+        ycheArr[(int) (this.relevantKey)] = this;
     }
 }

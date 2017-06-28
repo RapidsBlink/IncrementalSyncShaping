@@ -14,7 +14,7 @@ public class UpdateOperation extends NonDeleteOperation {
 
     @Override
     public void act() {
-        InsertOperation insertOperation = (InsertOperation) RestoreComputation.ycheArr[(int) (this.relevantKey - PipelinedComputation.pkLowerBound)]; //2
+        InsertOperation insertOperation = (InsertOperation) RestoreComputation.ycheArr[(int) (this.relevantKey)]; //2
         insertOperation.mergeAnother(this); //3
     }
 }

@@ -15,6 +15,6 @@ public class DeleteOperation extends LogOperation {
 
     @Override
     public void act() {
-        ycheArr[(int) (this.relevantKey - PipelinedComputation.pkLowerBound)] = null;
+        ycheArr[(int) (this.relevantKey)] = null;
     }
 }
