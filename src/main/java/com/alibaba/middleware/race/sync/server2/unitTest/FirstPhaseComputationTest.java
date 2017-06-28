@@ -25,7 +25,7 @@ public class FirstPhaseComputationTest {
 
 
         System.out.println("first phase computation cost:" + (endTime - startTime) + " ms");
-        System.out.println(RestoreComputation.inRangeRecordSet.size());
+//        System.out.println(RestoreComputation.inRangeRecordSet.size());
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {

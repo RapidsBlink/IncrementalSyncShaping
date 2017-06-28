@@ -1,7 +1,8 @@
 package com.alibaba.middleware.race.sync.server2.operations;
 
 
-import static com.alibaba.middleware.race.sync.server2.RestoreComputation.recordMap;
+import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
+import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
 /**
  * Created by yche on 6/19/17.
@@ -12,8 +13,8 @@ public class UpdateOperation extends NonDeleteOperation {
     }
 
     @Override
-    public void act(){
-        InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
+    public void act() {
+        InsertOperation insertOperation = (InsertOperation) RestoreComputation.ycheArr[(int) (this.relevantKey - PipelinedComputation.pkLowerBound)]; //2
         insertOperation.mergeAnother(this); //3
-    };
+    }
 }

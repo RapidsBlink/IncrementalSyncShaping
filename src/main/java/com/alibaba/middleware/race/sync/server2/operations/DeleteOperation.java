@@ -3,7 +3,7 @@ package com.alibaba.middleware.race.sync.server2.operations;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 
-import static com.alibaba.middleware.race.sync.server2.RestoreComputation.inRangeRecordSet;
+import static com.alibaba.middleware.race.sync.server2.RestoreComputation.ycheArr;
 
 /**
  * Created by yche on 6/19/17.
@@ -15,8 +15,6 @@ public class DeleteOperation extends LogOperation {
 
     @Override
     public void act() {
-        inRangeRecordSet.remove(this);
+        ycheArr[(int) (this.relevantKey - PipelinedComputation.pkLowerBound)] = null;
     }
-
-
 }

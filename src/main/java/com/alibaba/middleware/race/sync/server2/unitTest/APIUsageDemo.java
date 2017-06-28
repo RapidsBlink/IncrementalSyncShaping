@@ -34,7 +34,7 @@ public class APIUsageDemo {
         long endTime = System.currentTimeMillis();
         System.out.println("total time:" + (endTime - startTime) + " ms");
 
-        System.out.println(RestoreComputation.inRangeRecordSet.size());
+//        System.out.println(RestoreComputation.inRangeRecordSet.size());
         System.out.println("logical cpu num:" + Runtime.getRuntime().availableProcessors());
 //        System.out.println("digits:" + RecordScanner.stringBuilder.toString());
 //        System.out.println("len:" + RecordScanner.stringBuilder.length());

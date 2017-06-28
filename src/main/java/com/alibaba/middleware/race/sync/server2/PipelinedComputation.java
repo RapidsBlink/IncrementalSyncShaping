@@ -116,7 +116,7 @@ public class PipelinedComputation {
         }
     }
 
-    private static long pkLowerBound;
+    public static long pkLowerBound;
     private static long pkUpperBound;
 
     public static void initRange(long lowerBound, long upperBound) {
