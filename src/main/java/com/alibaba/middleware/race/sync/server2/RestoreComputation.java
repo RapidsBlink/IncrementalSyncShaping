@@ -43,9 +43,11 @@ public class RestoreComputation {
     // used by master thread
     static void parallelEvalAndSend(ExecutorService evalThreadPool) {
         LogOperation[] insertOperations = ycheArr;
-        int avgTask = insertOperations.length / EVAL_WORKER_NUM;
-        for (int i = 0; i < insertOperations.length; i += avgTask) {
-            evalThreadPool.execute(new EvalTask(i, Math.min(i + avgTask, insertOperations.length), insertOperations));
+        int lowerBound = (int) PipelinedComputation.pkLowerBound;
+        int upperBound = (int) PipelinedComputation.pkUpperBound;
+        int avgTask = (upperBound - lowerBound) / EVAL_WORKER_NUM;
+        for (int i = lowerBound; i < upperBound; i += avgTask) {
+            evalThreadPool.execute(new EvalTask(i, Math.min(i + avgTask, upperBound), insertOperations));
         }
     }
 }
