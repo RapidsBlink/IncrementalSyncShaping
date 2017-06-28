@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.NioSocket.NioClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,15 +13,15 @@ import java.nio.channels.FileChannel;
  * Created by will on 6/6/2017.
  */
 public class Client {
-    public static Logger logger;
+//    public static Logger logger;
 
     private static NioClient nativeClient = null;
 
     public static void main(String[] args) {
         initProperties();
-        logger = LoggerFactory.getLogger(Client.class);
+//        logger = LoggerFactory.getLogger(Client.class);
         new Client(args[0]).start();
-        logger.info("Current client time:" + System.currentTimeMillis());
+//        logger.info("Current client time:" + System.currentTimeMillis());
     }
 
     public Client(String ip) {

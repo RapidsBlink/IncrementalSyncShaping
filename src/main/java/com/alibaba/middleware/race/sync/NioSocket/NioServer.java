@@ -1,7 +1,7 @@
 package com.alibaba.middleware.race.sync.NioSocket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 public class NioServer {
     private byte FINISHED_ALL = 'F';
     private byte REQUIRE_ARGS = 'A';
-    public Logger logger = null;
+//    public Logger logger = null;
     private int port;
     private String[] args;
     private ArrayBlockingQueue<ByteBuffer> sendQueue = new ArrayBlockingQueue<ByteBuffer>(8);
@@ -33,7 +33,7 @@ public class NioServer {
     private ExecutorService serverThreadsPool = Executors.newSingleThreadExecutor();
 
     public NioServer(String[] args, int port) {
-        this.logger = LoggerFactory.getLogger(NioServer.class);
+//        this.logger = LoggerFactory.getLogger(NioServer.class);
         this.port = port;
         this.args = args;
         try {
@@ -53,18 +53,18 @@ public class NioServer {
                 Thread.currentThread().setName("Server-networking-threads");
                 try {
                     serverChannel.socket().bind(new InetSocketAddress(port));
-                    logger.info("server started......");
+//                    logger.info("server started......");
 
                     clientChannel = serverChannel.accept();
                     clientChannel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-                    logger.info("client connected.....");
+//                    logger.info("client connected.....");
 
                     ByteBuffer readBuff = ByteBuffer.allocate(1);
                     clientChannel.read(readBuff);
                     if (readBuff.get(0) == REQUIRE_ARGS) {
                         ByteBuffer argsBuff = ByteBuffer.wrap(new ArgumentsPayloadBuilder(args).toString().getBytes());
                         chunkSize.clear();
-                        logger.info("data chunk size: " + argsBuff.limit());
+//                        logger.info("data chunk size: " + argsBuff.limit());
                         chunkSize.putInt(argsBuff.limit());
                         chunkSize.flip();
                         clientChannel.write(chunkSize);
@@ -79,7 +79,7 @@ public class NioServer {
                                     break;
                                 } else {
                                     chunkSize.clear();
-                                    logger.info("data chunk size: " + data.limit());
+//                                    logger.info("data chunk size: " + data.limit());
                                     chunkSize.putInt(data.limit());
                                     chunkSize.flip();
                                     clientChannel.write(chunkSize);
@@ -88,7 +88,7 @@ public class NioServer {
 
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
-                                logger.info(e.getMessage());
+//                                logger.info(e.getMessage());
                             }
                         }
                     }

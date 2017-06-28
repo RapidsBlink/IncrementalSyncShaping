@@ -1,7 +1,5 @@
 package com.alibaba.middleware.race.sync.server2.operations;
 
-import com.alibaba.middleware.race.sync.Server;
-
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
@@ -74,10 +72,10 @@ public abstract class NonDeleteOperation extends LogOperation {
                     resultInt = ((10 * resultInt) + (byteBuffer.get(i) - '0'));
                 score2 = resultInt;
                 break;
-            default:
-                if (Server.logger != null)
-                    Server.logger.info("add data error");
-                System.err.println("add data error");
+//            default:
+//                if (Server.logger != null)
+//                    Server.logger.info("add data error");
+//                System.err.println("add data error");
         }
     }
 

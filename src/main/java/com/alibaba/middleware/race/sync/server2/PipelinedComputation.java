@@ -1,6 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import com.alibaba.middleware.race.sync.Server;
+//import com.alibaba.middleware.race.sync.Server;
 import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 import java.io.IOException;
@@ -41,9 +41,9 @@ public class PipelinedComputation {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
-            if (Server.logger != null) {
-                Server.logger.info(e.getMessage());
-            }
+//            if (Server.logger != null) {
+//                Server.logger.info(e.getMessage());
+//            }
         }
     }
 
@@ -108,18 +108,18 @@ public class PipelinedComputation {
 
     public static void globalComputation(ArrayList<String> srcFilePaths,
                                          long start, long end) throws IOException {
-        if (Server.logger != null) {
-            Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
-        }
+//        if (Server.logger != null) {
+//            Server.logger.info("first phase start:" + String.valueOf(System.currentTimeMillis()));
+//        }
         initRange(start, end);
         firstPhaseComputation(srcFilePaths);
-        if (Server.logger != null) {
-            Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));
-        }
+//        if (Server.logger != null) {
+//            Server.logger.info("first phase end:" + String.valueOf(System.currentTimeMillis()));
+//        }
         secondPhaseComputation();
-        if (Server.logger != null) {
-            Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
-        }
+//        if (Server.logger != null) {
+//            Server.logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
+//        }
     }
 
     static long pkLowerBound;
