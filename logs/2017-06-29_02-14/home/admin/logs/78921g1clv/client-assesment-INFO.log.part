@@ -1,0 +1,111 @@
+.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：20000
+ [INFO ] [00:56:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv , execute status is TIMED_OUT Script execute output: 0.017(s) elapsed
+teamcode is 78921g1clv
+存在日志文件，开始上传oss
+100% 0.039(s) elapsed
+ 
+Object URL is: http://middle2017.oss-cn-shanghai.aliyuncs.com/78921g1clv%2Fgc_client.log
+Object abstract path is: oss://middle2017/78921g1clv/gc_client.log
+ETag is "044566C50514F0A0E089908DA26F13E1" 
+/home/admin/logs/78921g1clv/client-assesment-WARN.log.part
+/home/admin/logs/78921g1clv/client-assesment-INFO.log.part
+/home/admin/logs/78921g1clv/client-assesment-ERROR.log.part
+/home/admin/logs/78921g1clv/client-custom.log.part
+/home/admin/logs/78921g1clv/perform_io.info
+/home/admin/logs/78921g1clv/perform_mem.info
+/home/admin/logs/78921g1clv/perform_cpu.info
+/home/admin/logs/78921g1clv/perform_load.info
+/home/admin/logs/78921g1clv/gc_client.log
+100% 0.093(s) elapsed
+ 
+Object URL is: http://middle2017.oss-cn-shanghai.aliyuncs.com/78921g1clv%2Fclient.log.tar.gz
+Object abstract path is: oss://middle2017/78921g1clv/client.log.tar.gz
+ETag is "E8C0729F0C69D0376EBB890F8B903F88" 
+
+ [WARN ] [00:56:25] com.alibaba.middleware.race.TesterHttpServer - cleaning:上传日志文件出错TIMED_OUT
+ [INFO ] [00:56:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/cleanCache.sh 
+ [INFO ] [00:56:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：10000
+ [INFO ] [00:56:26] com.alibaba.middleware.race.testing.utils.ShellUtils - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [INFO ] [00:56:35] com.alibaba.middleware.race.testing.utils.ShellUtils - 正在运行的shell进程信息：java.lang.UNIXProcess@494033db
+ [WARN ] [00:56:35] com.alibaba.middleware.race.testing.utils.ShellUtils - this shell is timeout
+ [INFO ] [00:56:35] com.alibaba.middleware.race.testing.utils.ShellUtils - 开始杀死指定的JAVA进程
+ [INFO ] [00:56:35] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：20000
+ [WARN ] [00:56:35] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh  exception, the exitStatus is: TIMED_OUT
+ [INFO ] [00:56:35] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/cleanCache.sh , execute status is TIMED_OUT Script execute output: 开始清空系统的缓存
+vm.drop_caches = 3
+
+ [WARN ] [00:56:35] com.alibaba.middleware.race.TesterHttpServer - cleaning:清除系统缓存出错TIMED_OUT
+ [INFO ] [00:56:35] com.alibaba.middleware.race.testing.utils.ShellUtils - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [INFO ] [00:57:47] com.alibaba.middleware.race.TesterHttpServer - client端评测程序成功收到server端的HTTP请求------------------
+ [INFO ] [00:57:47] com.alibaba.middleware.race.TesterHttpServer - 开始根据teamCode创建相应的目录：/home/admin/logs/72659t9m57,/home/admin/middle/72659t9m57,/home/admin/sync_results/72659t9m57
+ [INFO ] [00:57:47] com.alibaba.middleware.race.TesterHttpServer - 是否存在目录：true
+ [INFO ] [00:57:47] com.alibaba.middleware.race.TesterHttpServer - 为选手72659t9m57创建对应teamCode的目录(中间结果相关)
+ [INFO ] [02:12:19] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log 
+ [INFO ] [02:12:19] com.alibaba.middleware.race.TesterHttpServer - 开始运行client程序前，再尝试清空选手的结果文件
+ [INFO ] [02:12:19] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/delResult.sh 78921g1clv 
+ [INFO ] [02:12:19] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：2000
+ [INFO ] [02:12:19] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/delResult.sh 78921g1clv , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [02:12:19] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ [INFO ] [02:12:19] com.alibaba.middleware.race.TesterHttpServer - 开始运行选手的程序，此时设定的超时时间为（单位秒）：120
+ [INFO ] [02:12:19] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [02:12:23] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log , execute status is SUCCESS Script execute output: gcLogPath的路径为/home/admin/logs/78921g1clv/gc_client.log
+success
+
+ [WARN ] [02:12:23] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序成功 SUCCESS
+ [INFO ] [02:12:23] com.alibaba.middleware.race.TesterHttpServer - 运行选手的JAVA程序结束，耗时为（单位毫秒）：4312
+ [INFO ] [02:12:24] com.alibaba.middleware.race.TesterHttpServer - Result is correct.
+ [INFO ] [02:12:24] com.alibaba.middleware.race.TesterHttpServer - 执行start命令成功，并且成功关闭流
+ [INFO ] [02:12:24] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/killJava.sh 
+ [INFO ] [02:12:24] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：0
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/killJava.sh , execute status is SUCCESS Script execute output: 
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+
+kill: usage: kill [-s sigspec | -n signum | -sigspec] pid | jobspec ... or kill -l [sigspec]
+success
+
+ [WARN ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - 停止用户user client程序成功 SUCCESS
+ [INFO ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - tsar信息时间点信息为：29/06/17-02:12
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 29/06/17-02:12 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：120000
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/monitor.sh 78921g1clv 29/06/17-02:12 , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 29-06-17-02-12 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：60000
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/copyResult.sh 78921g1clv 29-06-17-02-12 , execute status is SUCCESS Script execute output: 归档Client端选手代码成功
+已经存在选手归档目录，开始归档结果文件
+success
+
+ [INFO ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - 归档结果文件成功
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/delResult.sh 78921g1clv 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：2000
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/delResult.sh 78921g1clv , execute status is SUCCESS Script execute output: success
+
+ [WARN ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/sync_cleaner.sh 78921g1clv 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：30000
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/sync_cleaner.sh 78921g1clv , execute status is SUCCESS Script execute output: 结果文件不存在
+success
+
+ [INFO ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - cleaning:清理结果文件成功
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：30000
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/clean_middle.sh 78921g1clv , execute status is SUCCESS Script execute output: 要删除的中间结果文件为/home/admin/middle/78921g1clv
+成功清除中间结果
+success
+
+ [INFO ] [02:12:25] com.alibaba.middleware.race.TesterHttpServer - cleaning:成功清除中间结果
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - execute command: /home/admin/MiddlewareTester/bin/sync/upLoadLog.sh 78921g1clv 
+ [INFO ] [02:12:25] com.alibaba.middleware.race.testing.utils.ShellUtils - timeOutInterval的值为：10000
+ 
