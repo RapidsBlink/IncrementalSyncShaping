@@ -101,9 +101,9 @@ public class Server {
                 }
             }
             // delete
-            for (short index : DeleteOperation.deleteGlobalIndices) {
-                if (index != -1)
-                    globalIndicators[index] = 1;
+            for (int i = 0; i < DeleteOperation.deleteGlobalIndices.length; i++) {
+                if (DeleteOperation.deleteGlobalIndices[i] != -1 && RestoreComputation.ycheArr[i] == null)
+                    globalIndicators[DeleteOperation.deleteGlobalIndices[i]] = 1;
             }
             for (int i = 0; i < globalIndicators.length; i++) {
                 if (globalIndicators[i] == 1) {
