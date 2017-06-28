@@ -1,8 +1,6 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
-import com.alibaba.middleware.race.sync.server2.RecordScanner;
-import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -5,7 +5,7 @@ package com.alibaba.middleware.race.sync;
  */
 public interface Constants {
 
-    String CODE_VERSION = "Version_0.2";
+    String CODE_VERSION = "Version_1.0";
 
     String[] TEST_ROLE = {"server", "client"};
     // teamCode
@@ -45,21 +45,10 @@ public interface Constants {
     String MIDDLE_HOME = "/home/admin/middle/" + TEAMCODE;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
-    char SPLIT_CHAR = '|';
-    char FIELD_SPLIT_CHAR = ':';
-    char IS_PRIMARY_KEY = '1';
-    char IS_NUMBER = '1';
-
-    char INSERT_OPERATION = 'I';
-    char DELETE_OPERATION = 'D';
-    char UPDATE_OPERATION = 'U';
-
     byte I_OPERATION = 'I';
     byte D_OPERATION = 'D';
     byte U_OPERATION = 'U';
 
-    static byte FILED_SPLITTER = '|';
-    static byte LINE_SPLITTER = '\n';
-
-    String MIDDLE_FILE_NAME = "properties.rapids";
+    byte FILED_SPLITTER = '|';
+    byte LINE_SPLITTER = '\n';
 }

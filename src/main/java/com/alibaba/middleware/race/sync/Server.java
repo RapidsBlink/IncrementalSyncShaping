@@ -3,7 +3,6 @@ package com.alibaba.middleware.race.sync;
 
 import com.alibaba.middleware.race.sync.NioSocket.NioServer;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
-import com.alibaba.middleware.race.sync.server2.RecordScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Map;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.putThingsIntoByteBuffer;
 
@@ -20,14 +18,14 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.putT
  */
 public class Server {
     public static Logger logger;
-    public static NioServer nativeServer = null;
+    private static NioServer nativeServer = null;
     private static long start;
     private static long end;
 
     /**
      * 初始化系统属性
      */
-    public static void initProperties() {
+    private static void initProperties() {
         System.setProperty("middleware.test.home", Constants.TESTER_HOME);
         System.setProperty("middleware.teamcode", Constants.TEAMCODE);
         System.setProperty("app.logging.level", Constants.LOG_LEVEL);
@@ -79,10 +77,6 @@ public class Server {
         Server.nativeServer.send(byteBuffer);
         logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
 
-//        logger.info("digits:" + RecordScanner.stringBuilder.toString());
-//        logger.info("len:" + RecordScanner.stringBuilder.length());
-//        logger.info("valid num:" + RecordScanner.validNum);
-//        logger.info("invalid num:" + RecordScanner.invalidNum);
         nativeServer.finish();
 
         logger.info("size:" + PipelinedComputation.finalResultMap.size());

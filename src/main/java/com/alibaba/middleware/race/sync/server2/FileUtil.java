@@ -1,6 +1,5 @@
 package com.alibaba.middleware.race.sync.server2;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 
@@ -14,7 +13,7 @@ final public class FileUtil {
             cleaner.setAccessible(true);
             Method clean = Class.forName("sun.misc.Cleaner").getMethod("clean");
             clean.invoke(cleaner.invoke(mbb));
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

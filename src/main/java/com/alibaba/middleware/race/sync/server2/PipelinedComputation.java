@@ -6,7 +6,13 @@ import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by yche on 6/16/17.
@@ -95,7 +101,7 @@ public class PipelinedComputation {
 
     }
 
-    public static void secondPhaseComputation() {
+    private static void secondPhaseComputation() {
         RestoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
@@ -116,15 +122,15 @@ public class PipelinedComputation {
         }
     }
 
-    public static long pkLowerBound;
-    public static long pkUpperBound;
+    static long pkLowerBound;
+    static long pkUpperBound;
 
     public static void initRange(long lowerBound, long upperBound) {
         pkLowerBound = lowerBound;
         pkUpperBound = upperBound;
     }
 
-    public static boolean isKeyInRange(long key) {
+    static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
 

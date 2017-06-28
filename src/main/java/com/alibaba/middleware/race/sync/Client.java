@@ -4,24 +4,22 @@ import com.alibaba.middleware.race.sync.NioSocket.NioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 /**
  * Created by will on 6/6/2017.
  */
 public class Client {
-
     public static Logger logger;
-
-    private final static int port = Constants.SERVER_PORT;
 
     private static NioClient nativeClient = null;
 
     public static void main(String[] args) {
         initProperties();
         logger = LoggerFactory.getLogger(Client.class);
-        logger.info("Current client time:" + System.currentTimeMillis());
         new Client(args[0]).start();
         logger.info("Current client time:" + System.currentTimeMillis());
     }

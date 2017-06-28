@@ -19,10 +19,9 @@ public class NioClient {
     public Logger logger;
     private String hostName;
     private int port;
-    SocketChannel clientChannel;
-    private String[] args;
+    private SocketChannel clientChannel;
 
-    ByteBuffer recvSizeBuff = ByteBuffer.allocate(4);// always use int size
+    private ByteBuffer recvSizeBuff = ByteBuffer.allocate(4);// always use int size
 
     public NioClient(String hostName, int port){
         logger = LoggerFactory.getLogger(NioClient.class);
@@ -78,9 +77,9 @@ public class NioClient {
             while (recvCount < chunkSize){
                 recvCount += clientChannel.read(recvBuff);
             }
-            this.args = new ArgumentsPayloadBuilder(new String(recvBuff.array(), 0, chunkSize)).args;
+            String[] args = new ArgumentsPayloadBuilder(new String(recvBuff.array(), 0, chunkSize)).args;
 
-            logger.info(Arrays.toString(this.args));
+            logger.info(Arrays.toString(args));
 
             chunkSize = recvChunkSize();
 
