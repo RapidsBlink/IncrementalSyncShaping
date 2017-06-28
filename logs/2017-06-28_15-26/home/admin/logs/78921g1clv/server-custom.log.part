@@ -1,0 +1,13 @@
+[2017-06-28 15:24:34.843] INFO  c.a.m.r.sync.Server -Current server time:1498634674842
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -Current server time:1498634674863
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -middleware8
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -student
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -1000000
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -8000000
+[2017-06-28 15:24:34.863] INFO  c.a.m.r.sync.Server -Version_0.2
+[2017-06-28 15:24:34.865] INFO  c.a.m.r.sync.Server -first phase start:1498634674865
+[2017-06-28 15:24:39.954] INFO  c.a.m.r.sync.Server -first phase end:1498634679954
+[2017-06-28 15:24:40.513] INFO  c.a.m.r.sync.Server -second phase end:1498634680513
+[2017-06-28 15:24:40.581] INFO  c.a.m.r.sync.Server -second phase end:1498634680581
+[2017-06-28 15:24:40.956] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-28 15:24:40.956] INFO  c.a.m.r.sync.Server -Send finish all package......
