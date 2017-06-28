@@ -1,6 +1,5 @@
 package com.alibaba.middleware.race.sync.server2.operations;
 
-import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 
 import static com.alibaba.middleware.race.sync.server2.RestoreComputation.inRangeRecordSet;
 import static com.alibaba.middleware.race.sync.server2.RestoreComputation.recordMap;
@@ -12,10 +11,6 @@ public class InsertOperation extends NonDeleteOperation {
 
     public InsertOperation(long relevantKey) {
         super(relevantKey);
-    }
-
-    public void changePK(long pk) {
-        relevantKey = pk;
     }
 
     public static int getLongLen(long pk) {

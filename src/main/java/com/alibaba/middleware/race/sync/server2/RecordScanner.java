@@ -173,14 +173,19 @@ public class RecordScanner {
                 if (flag)
                     ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
             } else {
+                if (isKeyInRange(prevKey)) {
+                    localOperations.add(new DeleteOperation(prevKey));
+                }
                 long curKey = getNextLong();
-                logOperation = new UpdateKeyOperation(prevKey, curKey);
+                if (isKeyInRange(curKey)) {
+                    logOperation = new InsertOperation(curKey);
+                }
             }
         } else if (operation == I_OPERATION) {
             // insert: pre(null) -> cur
             skipNull();
             long pk = getNextLong();
-            if(isKeyInRange(pk)){
+            if (isKeyInRange(pk)) {
                 logOperation = new InsertOperation(pk);
                 flag = true;
             }
@@ -190,14 +195,14 @@ public class RecordScanner {
                 skipFieldForInsert(localIndex);
                 skipNull();
                 getNextBytesIntoTmp();
-                if(flag)
+                if (flag)
                     ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
                 localIndex++;
             }
         } else {
             // delete: pre -> cur(null)
             long pk = getNextLong();
-            if(isKeyInRange(pk)) {
+            if (isKeyInRange(pk)) {
                 logOperation = new DeleteOperation(pk);
             }
             skipNull();
