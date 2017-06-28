@@ -79,10 +79,10 @@ public class Server {
         Server.nativeServer.send(byteBuffer);
         logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
 
-        logger.info("digits:" + RecordScanner.stringBuilder.toString());
-        logger.info("len:" + RecordScanner.stringBuilder.length());
-        logger.info("valid num:" + RecordScanner.validNum);
-        logger.info("invalid num:" + RecordScanner.invalidNum);
+//        logger.info("digits:" + RecordScanner.stringBuilder.toString());
+//        logger.info("len:" + RecordScanner.stringBuilder.length());
+//        logger.info("valid num:" + RecordScanner.validNum);
+//        logger.info("invalid num:" + RecordScanner.invalidNum);
         nativeServer.finish();
 
         logger.info("size:" + PipelinedComputation.finalResultMap.size());

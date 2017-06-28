@@ -16,9 +16,9 @@ import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
  * used for scan the byte arr of record string lines
  */
 public class RecordScanner {
-    public static StringBuilder stringBuilder = new StringBuilder();
-    public static int validNum = 0;
-    public static int invalidNum = 0;
+//    public static StringBuilder stringBuilder = new StringBuilder();
+//    public static int validNum = 0;
+//    public static int invalidNum = 0;
 
     // input
     private ByteBuffer mappedByteBuffer;
@@ -238,11 +238,12 @@ public class RecordScanner {
         prevFuture.get();
         if (logOperations.length != 0) {
             PipelinedComputation.blockingQueue.put(logOperations);
-            stringBuilder.append('1');
-            validNum++;
-        } else {
-            stringBuilder.append('0');
-            invalidNum++;
+//            stringBuilder.append('1');
+//            validNum++;
         }
+//        else {
+//            stringBuilder.append('0');
+//            invalidNum++;
+//        }
     }
 }
