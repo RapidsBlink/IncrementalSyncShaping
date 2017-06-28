@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2.operations;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.server2.RecordField;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -27,6 +28,8 @@ public abstract class NonDeleteOperation extends LogOperation {
     short score = -1;
     int score2 = -1;
 
+   public short[] globalIndices;
+
     public static String toChineseChar(byte index) {
         int intC = INTEGER_CHINESE_CHAR[index];
         byte[] tmpBytes = new byte[3];
@@ -38,6 +41,10 @@ public abstract class NonDeleteOperation extends LogOperation {
 
     public NonDeleteOperation(long relevantKey) {
         super(relevantKey);
+        globalIndices = new short[RecordField.FILED_NUM];
+        for (int i = 0; i < globalIndices.length; i++) {
+            globalIndices[i] = -1;
+        }
     }
 
     private static int toInt(byte[] data, int offset) {
@@ -49,30 +56,35 @@ public abstract class NonDeleteOperation extends LogOperation {
         return indexMap.get(intC);
     }
 
-    public void addData(int index, ByteBuffer byteBuffer) {
+    public void addData(int index, ByteBuffer byteBuffer, short globalIndex) {
         switch (index) {
             case 0:
                 firstNameIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
+                globalIndices[0] = globalIndex;
                 break;
             case 1:
                 lastNameFirstIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
                 if (byteBuffer.limit() == 6)
                     lastNameSecondIndex = getIndexOfChineseChar(byteBuffer.array(), 3);
+                globalIndices[1] = globalIndex;
                 break;
             case 2:
                 sexIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
+                globalIndices[2] = globalIndex;
                 break;
             case 3:
                 short result = 0;
                 for (int i = 0; i < byteBuffer.limit(); i++)
                     result = (short) ((10 * result) + (byteBuffer.get(i) - '0'));
                 score = result;
+                globalIndices[3] = globalIndex;
                 break;
             case 4:
                 int resultInt = 0;
                 for (int i = 0; i < byteBuffer.limit(); i++)
                     resultInt = ((10 * resultInt) + (byteBuffer.get(i) - '0'));
                 score2 = resultInt;
+                globalIndices[4] = globalIndex;
                 break;
             default:
                 if (Server.logger != null)
@@ -84,22 +96,27 @@ public abstract class NonDeleteOperation extends LogOperation {
     public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
         if (nonDeleteOperation.score != -1) {
             this.score = nonDeleteOperation.score;
+            globalIndices[3] = nonDeleteOperation.globalIndices[3];
             return;
         }
         if (nonDeleteOperation.score2 != -1) {
             this.score2 = nonDeleteOperation.score2;
+            globalIndices[4] = nonDeleteOperation.globalIndices[4];
             return;
         }
         if (nonDeleteOperation.firstNameIndex != -1) {
             this.firstNameIndex = nonDeleteOperation.firstNameIndex;
+            globalIndices[0] = nonDeleteOperation.globalIndices[0];
             return;
         }
         if (nonDeleteOperation.lastNameFirstIndex != -1) {
             this.lastNameFirstIndex = nonDeleteOperation.lastNameFirstIndex;
             this.lastNameSecondIndex = nonDeleteOperation.lastNameSecondIndex;
+            globalIndices[1] = nonDeleteOperation.globalIndices[1];
             return;
         }
         if (nonDeleteOperation.sexIndex != -1) {
+            globalIndices[2] = nonDeleteOperation.globalIndices[2];
             this.sexIndex = nonDeleteOperation.sexIndex;
         }
     }

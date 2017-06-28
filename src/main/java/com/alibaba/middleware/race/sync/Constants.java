@@ -30,6 +30,7 @@ public interface Constants {
 //    String RESULT_HOME = "/tmp/test/user_result";
 //    // 中间结果目录
 //    String MIDDLE_HOME = "/home/yche/tmp/middle";
+//    int CHUNK_NUM=3072;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
 
@@ -43,6 +44,7 @@ public interface Constants {
     String RESULT_HOME = "/home/admin/sync_results/" + TEAMCODE;
     // 中间结果目录（client和server都会用到）
     String MIDDLE_HOME = "/home/admin/middle/" + TEAMCODE;
+    int CHUNK_NUM =2688;
     //%%%%%%%%%%%%%%%%% change above %%%%%%%%%%%%%%%%%
 
     char SPLIT_CHAR = '|';

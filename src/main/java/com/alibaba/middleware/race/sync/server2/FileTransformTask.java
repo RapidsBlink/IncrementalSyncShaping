@@ -29,14 +29,15 @@ public class FileTransformTask implements Runnable {
 
     // result
 
-    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
-        this.recordScanner = new RecordScanner(mappedByteBuffer, startIndex, endIndex, prevFuture);
+    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture, short globalIndex) {
+        this.recordScanner = new RecordScanner(mappedByteBuffer, startIndex, endIndex, prevFuture, globalIndex);
         taskInfo = null;
     }
 
     // for the first small chunk
-    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer, Future<?> prevFuture) {
-        recordScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(), prevFuture);
+    FileTransformTask(MappedByteBuffer mappedByteBuffer, int startIndex, int endIndex, ByteBuffer remainingByteBuffer, Future<?> prevFuture,
+                      short globalIndex) {
+        recordScanner = new RecordScanner(remainingByteBuffer, 0, remainingByteBuffer.limit(), prevFuture, globalIndex);
         taskInfo = new ExtraTaskInfo(mappedByteBuffer, startIndex, endIndex);
     }
 

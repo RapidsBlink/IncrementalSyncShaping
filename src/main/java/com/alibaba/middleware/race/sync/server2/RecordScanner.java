@@ -20,6 +20,8 @@ public class RecordScanner {
 //    public static int validNum = 0;
 //    public static int invalidNum = 0;
 
+    short globalIndex;
+
     // input
     private ByteBuffer mappedByteBuffer;
     private int endIndex;   // exclusive
@@ -32,11 +34,12 @@ public class RecordScanner {
     private final Future<?> prevFuture;
     private int primaryKeyDigitNum = 0;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture, short globalIndex) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
         this.prevFuture = prevFuture;
+        this.globalIndex = globalIndex;
     }
 
     void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
@@ -175,10 +178,10 @@ public class RecordScanner {
                 skipField(localIndex);
                 getNextBytesIntoTmp();
                 if (flag)
-                    ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer);
+                    ((UpdateOperation) logOperation).addData(localIndex, tmpBuffer, globalIndex);
             } else {
                 if (isKeyInRange(prevKey)) {
-                    localOperations.add(new DeleteOperation(prevKey));
+                    localOperations.add(new DeleteOperation(prevKey, globalIndex));
                 }
                 long curKey = getNextLong();
                 if (isKeyInRange(curKey)) {
@@ -200,14 +203,14 @@ public class RecordScanner {
                 skipNull();
                 getNextBytesIntoTmp();
                 if (flag)
-                    ((InsertOperation) logOperation).addData(localIndex, tmpBuffer);
+                    ((InsertOperation) logOperation).addData(localIndex, tmpBuffer, globalIndex);
                 localIndex++;
             }
         } else {
             // delete: pre -> cur(null)
             long pk = getNextLong();
             if (isKeyInRange(pk)) {
-                logOperation = new DeleteOperation(pk);
+                logOperation = new DeleteOperation(pk, globalIndex);
             }
             skipNull();
             while (mappedByteBuffer.get(nextIndex + 1) != LINE_SPLITTER) {

@@ -4,6 +4,10 @@ package com.alibaba.middleware.race.sync;
 import com.alibaba.middleware.race.sync.NioSocket.NioServer;
 import com.alibaba.middleware.race.sync.server2.PipelinedComputation;
 import com.alibaba.middleware.race.sync.server2.RecordScanner;
+import com.alibaba.middleware.race.sync.server2.RestoreComputation;
+import com.alibaba.middleware.race.sync.server2.operations.DeleteOperation;
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
+import com.alibaba.middleware.race.sync.server2.operations.NonDeleteOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +15,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Executors;
 
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.putThingsIntoByteBuffer;
 
@@ -79,10 +85,39 @@ public class Server {
         Server.nativeServer.send(byteBuffer);
         logger.info("second phase end:" + String.valueOf(System.currentTimeMillis()));
 
-//        logger.info("digits:" + RecordScanner.stringBuilder.toString());
-//        logger.info("len:" + RecordScanner.stringBuilder.length());
-//        logger.info("valid num:" + RecordScanner.validNum);
-//        logger.info("invalid num:" + RecordScanner.invalidNum);
+        // log out
+        int sum = 0;
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            // insert and update
+            short[] globalIndicators = new short[Constants.CHUNK_NUM];
+            Arrays.fill(globalIndicators, (short) 0);
+            for (LogOperation logOperation : RestoreComputation.ycheArr) {
+                if (logOperation != null) {
+                    NonDeleteOperation nonDeleteOperation = (NonDeleteOperation) logOperation;
+                    for (int i = 0; i < nonDeleteOperation.globalIndices.length; i++) {
+                        globalIndicators[nonDeleteOperation.globalIndices[i]] = 1;
+                    }
+                }
+            }
+            // delete
+            for (short index : DeleteOperation.deleteGlobalIndices) {
+                if (index != -1)
+                    globalIndicators[index] = 1;
+            }
+            for (int i = 0; i < globalIndicators.length; i++) {
+                if (globalIndicators[i] == 1) {
+                    stringBuilder.append('1');
+                    sum++;
+                } else {
+                    stringBuilder.append('0');
+                }
+            }
+        } catch (Exception e) {
+        } finally {
+            logger.info("valid num:" + String.valueOf(sum));
+            logger.info("bits:" + stringBuilder.toString());
+        }
         nativeServer.finish();
 
         logger.info("size:" + PipelinedComputation.finalResultMap.size());
