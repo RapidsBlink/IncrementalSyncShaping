@@ -15,6 +15,10 @@ public class UpdateOperation extends NonDeleteOperation {
     @Override
     public void act() {
         InsertOperation insertOperation = (InsertOperation) RestoreComputation.ycheArr[(int) (this.relevantKey)]; //2
+        if(insertOperation==null){
+            insertOperation=new InsertOperation(this.relevantKey);
+            RestoreComputation.ycheArr[(int) this.relevantKey]=insertOperation;
+        }
         insertOperation.mergeAnother(this); //3
     }
 }
