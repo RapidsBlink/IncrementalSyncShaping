@@ -48,11 +48,64 @@ try {
 }
 ```
 
-在收到任务后，Mediator负责分配， 保证每个Tokenizer and Parser处理的都是完整的块， 也就是说， 开始的index在`|mysql...`的`|`上， 结束的index在`\n`的后一个上。
+在收到任务后，Mediator负责分配， 保证每个Tokenizer and Parser处理的都是完整的块， 也就是说， 开始的index在`|mysql...`的`|`上， 结束的index在`\n`的后一个上。在这一步中， 需要由Mediator维护好Chunk中末尾'\n'之后的bytes.
 
+关于任务分配，Mediator通过sumbit的方式向Tokenizer and Parser对应线程池提交任务， 并获取`Future<?>`传入下一个FileTransFormTask， 因为重放计算要求保证顺序， 一个任务做完后放入计算队列之前需要等上一个任务结束， 以保证顺序重放的正确性。一开始`Future<?>`的类静态对象被初始化为`isDone = true`。
+
+任务分配相关的核心代码如下(其中关键点在于start, end index的计算和prevRemainingBytes的维护以及prevFuture的维护):
+
+```java
+private void submitIfPossible(FileTransformTask fileTransformTask) {
+//        if (localPCGlobalStatus[globalIndex] == 1) {
+    if (serverPCGlobalStatus[globalIndex] == 1) {
+        prevFuture = fileTransformPool.submit(fileTransformTask);
+        prevFutureQueue.add(prevFuture);
+    }
+    globalIndex++;
+}
+
+private void assignTransformTasks() {
+    int avgTask = currChunkLength / WORK_NUM;
+
+    // index pair
+    int start;
+    int end = preparePrevBytes();
+
+    // 1st: first worker
+    start = end;
+    end = computeEnd(avgTask - 1);
+    FileTransformTask fileTransformTask;
+    if (prevRemainingBytes.limit() > 0) {
+        ByteBuffer tmp = ByteBuffer.allocate(prevRemainingBytes.limit());
+        tmp.put(prevRemainingBytes);
+        fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, tmp, prevFuture);
+    } else {
+        fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
+    }
+
+    submitIfPossible(fileTransformTask);
+
+    // 2nd: subsequent workers
+    for (int i = 1; i < WORK_NUM; i++) {
+        start = end;
+        int smallChunkLastIndex = i < WORK_NUM - 1 ? avgTask * (i + 1) - 1 : currChunkLength - 1;
+        end = computeEnd(smallChunkLastIndex);
+        fileTransformTask = new FileTransformTask(mappedByteBuffer, start, end, prevFuture);
+
+        submitIfPossible(fileTransformTask);
+    }
+
+    // current tail, reuse and then put
+    prevRemainingBytes.clear();
+    for (int i = end; i < currChunkLength; i++) {
+        prevRemainingBytes.put(mappedByteBuffer.get(i));
+    }
+}
+```
 
 * actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
+这个逻辑在`FileTransformTask`中，负责对分配到某区间ByteBuffer里面的bytes进行解析，产生出用于重放的LogOperation对象来。 其中主要涉及到主键的解析，类型的解析和必要时LogOperation对象的创建。每个`FileTransformTask`对应一个唯一的`RecordScanner`， `RecordScanner`中封装了解析LogOperation对象的内容。
 
 * actor 4: Restore Computation Worker(单个重放计算线程)
 
-* 任务二： `FileTransformMediatorTask` 这个对应的任务会被一直进行轮询的 Mediator单线程线程池消费。
+![log operation class hierachy](log_operation.png)
