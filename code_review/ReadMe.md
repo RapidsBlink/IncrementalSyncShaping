@@ -7,15 +7,37 @@
 
 * Server段在程序启动时候，开启一个线程监听Client连接请求；在最后执行完第二阶段计算时候，遍历有序的 `ConcurrentSkipListMap`， 产生出结果文件对应的 `byte[]`，并使用 java nio 的 `transferTo` 方式直接发送到Client并通过Client Direct Memory进行落盘。
 
-### 流水线的设计
+### 第一阶段流水线的设计
 
 整个重放算法有关的类都放在 `server2` 文件夹下， 其中的类关系如下图所示。
 
 ![core pipeline logic](core_pipeline_logic.png)
 
-图中有四种不同的actor：
+图中有四种不同的actor，这些actors的交互构成了完整的第一阶段计算的流水线：
 
 * **actor 1: MmapReader(主线程)**， 负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
+
+在获取下一块文件Chunk的时候，该Reader会判断是否已经初始化了关于单表的Meta信息。详细代码可见:
+(其中RecordField类的类静态变量将用来记录这些Meta信息)。
+
+```java
+// 1st work
+private void fetchNextMmapChunk() throws IOException {
+    int currChunkLength = nextIndex != maxIndex ? CHUNK_SIZE : lastChunkLength;
+
+    MappedByteBuffer mappedByteBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, nextIndex * CHUNK_SIZE, currChunkLength);
+    mappedByteBuffer.load();
+    if (!RecordField.isInit()) {
+        new RecordField(mappedByteBuffer).initFieldIndexMap();
+    }
+
+    try {
+        mediatorTasks.put(new FileTransformMediatorTask(mappedByteBuffer, currChunkLength));
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+}
+```
 
 * **actor 2: Mediator(单个Mediator线程)**， 负责轮询 `BlockingQueue<FileTransformMediatorTask>`来获取任务， 一个任务中包含一个`MappedByteBuffer`和对应的Chunk大小。
 
@@ -139,10 +161,13 @@ try {
 }
 ```
 
-
-
-
 ![log operation class hierachy](log_operation.png)
+
+重放中，为了更memory-efficient，我们使用数组来模拟Hashmap表示对应的数据库，下标对应key, 引用对应value， 基于Range固定并且在int表示范围内
+
+```java
+public static LogOperation[] ycheArr = new LogOperation[8 * 1024 * 1024];
+```
 
 重放线程的逻辑就是顺序遍历取到的任务中每条LogOperation采取相应的行为。
 
@@ -152,12 +177,6 @@ static void compute(LogOperation[] logOperations) {
         logOperation.act();
     }
 }
-```
-
-使用数组来模拟Hashmap表示对应的数据库，下标对应key, 引用对应value， 基于Range固定并且在int表示范围内
-
-```java
-public static LogOperation[] ycheArr = new LogOperation[8 * 1024 * 1024];
 ```
 
 DeleteOperation的操作， 从数据库中删除记录
@@ -193,6 +212,103 @@ public void act() {
 }
 ```
 
+### 第二阶段Eval的并行执行
+
+* 第二阶段的`byte[]` Evaluation是完全并行的，详细过程抽象出下面的代码, 其中`finalResultMap`为类型`public static final ConcurrentMap<Long, byte[]>`, 获取到的中间结果可以进一步被进行遍历生成最后有序的输出到文件的`byte[]`：
+
+```java
+private static class EvalTask implements Runnable {
+    int start;
+    int end;
+    LogOperation[] logOperations;
+
+    EvalTask(int start, int end, LogOperation[] logOperations) {
+        this.start = start;
+        this.end = end;
+        this.logOperations = logOperations;
+    }
+
+    @Override
+    public void run() {
+        for (int i = start; i < end; i++) {
+            InsertOperation insertOperation = (InsertOperation) logOperations[i];
+            if (insertOperation != null)
+                finalResultMap.put(insertOperation.relevantKey, insertOperation.getOneLineBytesEfficient());
+        }
+    }
+}
+
+// used by master thread
+static void parallelEvalAndSend(ExecutorService evalThreadPool) {
+    LogOperation[] insertOperations = ycheArr;
+    int lowerBound = (int) PipelinedComputation.pkLowerBound;
+    int upperBound = (int) PipelinedComputation.pkUpperBound;
+    int avgTask = (upperBound - lowerBound) / EVAL_WORKER_NUM;
+    for (int i = lowerBound; i < upperBound; i += avgTask) {
+        evalThreadPool.execute(new EvalTask(i, Math.min(i + avgTask, upperBound), insertOperations));
+    }
+}
+```
+
+* 第二阶段的后续处理可见代码， 生成出最后会落盘至文件的`byte[]`， 交给Server进行发送
+
+```java
+public static void putThingsIntoByteBuffer(ByteBuffer byteBuffer) {
+    for (byte[] bytes : finalResultMap.values()) {
+        byteBuffer.put(bytes);
+    }
+}
+```
+
+### Server-Client Zero-Copy利用Direct Memory的特性
+
+* Client Side, API usage
+
+```java
+FileChannel fileChannel = new RandomAccessFile(Constants.RESULT_HOME + File.separator + Constants.RESULT_FILE_NAME, "rw").getChannel();
+nativeClient.start(fileChannel);
+```
+
+底层的实现, 使用了 `outputFile.transferFrom(clientChannel, 0, chunkSize);`， 直接从网络的clientChannel Zero-Copy到对应文件落盘， 不拷贝到用户态空间
+
+```java
+public void start(FileChannel outputFile){
+    if(outputFile == null){
+//            logger.info("output file should not be null......");
+        return;
+    }
+    try {
+        clientChannel.write(ByteBuffer.wrap("A".getBytes()));
+        int chunkSize = recvChunkSize();
+//            logger.info("received a chunk with size: " + chunkSize);
+        int recvCount = 0;
+        ByteBuffer recvBuff = ByteBuffer.allocate(chunkSize);
+        while (recvCount < chunkSize){
+            recvCount += clientChannel.read(recvBuff);
+        }
+        String[] args = new ArgumentsPayloadBuilder(new String(recvBuff.array(), 0, chunkSize)).args;
+
+//            logger.info(Arrays.toString(args));
+
+        chunkSize = recvChunkSize();
+
+        outputFile.transferFrom(clientChannel, 0, chunkSize);
+
+        clientChannel.finishConnect();
+        clientChannel.close();
+
+    } catch (IOException e) {
+        e.printStackTrace();
+//            logger.info(e.getMessage());
+    }
+}
+```
+
 ## (2) 创新点：算法设计上的创新点
 
-## (3) 健壮性：选手代码对不同的表结构适应性、对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
+## (3) 健壮性
+
+### 选手代码对不同的表结构适应性
+
+
+### 对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
