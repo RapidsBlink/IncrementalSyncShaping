@@ -14,7 +14,7 @@
 
 整个重放算法有关的类都放在 `server2` 文件夹下， 其中的类关系如下图所示(通过jetbrains intellij生成)。
 
-![core pipeline logic](core_pipeline_logic.png)
+![core pipeline logic](https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/core_pipeline_logic.png)
 
 图中有四种不同的actor，这些actors的交互构成了完整的第一阶段计算的流水线：
 
@@ -165,7 +165,7 @@ private void assignTransformTasks() {
 
 LogOperation的相关类继承关系如下图所示((通过jetbrains intellij生成)):
 
-![log operation class hierachy](log_operation.png)
+![log operation class hierachy](https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/log_operation.png)
 
 为了取巧使用array代替hashmap我们不得不发现一个重要的规律：***主键变更并不会带来原来主键的属性***，比如主键从1->3，那么主键1原来的属性一定会被全update或者3不在range范围中，那么update key的操作就可以简单变成两个操作，一个delete之前主键，另一个insert新的主键。 这样才使得我们只要keep在范围内的主键相关记录，比如只有1000000到8000000的key对应记录有用，不会出现2^63的key有用，所以才可以使用array。
 
