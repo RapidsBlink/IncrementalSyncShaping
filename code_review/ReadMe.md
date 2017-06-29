@@ -12,11 +12,11 @@
 
 ![core pipeline logic](core_pipeline_logic.png)
 
-图中有四种不同的任务：
+图中有四种不同的actor：
 
-* 任务一：mmap `load()`读取文件块，MmapReader由主线程使用，负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小， 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`。
+* actor 1: MmapReader(主线程)， 负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
 
-* 任务二： `FileTransformMediatorTask` 这个对应的任务会被一直进行轮询的 Mediator单线程线程池消费。
+* actor 2: Mediator(单个Mediator线程)， 负责轮询 `BlockingQueue<FileTransformMediatorTask>`来获取任务， 一个任务中包含一个`MappedByteBuffer`和对应的Chunk大小。
 
 轮询的逻辑如下代码所示：
 
@@ -47,3 +47,12 @@ try {
     e.printStackTrace();
 }
 ```
+
+在收到任务后，Mediator负责分配， 保证每个Tokenizer and Parser处理的都是完整的块， 也就是说， 开始的index在`|mysql...`的`|`上， 结束的index在`\n`的后一个上。
+
+
+* actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
+
+* actor 4: Restore Computation Worker(单个重放计算线程)
+
+* 任务二： `FileTransformMediatorTask` 这个对应的任务会被一直进行轮询的 Mediator单线程线程池消费。
