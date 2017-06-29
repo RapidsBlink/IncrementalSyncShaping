@@ -227,6 +227,84 @@ static void parallelEvalAndSend(ExecutorService evalThreadPool) {
 }
 ```
 
+* 其中 `insertOperation.getOneLineBytesEfficient()`是一个优化点，如果使用StringBuilder实现会比较慢，我们的实现如下，避免使用StringBuild和调用append。
+在下面的代码中我们的实现主要使用了直接的`byte[]`的操作和自己写的转换`parseLong`和`parseSingleChar`， 可以从原来的500ms 基于StringBuild 实现的 500ms cost减到250ms。
+
+```java
+private static int getLongLen(long pk) {
+    int noOfDigit = 1;
+    while ((pk = pk / 10) != 0)
+        ++noOfDigit;
+    return noOfDigit;
+}
+
+private static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
+    long leftLong = pk;
+    for (int i = 0; i < noDigits; i++) {
+        byteArr[offset + noDigits - i - 1] = (byte) (leftLong % 10 + '0');
+        leftLong /= 10;
+    }
+}
+
+private static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+    System.arraycopy(NonDeleteOperation.BYTES_POINTERS[index], 0, byteArr, offset, 3);
+}
+
+public byte[] getOneLineBytesEfficient() {
+    byte[] tmpBytes = new byte[48];
+    int nextOffset = 0;
+    // 1st: pk
+    int pkDigits = getLongLen(relevantKey);
+    parseLong(relevantKey, tmpBytes, nextOffset, pkDigits);
+    nextOffset += pkDigits;
+    tmpBytes[nextOffset] = '\t';
+    nextOffset += 1;
+
+    // 2nd: first name
+    parseSingleChar(firstNameIndex, tmpBytes, nextOffset);
+    nextOffset += 3;
+    tmpBytes[nextOffset] = '\t';
+    nextOffset += 1;
+
+    // 3rd: second name
+    parseSingleChar(lastNameFirstIndex, tmpBytes, nextOffset);
+    nextOffset += 3;
+    if (lastNameSecondIndex != -1) {
+        parseSingleChar(lastNameSecondIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+    }
+    tmpBytes[nextOffset] = '\t';
+    nextOffset += 1;
+
+    // 4th: sex
+    parseSingleChar(sexIndex, tmpBytes, nextOffset);
+    nextOffset += 3;
+    tmpBytes[nextOffset] = '\t';
+    nextOffset += 1;
+
+    // 5th score
+    pkDigits = getLongLen(score);
+    parseLong(score, tmpBytes, nextOffset, pkDigits);
+    nextOffset += pkDigits;
+    tmpBytes[nextOffset] = '\t';
+    nextOffset += 1;
+
+    // 6th score2
+    if (score2 != -1) {
+        pkDigits = getLongLen(score2);
+        parseLong(score2, tmpBytes, nextOffset, pkDigits);
+        nextOffset += pkDigits;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+    }
+    tmpBytes[nextOffset - 1] = '\n';
+
+    byte[] retBytes = new byte[nextOffset];
+    System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
+    return retBytes;
+}
+```
+
 * 第二阶段的后续处理可见代码， 生成出最后会落盘至文件的`byte[]`， 交给Server进行发送
 
 ```java
