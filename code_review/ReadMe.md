@@ -394,11 +394,95 @@ public void start(FileChannel outputFile){
 
 ## 2. 创新点：算法设计上的创新点
 
+### 2.1 流水线设计简洁， 耦合度低
+
+流水线整体设计简洁，文件读取，mediator, tokenize/parser，计算之间耦合度低。并且有blockingQueue协调生产和消费之间关系。Mediator和计算线程都使用轮询的方式比submit task更为高效。
+
+### 2.2 高效的Eval模块，网络传输 Zero-Copy， 并未使用第三方依赖
+
 ## 3. 健壮性
 
-### 选手代码对不同的表结构适应性
+### 3.1 选手代码对不同的表结构适应性
 
-### 对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
+---
+
+现实生活中往往schema是确定的，要扩展到其他的表的时候，只需要修改 `NonDeleteOperation`。
+
+1) 修改 field先, 这边的index对应到的是对应的char，如果char多的话把byte改为short即可
+
+```java
+byte firstNameIndex = -1;
+byte lastNameFirstIndex = -1;
+byte lastNameSecondIndex = -1;
+byte sexIndex = -1;
+short score = -1;
+int score2 = -1;
+```
+
+2) 修改 `addData`和`mergeAnother`适应新的field
+
+```java
+public void addData(int index, ByteBuffer byteBuffer) {
+     switch (index) {
+         case 0:
+             firstNameIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
+             break;
+         case 1:
+             lastNameFirstIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
+             if (byteBuffer.limit() == 6)
+                 lastNameSecondIndex = getIndexOfChineseChar(byteBuffer.array(), 3);
+             break;
+         case 2:
+             sexIndex = getIndexOfChineseChar(byteBuffer.array(), 0);
+             break;
+         case 3:
+             short result = 0;
+             for (int i = 0; i < byteBuffer.limit(); i++)
+                 result = (short) ((10 * result) + (byteBuffer.get(i) - '0'));
+             score = result;
+             break;
+         case 4:
+             int resultInt = 0;
+             for (int i = 0; i < byteBuffer.limit(); i++)
+                 resultInt = ((10 * resultInt) + (byteBuffer.get(i) - '0'));
+             score2 = resultInt;
+             break;
+//            default:
+//                if (Server.logger != null)
+//                    Server.logger.info("add data error");
+//                System.err.println("add data error");
+     }
+ }
+
+ public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
+     if (nonDeleteOperation.score != -1) {
+         this.score = nonDeleteOperation.score;
+         return;
+     }
+     if (nonDeleteOperation.score2 != -1) {
+         this.score2 = nonDeleteOperation.score2;
+         return;
+     }
+     if (nonDeleteOperation.firstNameIndex != -1) {
+         this.firstNameIndex = nonDeleteOperation.firstNameIndex;
+         return;
+     }
+     if (nonDeleteOperation.lastNameFirstIndex != -1) {
+         this.lastNameFirstIndex = nonDeleteOperation.lastNameFirstIndex;
+         this.lastNameSecondIndex = nonDeleteOperation.lastNameSecondIndex;
+         return;
+     }
+     if (nonDeleteOperation.sexIndex != -1) {
+         this.sexIndex = nonDeleteOperation.sexIndex;
+     }
+ }
+```
+
+### 3.2 对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
+
+---
+
+8.9s的general实现可以适应任何的情况，并没有作任何针对复赛数据集的tricks。
 
 ## 4. 补充(8.9s general实现，即不利用数据集特征)
 
@@ -643,7 +727,7 @@ public class YcheLongHash {
 
 ### 4.3 HashMap 接口 detail 实现
 
---- 
+---
 
 * YcheHashMap.java
 
