@@ -167,6 +167,10 @@ LogOperation的相关类继承关系如下图所示((通过jetbrains intellij生
 
 ![log operation class hierachy](log_operation.png)
 
+为了取巧使用array代替hashmap我们不得不发现一个重要的规律：***主键变更并不会带来原来主键的属性***，比如主键从1->3，那么主键1原来的属性一定会被全update或者3不在range范围中，那么update key的操作就可以简单变成两个操作，一个delete之前主键，另一个insert新的主键。 这样才使得我们只要keep在范围内的主键相关记录，比如只有1000000到8000000的key对应记录有用，不会出现2^63的key有用，所以才可以使用array。
+
+如果不取巧，我们也参考Trove Hashmap实现了一个 efficient的 hashmap，另外通过另一个hashset来记录range范围内的记录有哪些，这个实现并且在其它地方都不取巧，我们可以获得8.9s的成绩。
+
 重放中，为了更memory-efficient，我们使用数组来模拟Hashmap表示对应的数据库，下标对应key, 引用对应value， 基于Range固定并且在int表示范围内
 
 ```java
@@ -257,7 +261,7 @@ static void parallelEvalAndSend(ExecutorService evalThreadPool) {
 ```
 
 * 其中 `insertOperation.getOneLineBytesEfficient()`是一个优化点，如果使用StringBuilder实现会比较慢，我们的实现如下，避免使用StringBuild和调用append。
-在下面的代码中我们的实现主要使用了直接的`byte[]`的操作和自己写的转换`parseLong`和`parseSingleChar`， 可以从原来的500ms 基于StringBuild 实现的 500ms cost减到250ms。
+在下面的代码中我们的实现主要使用了直接的`byte[]`的操作和自己写的转换`parseLong`和`parseSingleChar`， 可以从原来基于StringBuild实现的 500ms cost减到 250ms。
 
 ```java
 private static int getLongLen(long pk) {
@@ -390,10 +394,295 @@ public void start(FileChannel outputFile){
 
 ## 2. 创新点：算法设计上的创新点
 
-## 3. 为了跑分利用的Tricks
-
-## 4. 健壮性
+## 3. 健壮性
 
 ### 选手代码对不同的表结构适应性
 
 ### 对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
+
+## 4. 补充(8.9s general实现，即不利用数据集特征)
+
+efficient hashmap for 8.9s 实现， 这个实现中不需要从hashmap中remove，因为我们使用了另一个hashset存range范围内的记录。对应的Restore逻辑如下代码:
+
+### 4.1 数据和操作
+
+---
+
+* 两个关键的成员变量，一个记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，一个记录range范围内记录
+
+```java
+public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
+public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
+```
+
+* 对DeleteOperation 操作
+
+```java
+@Override
+public void act() {
+    if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
+        inRangeRecordSet.remove(this);
+    }
+}
+```
+
+* 对InsertOperation 操作
+
+```java
+@Override
+public void act(){
+    recordMap.put(this); //1
+    if (PipelinedComputation.isKeyInRange(relevantKey)) {
+        inRangeRecordSet.add(this);
+    }
+}
+```
+
+* 对UpdateOperation 操作
+
+```java
+@Override
+public void act(){
+    InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
+    insertOperation.mergeAnother(this); //3
+};
+```
+
+* 对UpdateKeyOperation 操作
+
+```java
+@Override
+public void act() {
+    InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
+    if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
+        inRangeRecordSet.remove(this);
+    }
+
+    insertOperation.changePK(this.changedKey); //4
+    recordMap.put(insertOperation); //5
+
+    if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+        inRangeRecordSet.add(insertOperation);
+    }
+}
+```
+
+### 4.2 HashMap probing detail 实现
+
+---
+
+* YcheLongHash.java
+
+```java
+package com.alibaba.middleware.race.sync.server2;
+
+import gnu.trove.impl.Constants;
+import gnu.trove.impl.HashFunctions;
+
+import java.util.Arrays;
+
+/**
+ * Created by yche on 6/24/17.
+ */
+public class YcheLongHash {
+    /**
+     * the set of longs
+     */
+    private transient long[] _set;
+
+    /**
+     * value that represents null
+     * <p>
+     * NOTE: should not be modified after the Hash is created, but is
+     * not final because of Externalization
+     */
+    private long no_entry_value;
+
+    /**
+     * Creates a new <code>YcheLongHash</code> instance whose capacity
+     * is the next highest prime above <tt>initialCapacity + 1</tt>
+     * unless that value is already prime.
+     *
+     * @param initialCapacity an <code>int</code> value
+     */
+    YcheLongHash(int initialCapacity) {
+        no_entry_value = Constants.DEFAULT_LONG_NO_ENTRY_VALUE;
+        _set = new long[initialCapacity];
+        //noinspection RedundantCast
+        if (no_entry_value != (long) 0) {
+            Arrays.fill(_set, no_entry_value);
+        }
+    }
+
+    /**
+     * initializes the hashtable to a prime capacity which is at least
+     * <tt>initialCapacity + 1</tt>.
+     *
+     * @param initialCapacity an <code>int</code> value
+     * @return the actual capacity chosen
+     */
+    protected void setUp(int initialCapacity) {
+        _set = new long[initialCapacity];
+    }
+
+    /**
+     * Locates the index of <tt>val</tt>.
+     *
+     * @param val an <code>long</code> value
+     * @return the index of <tt>val</tt> or -1 if it isn't in the set.
+     */
+    int index(long val) {
+        int hash, index, length;
+
+        length = _set.length;
+        hash = HashFunctions.hash(val) & 0x7fffffff;
+        index = hash % length;
+        long state = _set[index];
+
+        if (state == no_entry_value)
+            return -1;
+
+        else if (state == val)
+            return index;
+
+        return indexRehashed(val, index, hash, state);
+    }
+
+    private int indexRehashed(long key, int index, int hash, long state) {
+        // see Knuth, p. 529
+        int length = _set.length;
+        int probe = 1 + (hash % (length - 2));
+        final int loopIndex = index;
+
+        do {
+            index -= probe;
+            if (index < 0) {
+                index += length;
+            }
+            //
+            if (state == no_entry_value)
+                return -1;
+
+            //
+            if (key == _set[index])
+                return index;
+        } while (index != loopIndex);
+
+        return -1;
+    }
+
+    /**
+     * Locates the index at which <tt>val</tt> can be inserted.  if
+     * there is already a value equal()ing <tt>val</tt> in the set,
+     * returns that value as a negative integer.
+     *
+     * @param val an <code>long</code> value
+     * @return an <code>int</code> value
+     */
+    int insertKey(long val) {
+        int hash, index;
+
+        hash = HashFunctions.hash(val) & 0x7fffffff;
+        index = hash % _set.length;
+        long state = _set[index];
+
+
+        if (state == no_entry_value) {
+            insertKeyAt(index, val);
+
+            return index;       // empty, all done
+        } else if (_set[index] == val) {
+            return -index - 1;   // already stored
+        }
+
+        // already FULL or REMOVED, must probe
+        return insertKeyRehash(val, index, hash);
+    }
+
+    private int insertKeyRehash(long val, int index, int hash) {
+        // compute the double hash
+        final int length = _set.length;
+        int probe = 1 + (hash % (length - 2));
+        final int loopIndex = index;
+
+        /**
+         * Look until FREE slot or we start to loop
+         */
+        do {
+            index -= probe;
+            if (index < 0) {
+                index += length;
+            }
+            long state = _set[index];
+
+            // A FREE slot stops the search
+            if (state == no_entry_value) {
+                insertKeyAt(index, val);
+                return index;
+            }
+
+            if (_set[index] == val) {
+                return -index - 1;
+            }
+
+            // Detect loop
+        } while (index != loopIndex);
+
+        // We inspected all reachable slots and did not find a FREE one
+        // If we found a REMOVED slot we return the first one found
+
+        // Can a resizing strategy be found that resizes the set?
+        throw new IllegalStateException("No free or removed slots available. Key set full?!!");
+    }
+
+    private void insertKeyAt(int index, long val) {
+        _set[index] = val;  // insert value
+    }
+}
+```
+
+### 4.3 HashMap 接口 detail 实现
+
+--- 
+
+* YcheHashMap.java
+
+```java
+package com.alibaba.middleware.race.sync.server2;
+
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
+
+/**
+ * Created by yche on 6/23/17.
+ */
+public class YcheHashMap extends YcheLongHash {
+    private transient LogOperation[] _values;
+
+    YcheHashMap(int initialCapacity) {
+        super(initialCapacity);
+        setUp(initialCapacity);
+    }
+
+    public void setUp(int initialCapacity) {
+        _values = new LogOperation[initialCapacity];
+    }
+
+    public LogOperation get(Object key) {
+        int index = index(((LogOperation)key).relevantKey);
+        return index < 0 ? null : _values[index];
+    }
+
+    private void doPut(LogOperation value, int index) {
+        if (index < 0) {
+            index = -index - 1;
+        }
+        _values[index] = value;
+    }
+
+    public void put(LogOperation key) {
+        // insertKey() inserts the key if a slot if found and returns the index
+        int index = insertKey(key.relevantKey);
+        doPut(key, index);
+    }
+}
+```
