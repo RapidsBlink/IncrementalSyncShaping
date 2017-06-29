@@ -1,4 +1,5 @@
-## 算法流程设计
+# rapids团队竞赛相关材料
+## (1) 算法设计思路和处理流程
 
 ### 基本思路
 
@@ -14,9 +15,9 @@
 
 图中有四种不同的actor：
 
-* actor 1: MmapReader(主线程)， 负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
+* **actor 1: MmapReader(主线程)**， 负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
 
-* actor 2: Mediator(单个Mediator线程)， 负责轮询 `BlockingQueue<FileTransformMediatorTask>`来获取任务， 一个任务中包含一个`MappedByteBuffer`和对应的Chunk大小。
+* **actor 2: Mediator(单个Mediator线程)**， 负责轮询 `BlockingQueue<FileTransformMediatorTask>`来获取任务， 一个任务中包含一个`MappedByteBuffer`和对应的Chunk大小。
 
 轮询的逻辑如下代码所示：
 
@@ -103,10 +104,10 @@ private void assignTransformTasks() {
 }
 ```
 
-* actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
+* **actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)**
 这个逻辑在`FileTransformTask`中，负责对分配到某区间ByteBuffer里面的bytes进行解析，产生出用于重放的LogOperation对象来。 其中主要涉及到主键的解析，类型的解析和必要时LogOperation对象的创建。每个`FileTransformTask`对应一个唯一的`RecordScanner`， `RecordScanner`中封装了解析LogOperation对象的内容。
 
-* actor 4: Restore Computation Worker(单个重放计算线程)， 负责轮询获取任务进行计算， 当遇到大小为0的数组时候退出。
+* **actor 4: Restore Computation Worker(单个重放计算线程)**， 负责轮询获取任务进行计算， 当遇到大小为0的数组时候退出。
 
 相应任务获取逻辑如下:
 
@@ -191,3 +192,7 @@ public void act() {
     insertOperation.mergeAnother(this); //3
 }
 ```
+
+## (2) 创新点：算法设计上的创新点
+
+## (3) 健壮性：选手代码对不同的表结构适应性、对不同DML变更的适应性(例如根据数据集特征过滤了变更数据，这些过滤操作是否能适应不同的变更数据集)。
