@@ -106,6 +106,88 @@ private void assignTransformTasks() {
 * actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
 这个逻辑在`FileTransformTask`中，负责对分配到某区间ByteBuffer里面的bytes进行解析，产生出用于重放的LogOperation对象来。 其中主要涉及到主键的解析，类型的解析和必要时LogOperation对象的创建。每个`FileTransformTask`对应一个唯一的`RecordScanner`， `RecordScanner`中封装了解析LogOperation对象的内容。
 
-* actor 4: Restore Computation Worker(单个重放计算线程)
+* actor 4: Restore Computation Worker(单个重放计算线程)， 负责轮询获取任务进行计算， 当遇到大小为0的数组时候退出。
+
+相应任务获取逻辑如下:
+
+```java
+computationPool.execute(new Runnable() {
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                LogOperation[] logOperations = blockingQueue.take();
+                if (logOperations.length == 0)
+                    break;
+                RestoreComputation.compute(logOperations);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+});
+```
+
+主线程通知其结束的逻辑如下：
+
+```java
+try {
+    blockingQueue.put(new LogOperation[0]);
+} catch (InterruptedException e) {
+    e.printStackTrace();
+}
+```
+
+
+
 
 ![log operation class hierachy](log_operation.png)
+
+重放线程的逻辑就是顺序遍历取到的任务中每条LogOperation采取相应的行为。
+
+```java
+static void compute(LogOperation[] logOperations) {
+    for (LogOperation logOperation : logOperations) {
+        logOperation.act();
+    }
+}
+```
+
+使用数组来模拟Hashmap表示对应的数据库，下标对应key, 引用对应value， 基于Range固定并且在int表示范围内
+
+```java
+public static LogOperation[] ycheArr = new LogOperation[8 * 1024 * 1024];
+```
+
+DeleteOperation的操作， 从数据库中删除记录
+
+```java
+@Override
+public void act() {
+    ycheArr[(int) (this.relevantKey)] = null;
+}
+```
+
+
+InsertionOperation的操作， 数据库中插入新的记录
+
+```java
+@Override
+public void act() {
+    ycheArr[(int) (this.relevantKey)] = this;
+}
+```
+
+Update操作， 从数据库中取出对应的记录，并进行属性更新
+
+```java
+@Override
+public void act() {
+    InsertOperation insertOperation = (InsertOperation) RestoreComputation.ycheArr[(int) (this.relevantKey)]; //2
+    if(insertOperation==null){
+        insertOperation=new InsertOperation(this.relevantKey);
+        RestoreComputation.ycheArr[(int) this.relevantKey]=insertOperation;
+    }
+    insertOperation.mergeAnother(this); //3
+}
+```
