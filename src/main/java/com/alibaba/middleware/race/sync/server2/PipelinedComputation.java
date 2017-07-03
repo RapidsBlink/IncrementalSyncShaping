@@ -24,7 +24,8 @@ public class PipelinedComputation {
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
+     static int EVAL_WORKER_NUM = 16;
+    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(EVAL_WORKER_NUM);
 
     public static final ConcurrentMap<Long, byte[]> finalResultMap = new ConcurrentSkipListMap<>();
 
