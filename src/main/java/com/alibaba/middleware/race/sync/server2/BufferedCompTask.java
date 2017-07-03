@@ -1,6 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
 
+import com.alibaba.middleware.race.sync.operations.RecordOperation;
+
 /**
  * Created by yche on 6/20/17.
  */

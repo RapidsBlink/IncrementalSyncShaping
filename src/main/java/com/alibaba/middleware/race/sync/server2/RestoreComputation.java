@@ -1,5 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.operations.FieldValueLazyEval;
+import com.alibaba.middleware.race.sync.operations.RecordOperation;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -13,11 +16,11 @@ import static com.alibaba.middleware.race.sync.Constants.D_OPERATION;
  */
 public class RestoreComputation {
     public static ConcurrentHashMap<Long, RecordOperation> currentDB = new ConcurrentHashMap<>();
-    public static ConcurrentSkipListSet<Long> inRangeKeySet = new ConcurrentSkipListSet<>();
+    private static ConcurrentSkipListSet<Long> inRangeKeySet = new ConcurrentSkipListSet<>();
     private static Queue<Future<?>> waitQueue = new LinkedList<>();
 
     // should be used in a single bsp chunk
-    public static void threadSafeEval(RecordOperation recordOperation) {
+    static void threadSafeEval(RecordOperation recordOperation) {
         if (recordOperation.filedValuePointers != null) {
             for (int i = 0; i < RecordField.FILED_NUM; i++) {
                 if (recordOperation.filedValuePointers[i] instanceof FieldValueLazyEval) {

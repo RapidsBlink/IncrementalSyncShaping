@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.operations.RecordOperation;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -24,7 +24,6 @@ import static com.alibaba.middleware.race.sync.unused.server.FileUtil.unmap;
  * used by the master thread
  */
 public class FileTransformWriteMediator {
-    static BufferedOutputStream bufferedOutputStream;
     private FileChannel fileChannel;
     private MappedByteBuffer mappedByteBuffer;
 
@@ -146,13 +145,7 @@ public class FileTransformWriteMediator {
 
             // 2nd: compute key change
             RestoreComputation.parallelEval(computationPool, futureResult);
-//            for (RecordOperation recordOperation : futureResult.values()) {
-//                RestoreComputation.threadSafeEval(recordOperation);
-//            }
             RestoreComputation.parallelComp(computationPool, futureResult);
-//            for (Map.Entry<Long, RecordOperation> entry : futureResult.entrySet()) {
-//                RestoreComputation.threadSafeComputation(entry.getKey(), entry.getValue());
-//            }
         }
     }
 

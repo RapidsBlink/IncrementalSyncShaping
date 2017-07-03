@@ -15,11 +15,9 @@ public class PipelinedComputation {
     static int TRANSFORM_WORKER_NUM = 4;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
     static ExecutorService computationPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    public static RestoreComputation restoreComputation = new RestoreComputation();
+    private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
-    static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
-
-    public static FindResultListener findResultListener;
+    static FindResultListener findResultListener;
     public static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public interface FindResultListener {
@@ -38,7 +36,7 @@ public class PipelinedComputation {
         }
     }
 
-    public static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
+    private static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
         for (String pathString : srcFilePaths) {
             FileTransformWriteMediator fileTransformWriteMediator = new FileTransformWriteMediator(pathString);
             fileTransformWriteMediator.transformFile();
@@ -47,8 +45,8 @@ public class PipelinedComputation {
         joinSinglePool(computationPool);
     }
 
-    public static void secondPhaseComputation() {
-        restoreComputation.parallelEvalAndSend(evalSendPool);
+    private static void secondPhaseComputation() {
+        RestoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
 
@@ -63,7 +61,7 @@ public class PipelinedComputation {
     private static long pkLowerBound;
     private static long pkUpperBound;
 
-    public static void initRange(long lowerBound, long upperBound) {
+    private static void initRange(long lowerBound, long upperBound) {
         pkLowerBound = lowerBound;
         pkUpperBound = upperBound;
     }

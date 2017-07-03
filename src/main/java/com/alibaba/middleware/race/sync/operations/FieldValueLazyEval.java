@@ -1,4 +1,6 @@
-package com.alibaba.middleware.race.sync.server2;
+package com.alibaba.middleware.race.sync.operations;
+
+import com.alibaba.middleware.race.sync.server2.RestoreComputation;
 
 /**
  * Created by yche on 6/20/17.

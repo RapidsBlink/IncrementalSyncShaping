@@ -1,4 +1,6 @@
-package com.alibaba.middleware.race.sync.server2;
+package com.alibaba.middleware.race.sync.operations;
+
+import com.alibaba.middleware.race.sync.server2.RecordField;
 
 import java.util.HashMap;
 
@@ -11,7 +13,7 @@ import static com.alibaba.middleware.race.sync.Constants.U_OPERATION;
  * here update is same as insert operation
  */
 public class TransformComputation {
-    HashMap<Long, RecordOperation> recordOperationHashMap = new HashMap<>();
+    public HashMap<Long, RecordOperation> recordOperationHashMap = new HashMap<>();
 
     public RecordOperation insertPk(long pk) {
         RecordOperation recordOperation;

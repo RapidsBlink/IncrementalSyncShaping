@@ -1,5 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.operations.RecordOperation;
+import com.alibaba.middleware.race.sync.operations.TransformComputation;
+
 import java.nio.ByteBuffer;
 
 import static com.alibaba.middleware.race.sync.Constants.*;
@@ -9,7 +12,7 @@ import static com.alibaba.middleware.race.sync.server2.RecordField.fieldSkipLen;
  * Created by yche on 6/18/17.
  * used for scan the byte arr of record string lines
  */
-public class RecordScanner {
+class RecordScanner {
     // input
     private final ByteBuffer mappedByteBuffer;
     private final int endIndex;   // exclusive
@@ -20,7 +23,7 @@ public class RecordScanner {
     private int nextIndex; // start from startIndex
     private final TransformComputation transformComputation;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, TransformComputation transformComputation) {
+    RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, TransformComputation transformComputation) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -145,7 +148,7 @@ public class RecordScanner {
         nextIndex += 2;
     }
 
-    public void compute() {
+    void compute() {
         while (nextIndex < endIndex) {
             scanOneRecord();
         }

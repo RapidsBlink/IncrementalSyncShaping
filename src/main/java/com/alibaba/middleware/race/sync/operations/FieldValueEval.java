@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.server2;
+package com.alibaba.middleware.race.sync.operations;
 
 /**
  * Created by yche on 6/20/17.

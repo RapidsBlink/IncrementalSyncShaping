@@ -1,5 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.operations.RecordOperation;
+import com.alibaba.middleware.race.sync.operations.TransformComputation;
+
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.HashMap;
