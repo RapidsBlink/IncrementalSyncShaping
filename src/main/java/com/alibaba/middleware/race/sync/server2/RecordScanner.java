@@ -205,13 +205,13 @@ class RecordScanner {
         return logOperation;
     }
 
-    public void compute() {
+    void compute() {
         while (nextIndex < endIndex) {
             localOperations.add(scanOneRecord());
         }
     }
 
-    public void waitForSend() throws InterruptedException, ExecutionException {
+    void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
         prevFuture.get();
