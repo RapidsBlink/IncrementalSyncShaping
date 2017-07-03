@@ -23,18 +23,21 @@ public class RecordScanner {
     private final ByteBuffer tmpBuffer = ByteBuffer.allocate(8);
     private int nextIndex; // start from startIndex
 
-    private final ArrayList<LogOperation> localOperations = new ArrayList<>();
-    private final Future<?> prevFuture;
+    private final ArrayList<LogOperation> localOperations = new ArrayList<>(1024 * 16);
+    private Future<?> prevFuture;
     private int primaryKeyDigitNum = 0;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+    public RecordScanner() {
+    }
+
+    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
         this.prevFuture = prevFuture;
     }
 
-    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer();
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
@@ -208,6 +211,7 @@ public class RecordScanner {
     void waitForSend() throws InterruptedException, ExecutionException {
         // wait for producing tasks
         LogOperation[] logOperations = localOperations.toArray(new LogOperation[0]);
+        localOperations.clear();
         prevFuture.get();
         PipelinedComputation.blockingQueue.put(logOperations);
     }
