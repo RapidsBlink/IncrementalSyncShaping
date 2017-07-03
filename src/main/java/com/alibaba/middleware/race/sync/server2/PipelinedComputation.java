@@ -124,7 +124,7 @@ public class PipelinedComputation {
         pkUpperBound = upperBound;
     }
 
-    static boolean isKeyInRange(long key) {
+    public static boolean isKeyInRange(long key) {
         return pkLowerBound < key && key < pkUpperBound;
     }
 
