@@ -9,12 +9,14 @@ import java.util.HashMap;
  * Created by yche on 6/19/17.
  */
 public class InsertOperation extends LogOperation {
-    static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
-    static HashMap<Integer, Byte> indexMap = new HashMap<>();
+    public static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
+    private static HashMap<Integer, Byte> indexMap = new HashMap<>();
+    public static byte[][] BYTES_POINTERS = new byte[INTEGER_CHINESE_CHAR.length][];
 
     static {
-        for (int i = 0; i < INTEGER_CHINESE_CHAR.length; i++) {
-            indexMap.put(INTEGER_CHINESE_CHAR[i], (byte) i);
+        for (byte i = 0; i < INTEGER_CHINESE_CHAR.length; i++) {
+            indexMap.put(INTEGER_CHINESE_CHAR[i], i);
+            BYTES_POINTERS[i] = InsertOperation.toChineseChar(i).getBytes();
         }
     }
 
@@ -69,21 +71,26 @@ public class InsertOperation extends LogOperation {
     }
 
     public void mergeAnother(LogOperation nonDeleteOperation) {
+        if (nonDeleteOperation instanceof UpdateScore) {
+            this.score = ((UpdateScore) nonDeleteOperation).score;
+            return;
+        }
+        if (nonDeleteOperation instanceof UpdateScore2) {
+            this.score2 = ((UpdateScore2) nonDeleteOperation).score2;
+            return;
+        }
         if (nonDeleteOperation instanceof UpdateFirstNameOperation) {
             this.firstNameIndex = ((UpdateFirstNameOperation) nonDeleteOperation).firstNameIndex;
+            return;
         }
         if (nonDeleteOperation instanceof UpdateLastNameOperation) {
             this.lastNameFirstIndex = ((UpdateLastNameOperation) nonDeleteOperation).lastNameFirstIndex;
             this.lastNameSecondIndex = ((UpdateLastNameOperation) nonDeleteOperation).lastNameSecondIndex;
+            return;
         }
         if (nonDeleteOperation instanceof UpdateSex) {
             this.sexIndex = ((UpdateSex) nonDeleteOperation).sexIndex;
-        }
-        if (nonDeleteOperation instanceof UpdateScore) {
-            this.score = ((UpdateScore) nonDeleteOperation).score;
-        }
-        if (nonDeleteOperation instanceof UpdateScore2) {
-            this.score2 = ((UpdateScore2) nonDeleteOperation).score2;
+            return;
         }
     }
 
@@ -125,6 +132,80 @@ public class InsertOperation extends LogOperation {
 
         stringBuilder.setLength(stringBuilder.length() - 1);
         return stringBuilder.toString();
+    }
+
+    public static int getLongLen(long pk) {
+        int noOfDigit = 1;
+        while ((pk = pk / 10) != 0)
+            ++noOfDigit;
+        return noOfDigit;
+    }
+
+    public static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
+        long leftLong = pk;
+        for (int i = 0; i < noDigits; i++) {
+            byteArr[offset + noDigits - i - 1] = (byte) (leftLong % 10 + '0');
+            leftLong /= 10;
+        }
+    }
+
+    public static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+        System.arraycopy(BYTES_POINTERS[index], 0, byteArr, offset, 3);
+    }
+
+
+    public byte[] getOneLineBytesEfficient() {
+        byte[] tmpBytes = new byte[48];
+        int nextOffset = 0;
+        // 1st: pk
+        int pkDigits = getLongLen(relevantKey);
+        parseLong(relevantKey, tmpBytes, nextOffset, pkDigits);
+        nextOffset += pkDigits;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 2nd: first name
+        parseSingleChar(firstNameIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 3rd: second name
+        parseSingleChar(lastNameFirstIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        if (lastNameSecondIndex != -1) {
+            parseSingleChar(lastNameSecondIndex, tmpBytes, nextOffset);
+            nextOffset += 3;
+        }
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 4th: sex
+        parseSingleChar(sexIndex, tmpBytes, nextOffset);
+        nextOffset += 3;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 5th score
+        pkDigits = getLongLen(score);
+        parseLong(score, tmpBytes, nextOffset, pkDigits);
+        nextOffset += pkDigits;
+        tmpBytes[nextOffset] = '\t';
+        nextOffset += 1;
+
+        // 6th score2
+        if (score2 != -1) {
+            pkDigits = getLongLen(score2);
+            parseLong(score2, tmpBytes, nextOffset, pkDigits);
+            nextOffset += pkDigits;
+            tmpBytes[nextOffset] = '\t';
+            nextOffset += 1;
+        }
+        tmpBytes[nextOffset - 1] = '\n';
+
+        byte[] retBytes = new byte[nextOffset];
+        System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
+        return retBytes;
     }
 
     public byte[] getOneLineBytes() {

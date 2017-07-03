@@ -12,7 +12,7 @@ import java.util.ArrayList;
  */
 public class FirstPhaseComputationTest {
     static void firstPhaseComp() throws InterruptedException, IOException {
-        Thread.sleep(5000);
+//        Thread.sleep(5000);
         long startTime = System.currentTimeMillis();
         PipelinedComputation.initRange(100000, 2000000);
         String srcFolder = "/tmp";

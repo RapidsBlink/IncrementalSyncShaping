@@ -33,7 +33,7 @@ class BufferedEvalAndSendTask implements Runnable {
     @Override
     public void run() {
         for (int i = 0; i < nextIndex; i++) {
-            finalResultMap.put(recordArr[i].relevantKey, recordArr[i].getOneLineBytes());
+            finalResultMap.put(recordArr[i].relevantKey, recordArr[i].getOneLineBytesEfficient());
         }
     }
 }
