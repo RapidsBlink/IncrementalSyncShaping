@@ -14,8 +14,8 @@ public class RestoreComputation {
     public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
 
     static void compute(LogOperation[] logOperations) {
-        for (int i = 0; i < logOperations.length; i++) {
-            logOperations[i].act();
+        for (LogOperation logOperation : logOperations) {
+            logOperation.act();
         }
     }
 

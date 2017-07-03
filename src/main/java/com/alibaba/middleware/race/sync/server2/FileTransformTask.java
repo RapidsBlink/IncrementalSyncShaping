@@ -59,6 +59,5 @@ public class FileTransformTask implements Runnable {
                 e.printStackTrace();
             }
         }
-
     }
 }

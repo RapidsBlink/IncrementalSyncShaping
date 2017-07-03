@@ -15,7 +15,7 @@ import static com.alibaba.middleware.race.sync.server2.operations.InsertOperatio
  * Created by yche on 6/18/17.
  * used for scan the byte arr of record string lines
  */
-public class RecordScanner {
+class RecordScanner {
     // input
     private ByteBuffer mappedByteBuffer;
     private int endIndex;   // exclusive
@@ -27,14 +27,14 @@ public class RecordScanner {
     private final ArrayList<LogOperation> localOperations = new ArrayList<>();
     private final Future<?> prevFuture;
 
-    public RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
+    RecordScanner(ByteBuffer mappedByteBuffer, int startIndex, int endIndex, Future<?> prevFuture) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer(); // get a view, with local position, limit
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
         this.prevFuture = prevFuture;
     }
 
-    public void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
+    void reuse(ByteBuffer mappedByteBuffer, int startIndex, int endIndex) {
         this.mappedByteBuffer = mappedByteBuffer.asReadOnlyBuffer();
         this.nextIndex = startIndex;
         this.endIndex = endIndex;
