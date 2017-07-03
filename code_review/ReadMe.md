@@ -3,13 +3,13 @@
 ## 1. git版本信息
 
 该通用版本的提交在 https://code.aliyun.com/191836400/IncrementalSync/commits/master 上(私有仓库，需要有middlewarerace2017 reporter权限访问到)，对应版本号 为
-*** 44f5b54f27074f374ceae9428dd0d3d8d572d3c0 *** ，可以通过链接 https://code.aliyun.com/191836400/IncrementalSync/commit/44f5b54f27074f374ceae9428dd0d3d8d572d3c0 直接访问到
+**44f5b54f27074f374ceae9428dd0d3d8d572d3c0** ，可以通过链接 https://code.aliyun.com/191836400/IncrementalSync/commit/44f5b54f27074f374ceae9428dd0d3d8d572d3c0 直接访问到
 
 ## 2. 通用性的说明
 
 ### 2.1 我们版本支持的通用性
 
-我们这个版本在算法上支持任何的数据操作，包括update key/update property/insert key/delete key。** 支持当前正式赛和热身赛schema基础上数据集的任意变更 ** , 如果schema修改需要修改下面所说的`NonDeleteOperation`和`RecordScanner`的两个注意点（我们assume线上版本schema是固定的，这样实现有利于提升性能）。这个通用性的版本在线上的最好成绩为8.979s(对应提交时间:2017-06-26 08:13:14)。这个实现中的主要数据结构和操作如下:
+我们这个版本在算法上支持任何的数据操作，包括update key/update property/insert key/delete key。**支持当前正式赛和热身赛schema基础上数据集的任意变更** , 如果schema修改需要修改下面所说的`NonDeleteOperation`和`RecordScanner`的两个注意点（我们assume线上版本schema是固定的，这样实现有利于提升性能）。这个通用性的版本在线上的最好成绩为8.979s(对应提交时间:2017-06-26 08:13:14)。这个实现中的主要数据结构和操作如下:
 
 * 两个关键的成员变量，一个记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，一个记录range范围内记录。该实现中的HashMap参考gnu trove hashmap进行修改，使其更memory友好，但是也更为专用。
 
