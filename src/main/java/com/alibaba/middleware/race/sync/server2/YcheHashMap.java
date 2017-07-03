@@ -6,16 +6,15 @@ import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
  * Created by yche on 6/23/17.
  */
 public class YcheHashMap extends YcheLongHash {
-    protected transient LogOperation[] _values;
+    private transient LogOperation[] _values;
 
-    public YcheHashMap(int initialCapacity) {
+    YcheHashMap(int initialCapacity) {
         super(initialCapacity);
         setUp(initialCapacity);
     }
 
-    public int setUp(int initialCapacity) {
+    public void setUp(int initialCapacity) {
         _values = new LogOperation[initialCapacity];
-        return initialCapacity;
     }
 
     public LogOperation get(Object key) {

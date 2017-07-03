@@ -9,7 +9,7 @@ import static com.alibaba.middleware.race.sync.server2.RestoreComputation.record
  * Created by yche on 6/19/17.
  */
 public class UpdateKeyOperation extends LogOperation {
-    public final long changedKey;
+    private final long changedKey;
 
     public UpdateKeyOperation(long prevKey, long changedKey) {
         super(prevKey);

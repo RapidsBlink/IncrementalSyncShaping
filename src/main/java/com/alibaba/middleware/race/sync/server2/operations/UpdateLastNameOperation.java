@@ -6,8 +6,8 @@ import static com.alibaba.middleware.race.sync.server2.RestoreComputation.record
  * Created by yche on 6/24/17.
  */
 public class UpdateLastNameOperation extends LogOperation {
-    byte lastNameFirstIndex = -1;
-    byte lastNameSecondIndex = -1;
+    private byte lastNameFirstIndex = -1;
+    private byte lastNameSecondIndex = -1;
 
     public UpdateLastNameOperation(long relevantKey, byte lastNameFirstIndex, byte lastNameSecondIndex) {
         super(relevantKey);

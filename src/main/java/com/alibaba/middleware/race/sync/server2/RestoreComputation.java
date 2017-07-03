@@ -3,7 +3,6 @@ package com.alibaba.middleware.race.sync.server2;
 import com.alibaba.middleware.race.sync.server2.operations.*;
 import gnu.trove.set.hash.THashSet;
 
-import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 
 /**

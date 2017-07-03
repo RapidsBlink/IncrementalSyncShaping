@@ -84,7 +84,7 @@ public class InsertOperation extends LogOperation {
         }
     }
 
-    public void changePK(long pk) {
+    void changePK(long pk) {
         relevantKey = pk;
     }
 
@@ -93,41 +93,18 @@ public class InsertOperation extends LogOperation {
         byte[] tmpBytes = new byte[3];
         tmpBytes[0] = (byte) (intC >>> 16);
         tmpBytes[1] = (byte) (intC >>> 8);
-        tmpBytes[2] = (byte) (intC >>> 0);
+        tmpBytes[2] = (byte) (intC);
         return new String(tmpBytes);
     }
 
-    String getOneLine() {
-        StringBuilder stringBuilder = new StringBuilder();
-        // key
-        stringBuilder.append(relevantKey).append('\t');
-        // first name
-        stringBuilder.append(toChineseChar(firstNameIndex)).append('\t');
-        // last name
-        stringBuilder.append(toChineseChar(lastNameFirstIndex));
-        if (lastNameSecondIndex != -1)
-            stringBuilder.append(toChineseChar(lastNameSecondIndex));
-        stringBuilder.append('\t');
-        // sex
-        stringBuilder.append(toChineseChar(sexIndex)).append('\t');
-        // score
-        stringBuilder.append(score).append('\t');
-        // score2
-        if (score2 != -1)
-            stringBuilder.append(score2).append('\t');
-
-        stringBuilder.setLength(stringBuilder.length() - 1);
-        return stringBuilder.toString();
-    }
-
-    public static int getLongLen(long pk) {
+    private static int getLongLen(long pk) {
         int noOfDigit = 1;
         while ((pk = pk / 10) != 0)
             ++noOfDigit;
         return noOfDigit;
     }
 
-    public static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
+    private static void parseLong(long pk, byte[] byteArr, int offset, int noDigits) {
         long leftLong = pk;
         for (int i = 0; i < noDigits; i++) {
             byteArr[offset + noDigits - i - 1] = (byte) (leftLong % 10 + '0');
@@ -135,10 +112,9 @@ public class InsertOperation extends LogOperation {
         }
     }
 
-    public static void parseSingleChar(byte index, byte[] byteArr, int offset) {
+    private static void parseSingleChar(byte index, byte[] byteArr, int offset) {
         System.arraycopy(BYTES_POINTERS[index], 0, byteArr, offset, 3);
     }
-
 
     public byte[] getOneLineBytesEfficient() {
         byte[] tmpBytes = new byte[48];
@@ -192,29 +168,5 @@ public class InsertOperation extends LogOperation {
         byte[] retBytes = new byte[nextOffset];
         System.arraycopy(tmpBytes, 0, retBytes, 0, nextOffset);
         return retBytes;
-    }
-
-    public byte[] getOneLineBytes() {
-        StringBuilder stringBuilder = new StringBuilder();
-        // key
-        stringBuilder.append(relevantKey).append('\t');
-        // first name
-        stringBuilder.append(toChineseChar(firstNameIndex)).append('\t');
-        // last name
-        stringBuilder.append(toChineseChar(lastNameFirstIndex));
-        if (lastNameSecondIndex != -1)
-            stringBuilder.append(toChineseChar(lastNameSecondIndex));
-        stringBuilder.append('\t');
-        // sex
-        stringBuilder.append(toChineseChar(sexIndex)).append('\t');
-        // score
-        stringBuilder.append(score).append('\t');
-        // score2
-        if (score2 != -1)
-            stringBuilder.append(score2).append('\t');
-
-        stringBuilder.setLength(stringBuilder.length() - 1);
-        stringBuilder.append('\n');
-        return stringBuilder.toString().getBytes();
     }
 }

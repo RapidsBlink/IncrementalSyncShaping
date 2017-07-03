@@ -6,7 +6,7 @@ import static com.alibaba.middleware.race.sync.server2.RestoreComputation.record
  * Created by yche on 6/24/17.
  */
 public class UpdateScore extends LogOperation {
-    short score = -1;
+    private short score = -1;
 
     public UpdateScore(long relevantKey, short score) {
         super(relevantKey);

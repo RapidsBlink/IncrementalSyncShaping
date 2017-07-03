@@ -6,7 +6,7 @@ import static com.alibaba.middleware.race.sync.server2.RestoreComputation.record
  * Created by yche on 6/24/17.
  */
 public class UpdateSex extends LogOperation {
-    byte sexIndex = -1;
+    private byte sexIndex = -1;
 
     public UpdateSex(long relevantKey, byte sexIndex) {
         super(relevantKey);
