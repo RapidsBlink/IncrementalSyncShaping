@@ -2,6 +2,7 @@ package com.alibaba.middleware.race.sync.server2;
 
 
 import com.alibaba.middleware.race.sync.server2.operations.*;
+import gnu.trove.map.hash.TLongObjectHashMap;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -11,13 +12,13 @@ import java.util.concurrent.Future;
  * Created by yche on 6/23/17.
  */
 public class DatabaseRestore {
-    public static YcheHashMap[] recordMapArr = new YcheHashMap[PipelinedComputation.RESTORE_SLAVE_NUM];
-    public static DatabaseRestore[] databaseRestoreWorker = new DatabaseRestore[PipelinedComputation.RESTORE_SLAVE_NUM];
-    public static Queue<Future<?>> futures = new LinkedList<>();
+    private static TLongObjectHashMap<LogOperation>[] recordMapArr = new TLongObjectHashMap[PipelinedComputation.RESTORE_SLAVE_NUM];
+    private static DatabaseRestore[] databaseRestoreWorker = new DatabaseRestore[PipelinedComputation.RESTORE_SLAVE_NUM];
+    private static Queue<Future<?>> futures = new LinkedList<>();
 
     static {
         for (int i = 0; i < recordMapArr.length; i++) {
-            recordMapArr[i] = new YcheHashMap(20 * 1024 * 1024 / PipelinedComputation.RESTORE_SLAVE_NUM);
+            recordMapArr[i] = new TLongObjectHashMap<>(24 * 1024 * 1024 / PipelinedComputation.RESTORE_SLAVE_NUM);
             databaseRestoreWorker[i] = new DatabaseRestore(i);
         }
     }
@@ -25,7 +26,7 @@ public class DatabaseRestore {
     private HashSet<LogOperation> deadKeys = new HashSet<>();
     private HashMap<LogOperation, LogOperation> activeKeys = new HashMap<>();
     private ArrayList<LogOperation> insertions = new ArrayList<>();
-    private YcheHashMap recordMap;
+    private TLongObjectHashMap<LogOperation> recordMap;
 
     private LogOperation changedToObj = new LogOperation(-1);
     private final int index;
@@ -86,7 +87,7 @@ public class DatabaseRestore {
     private LogOperation lookUp(LogOperation logOperation) {
         long pk = logOperation.relevantKey;
         int lookUpIndex = (int) (pk % PipelinedComputation.RESTORE_SLAVE_NUM);
-        return recordMapArr[lookUpIndex].get(logOperation);
+        return recordMapArr[lookUpIndex].get(logOperation.relevantKey);
     }
 
     private void restoreFirstPhase(LogOperation[] logOperations) {
@@ -106,12 +107,11 @@ public class DatabaseRestore {
     }
 
     private void restoreApplyPhase() {
-        for (int i = 0; i < insertions.size(); i++) {
-            LogOperation logOperation = insertions.get(i);
+        for (LogOperation logOperation : insertions) {
             if (logOperation instanceof UpdateKeyOperation) {
                 logOperation.relevantKey = ((UpdateKeyOperation) logOperation).changedKey;
             }
-            recordMap.put(logOperation);
+            recordMap.put(logOperation.relevantKey, logOperation);
         }
     }
 

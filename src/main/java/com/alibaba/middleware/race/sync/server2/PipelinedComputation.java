@@ -16,15 +16,14 @@ public class PipelinedComputation {
     private static int TRANSFORM_WORKER_NUM = 16;
     static int WORK_NUM = TRANSFORM_WORKER_NUM;
     static ExecutorService fileTransformPool = Executors.newFixedThreadPool(TRANSFORM_WORKER_NUM);
-    public static RestoreComputation restoreComputation = new RestoreComputation();
 
-    public static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
-    public static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(3);
+    static BlockingQueue<LogOperation[]> blockingQueue = new ArrayBlockingQueue<>(64);
+    static BlockingQueue<FileTransformMediatorTask> mediatorTasks = new ArrayBlockingQueue<>(3);
 
-    static ExecutorService computationPool = Executors.newFixedThreadPool(1);
-    static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
+    private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
+    private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    public static int RESTORE_SLAVE_NUM = 16;
+    static int RESTORE_SLAVE_NUM = 16;
     static ExecutorService computationSlaverPools[] = new ExecutorService[RESTORE_SLAVE_NUM];
 
     static {
