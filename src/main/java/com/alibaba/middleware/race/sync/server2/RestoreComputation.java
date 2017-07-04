@@ -16,11 +16,11 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  */
 public class RestoreComputation {
     static int WORKER_NUM = 8;
-    public static TLongObjectHashMap[] recordMapArr = new TLongObjectHashMap[WORKER_NUM];
+    public static TLongObjectHashMap<LogOperation>[] recordMapArr = new TLongObjectHashMap[WORKER_NUM];
 
     static {
         for (int i = 0; i < WORKER_NUM; i++) {
-            recordMapArr[i] = new TLongObjectHashMap(24 * 1024 * 1024 / WORKER_NUM);
+            recordMapArr[i] = new TLongObjectHashMap<>(24 * 1024 * 1024 / WORKER_NUM);
         }
     }
 

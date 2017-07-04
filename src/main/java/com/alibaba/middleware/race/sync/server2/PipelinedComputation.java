@@ -98,13 +98,14 @@ public class PipelinedComputation {
         joinSinglePool(mediatorPool);
 
         // join tokenizer
-        for (int i = 0; i < fileTransformPool.length; i++)
-            joinSinglePool(fileTransformPool[i]);
+        for (ExecutorService aFileTransformPool : fileTransformPool) {
+            joinSinglePool(aFileTransformPool);
+        }
 
         // join computation
         joinSinglePool(computationPool);
-        for (int i = 0; i < dbUpdatePool.length; i++) {
-            joinSinglePool(dbUpdatePool[i]);
+        for (ExecutorService aDbUpdatePool : dbUpdatePool) {
+            joinSinglePool(aDbUpdatePool);
         }
     }
 
