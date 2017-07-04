@@ -16,14 +16,14 @@
 
 图中有四种不同的actor，这些actors的交互构成了完整的第一阶段计算的流水线：
 
-#### actor 1: MmapReader(主线程)
+#### 2.2.1 actor 1: MmapReader(主线程)
 
 职责：负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
 
 在获取下一块文件Chunk的时候，该Reader会判断是否已经初始化了关于单表的Meta信息。详细代码可见:
 (其中RecordField类的类静态变量将用来记录这些Meta信息)。
 
-#### actor 2: Mediator(单个Mediator线程)
+#### 2.2.2 actor 2: Mediator(单个Mediator线程)
 
 职责：负责轮询 `BlockingQueue<FileTransformMediatorTask>`来获取任务， 一个任务中包含一个`MappedByteBuffer`和对应的Chunk大小。
 
@@ -33,11 +33,11 @@
 
 下面关键代码中相应的的 `submitIfPossible(FileTransformTask fileTransformTask)`方法中 `serverPCGlobalStatus[globalIndex]`是根据统计出来的有用的Chunk，这是看其他队伍实现了5s以内的版本，不得以想到的，因为理论分析只有这样作或者利用其他数据的特征才可能实现5s以内的版本。这个一个取巧之处。这个取巧之处才可能帮助很多队伍创造出5s以内的时间，因为这样做的话，极限就是 ***1s的评测程序开销 + 2.5s mmap load 10G文件开销(完全和计算overlap,计算包括了tokenize, parse, restore) + 0.5s(并行eval，网络传输和落盘) = 4s***。
 
-#### actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
+#### 2.2.3 actor 3: Tokenizer and Parser for LogOperation(线程数为16的线程池)
 
 职责: 这个逻辑在`FileTransformTask`中，负责对分配到某区间ByteBuffer里面的bytes进行解析，产生出用于重放的LogOperation对象来。 其中主要涉及到主键的解析，类型的解析和必要时LogOperation对象的创建。每个`FileTransformTask`对应一个唯一的`RecordScanner`， `RecordScanner`中封装了解析LogOperation对象的内容。中间设计到了利用表Meta信息减少访问bytes的优化，例如Delete操作的所有field都可以跳过，这也是比较容易发现的一个优化点。
 
-#### actor 4: Restore Computation Worker(单个重放计算线程)
+#### 2.2.4 actor 4: Restore Computation Worker(单个重放计算线程)
 
 职责：负责轮询获取任务进行计算， 当遇到大小为0的数组时候退出。重放计算线程轮询和退出的方式与Mediator类似，这里就不再给出。
 
@@ -190,7 +190,7 @@ private void assignTransformTasks() {
 
 这一块需要有基础的操作基本类型`NonDeleteOperation`和`RecordScanner`这两个类，在使用中有如下两个注意点:
 
-#### NonDeleteOperation通用化注意点
+#### 3.3.1 NonDeleteOperation通用化注意点
 
 由于实际生产环境中，数据库的schema基本是不会变化的，所以我们针对比赛数据对应的单表结构进行了存储的设计。
 
@@ -297,7 +297,7 @@ public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
 }
 ```
 
-#### RecordScanner通用化注意点
+#### 3.3.2 RecordScanner通用化注意点
 
 当前的RecordScanner利用了当前表中数据字段长度范围和fieldName的特点，在实际使用中需要修改RecordScanner得以适应其他表结构。
 
@@ -408,7 +408,7 @@ private int skipFieldName() {
 
 ### 3.4 第一阶段 actor4: Computation Worker(单个计算线程)
 
-#### 基于数组的实现
+#### 3.4.1 基于数组的实现
 
 重放中，为了更memory-efficient，我们使用数组来模拟Hashmap表示对应的数据库，下标对应key, 引用对应value， 基于Range固定并且在int表示范围内
 
@@ -458,7 +458,7 @@ public void act() {
 }
 ```
 
-#### 基于hashmap和hashset的实现
+#### 3.4.2 基于hashmap和hashset的实现
 
 * 两个关键的成员变量，一个记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，一个记录range范围内记录。该实现中的HashMap参考gnu trove hashmap进行修改，使其更memory友好，但是也更为专用。
 
