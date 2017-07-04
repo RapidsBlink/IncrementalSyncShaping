@@ -1,0 +1,199 @@
+ption: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232513
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232524
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232535
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232546
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232557
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232568
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232579
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232590
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232601
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232612
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232623
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232634
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232645
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.288] INFO  c.a.m.r.sync.Server -5232656
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232667
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232678
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232689
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232700
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232711
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232722
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232733
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232744
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232755
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232766
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232777
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232788
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232810
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -5232821
+[2017-06-27 20:12:57.289] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232832
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232843
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232854
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232865
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232876
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232887
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232898
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232909
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232920
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232931
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232942
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232953
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232964
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232975
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -5232986
+[2017-06-27 20:12:57.290] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5232997
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233008
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233019
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233030
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233041
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233052
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233063
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233074
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233085
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233096
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233107
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233118
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233129
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233140
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -err
+java.lang.NullPointerException: null
+[2017-06-27 20:12:57.291] INFO  c.a.m.r.sync.Server -5233151
+[2017-06-27 20:12:57.330] INFO  c.a.m.r.sync.Server -first phase end:1498565577330
+[2017-06-27 20:13:25.239] INFO  c.a.m.r.sync.Server -second phase end:1498565605239
+[2017-06-27 20:13:25.309] INFO  c.a.m.r.sync.Server -second phase end:1498565605309
+[2017-06-27 20:13:25.517] INFO  c.a.m.r.sync.Server -jvm start:1498565571123
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000001	邹	铭	女	469	181198
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000003	邹	景	男	469	295219
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000007	邹	乙民	女	469	152256
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000009	邹	力	男	469	152867
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000011	杨	发	男	649	294610
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000013	侯	孙	女	220	142258
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000015	邹	林	女	469	271650
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000017	杨	高	女	649	146246
+
+[2017-06-27 20:13:25.518] INFO  c.a.m.r.sync.Server -1000023	杨	黎名	男	649	16672
+
+[2017-06-27 20:13:25.519] INFO  c.a.m.r.sync.Server -1000029	杨	黎	女	649	142142
+
+[2017-06-27 20:13:25.690] INFO  c.a.m.r.sync.Server -size:1209813
+[2017-06-27 20:13:25.690] INFO  c.a.m.r.sync.Server -Send finish all package......

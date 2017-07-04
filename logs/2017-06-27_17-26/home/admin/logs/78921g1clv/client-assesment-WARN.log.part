@@ -1,0 +1,10 @@
+out
+ [WARN ] [17:25:21] com.alibaba.middleware.race.testing.submit.topkn.TopKNTaskRunner - /home/admin/MiddlewareTester/bin/sync/start_user_client.sh 172.19.104.83 /home/admin/logs/78921g1clv/gc_client.log  exception, the exitStatus is: TIMED_OUT
+ [WARN ] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 运行user client程序失败 TIMED_OUT
+ [WARN ] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 运行超时，清除选手产生的结果文件
+ [WARN ] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ [ERROR] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 运行时间超时，请检查您的代码。此次评测消耗评测机会1次
+ [WARN ] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 停止用户user client程序成功 SUCCESS
+ [WARN ] [17:25:21] com.alibaba.middleware.race.TesterHttpServer - 成功输出tsar信息SUCCESS
+ [WARN ] [17:25:22] com.alibaba.middleware.race.TesterHttpServer - 删除结果成功------SUCCESS
+ 
