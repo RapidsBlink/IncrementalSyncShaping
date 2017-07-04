@@ -30,8 +30,7 @@ public class NonDeleteOperation extends LogOperation {
     }
 
     private static int toInt(byte[] data, int offset) {
-        int ret = (data[offset] & 0xFF) << 16 | (data[1 + offset] & 0xFF) << 8 | (data[2 + offset] & 0xFF);
-        return ret;
+        return (data[offset] & 0xFF) << 16 | (data[1 + offset] & 0xFF) << 8 | (data[2 + offset] & 0xFF);
     }
 
     private static byte getIndexOfChineseChar(byte[] data, int offset) {
@@ -71,25 +70,6 @@ public class NonDeleteOperation extends LogOperation {
         }
     }
 
-    public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
-        if (nonDeleteOperation.firstNameIndex != -1) {
-            this.firstNameIndex = nonDeleteOperation.firstNameIndex;
-        }
-        if (nonDeleteOperation.lastNameFirstIndex != -1) {
-            this.lastNameFirstIndex = nonDeleteOperation.lastNameFirstIndex;
-            this.lastNameSecondIndex = nonDeleteOperation.lastNameSecondIndex;
-        }
-        if (nonDeleteOperation.sexIndex != -1) {
-            this.sexIndex = nonDeleteOperation.sexIndex;
-        }
-        if (nonDeleteOperation.score != -1) {
-            this.score = nonDeleteOperation.score;
-        }
-        if (nonDeleteOperation.score2 != -1) {
-            this.score2 = nonDeleteOperation.score2;
-        }
-    }
-
     public void backwardMergePrev(NonDeleteOperation prevOperation) {
         if (this.firstNameIndex == -1) {
             this.firstNameIndex = prevOperation.firstNameIndex;
@@ -114,7 +94,7 @@ public class NonDeleteOperation extends LogOperation {
         byte[] tmpBytes = new byte[3];
         tmpBytes[0] = (byte) (intC >>> 16);
         tmpBytes[1] = (byte) (intC >>> 8);
-        tmpBytes[2] = (byte) (intC >>> 0);
+        tmpBytes[2] = (byte) (intC);
         return new String(tmpBytes);
     }
 

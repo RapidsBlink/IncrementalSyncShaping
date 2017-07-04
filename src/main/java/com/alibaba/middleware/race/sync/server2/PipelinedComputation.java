@@ -34,7 +34,7 @@ public class PipelinedComputation {
 
     private static ExecutorService evalSendPool = Executors.newFixedThreadPool(16);
 
-    public static FindResultListener findResultListener;
+    static FindResultListener findResultListener;
     public static final ConcurrentMap<Long, String> finalResultMap = new ConcurrentSkipListMap<>();
 
     public interface FindResultListener {
@@ -53,7 +53,7 @@ public class PipelinedComputation {
         }
     }
 
-    public static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
+    private static void firstPhaseComputation(ArrayList<String> srcFilePaths) throws IOException {
         computationPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -110,7 +110,7 @@ public class PipelinedComputation {
         }
     }
 
-    public static void secondPhaseComputation() {
+    private static void secondPhaseComputation() {
         RestoreComputation.parallelEvalAndSend(evalSendPool);
         joinSinglePool(evalSendPool);
     }
@@ -141,7 +141,7 @@ public class PipelinedComputation {
     private static long pkLowerBound;
     private static long pkUpperBound;
 
-    public static void initRange(long lowerBound, long upperBound) {
+    private static void initRange(long lowerBound, long upperBound) {
         pkLowerBound = lowerBound;
         pkUpperBound = upperBound;
     }

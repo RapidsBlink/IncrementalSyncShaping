@@ -13,24 +13,21 @@ public class RestoreComputation {
 
     static void compute(final LogOperation[] logOperations) {
         DatabaseRestore.submitFirstPhase(logOperations);
-        for (int i = 0; i < logOperations.length; i++) {
-            LogOperation logOperation = logOperations[i];
-            if (logOperation instanceof UpdateOperation) {
-                // update
-                if (logOperation instanceof UpdateKeyOperation) {
-                    if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
-                        inRangeRecordSet.remove(logOperation);
-                    }
-                    LogOperation insertOperation = new LogOperation(((UpdateKeyOperation) logOperation).changedKey);
-                    if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
-                        inRangeRecordSet.add(insertOperation);
-                    }
+        for (LogOperation logOperation : logOperations) {
+            // update
+            if (logOperation instanceof UpdateKeyOperation) {
+                if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
+                    inRangeRecordSet.remove(logOperation);
+                }
+                LogOperation insertOperation = new LogOperation(((UpdateKeyOperation) logOperation).changedKey);
+                if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+                    inRangeRecordSet.add(insertOperation);
                 }
             } else if (logOperation instanceof DeleteOperation) {
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.remove(logOperation);
                 }
-            } else {
+            } else if (logOperation instanceof InsertOperation) {
                 // insert
                 if (PipelinedComputation.isKeyInRange(logOperation.relevantKey)) {
                     inRangeRecordSet.add(logOperation);

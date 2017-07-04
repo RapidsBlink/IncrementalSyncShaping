@@ -18,17 +18,17 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.file
  * Created by yche on 6/16/17.
  * used by the master thread
  */
-public class FileTransformMediatorTask {
+class FileTransformMediatorTask {
     private Queue<Future<?>> prevFutureQueue = new LinkedList<>();
     private MappedByteBuffer mappedByteBuffer;
     private int currChunkLength;
     boolean isFinished = false;
 
-    public FileTransformMediatorTask() {
+    FileTransformMediatorTask() {
         isFinished = true;
     }
 
-    public FileTransformMediatorTask(MappedByteBuffer mappedByteBuffer, int currChunkLength) {
+    FileTransformMediatorTask(MappedByteBuffer mappedByteBuffer, int currChunkLength) {
         this.mappedByteBuffer = mappedByteBuffer;
         this.currChunkLength = currChunkLength;
     }
@@ -146,7 +146,7 @@ public class FileTransformMediatorTask {
         unmap(mappedByteBuffer);
     }
 
-    public void transform() {
+    void transform() {
         oneChunkComputation();
 
         // close stream, and unmap

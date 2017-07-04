@@ -12,13 +12,12 @@ import static com.alibaba.middleware.race.sync.Constants.LINE_SPLITTER;
  * Created by yche on 6/17/17.
  * use once
  */
-public class RecordField {
-    public static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
-    public static int[] fieldSkipLen;
-    public static int FILED_NUM;
-    public static int KEY_LEN;
+class RecordField {
+    private static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
+    static int[] fieldSkipLen;
+    static int KEY_LEN;
 
-    public static boolean isInit() {
+    static boolean isInit() {
         return fieldIndexMap.size() > 0;
     }
 
@@ -27,7 +26,7 @@ public class RecordField {
     private ByteBuffer mappedByteBuffer;
     private ByteBuffer myBuffer = ByteBuffer.allocate(1024);
 
-    public RecordField(ByteBuffer mappedByteBuffer) {
+    RecordField(ByteBuffer mappedByteBuffer) {
         this.mappedByteBuffer = mappedByteBuffer;
     }
 
@@ -59,7 +58,7 @@ public class RecordField {
         return retByteBuffer;
     }
 
-    public void initFieldIndexMap() {
+    void initFieldIndexMap() {
         // mysql, ts, schema, table, op,
         for (int i = 0; i < 5; i++) {
             skipField();
@@ -82,7 +81,7 @@ public class RecordField {
             skipField();
         }
 
-        FILED_NUM = fieldIndexMap.size();
+        int FILED_NUM = fieldIndexMap.size();
         fieldSkipLen = new int[FILED_NUM];
         for (Map.Entry<ByteBuffer, Integer> entry : fieldIndexMap.entrySet()) {
             fieldSkipLen[entry.getValue()] = entry.getKey().limit() + 1;

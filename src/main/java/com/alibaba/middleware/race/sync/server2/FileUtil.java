@@ -7,8 +7,8 @@ import java.nio.MappedByteBuffer;
 /**
  * Created by yche on 6/20/17.
  */
-final public class FileUtil {
-    public static void unmap(MappedByteBuffer mbb) {
+final class FileUtil {
+    static void unmap(MappedByteBuffer mbb) {
         try {
             Method cleaner = mbb.getClass().getMethod("cleaner");
             cleaner.setAccessible(true);

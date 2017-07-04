@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 /**
  * Created by yche on 6/23/17.
  */
-public class DatabaseRestore {
+class DatabaseRestore {
     private static TLongObjectHashMap<LogOperation>[] recordMapArr = new TLongObjectHashMap[PipelinedComputation.RESTORE_SLAVE_NUM];
     private static DatabaseRestore[] databaseRestoreWorker = new DatabaseRestore[PipelinedComputation.RESTORE_SLAVE_NUM];
     private static Queue<Future<?>> futures = new LinkedList<>();
@@ -36,6 +36,7 @@ public class DatabaseRestore {
         this.recordMap = recordMapArr[index];
     }
 
+    // only collect 2 type of works, first: change to my duty, insert/update applied to my duty
     private boolean isMyJob(LogOperation logOperation) {
         long pk;
         if (logOperation instanceof UpdateKeyOperation) {
@@ -69,7 +70,6 @@ public class DatabaseRestore {
                 deadKeys.add(logOperation);
             } else if (activeKeys.containsKey(changedToObj)) {
                 NonDeleteOperation lastOperation = (NonDeleteOperation) activeKeys.remove(changedToObj);
-                lastOperation.backwardMergePrev((NonDeleteOperation) logOperation);
                 activeKeys.put(logOperation, lastOperation);
             } else if (isMyJob(logOperation)) {
                 activeKeys.put(logOperation, logOperation);
@@ -87,6 +87,9 @@ public class DatabaseRestore {
     private LogOperation lookUp(LogOperation logOperation) {
         long pk = logOperation.relevantKey;
         int lookUpIndex = (int) (pk % PipelinedComputation.RESTORE_SLAVE_NUM);
+        if (recordMapArr[lookUpIndex].get(logOperation.relevantKey) == null) {
+            System.out.println(lookUpIndex + " , null for relevant key:" + logOperation.relevantKey);
+        }
         return recordMapArr[lookUpIndex].get(logOperation.relevantKey);
     }
 
@@ -106,15 +109,6 @@ public class DatabaseRestore {
         }
     }
 
-    private void restoreApplyPhase() {
-        for (LogOperation logOperation : insertions) {
-            if (logOperation instanceof UpdateKeyOperation) {
-                logOperation.relevantKey = ((UpdateKeyOperation) logOperation).changedKey;
-            }
-            recordMap.put(logOperation.relevantKey, logOperation);
-        }
-    }
-
     static void submitFirstPhase(final LogOperation[] logOperations) {
         for (int i = 0; i < PipelinedComputation.RESTORE_SLAVE_NUM; i++) {
             final int finalI = i;
@@ -129,6 +123,7 @@ public class DatabaseRestore {
         }
     }
 
+    // bsp barrier: for the first phase comp
     private static void condWait() {
         while (!futures.isEmpty()) {
             try {
@@ -136,6 +131,15 @@ public class DatabaseRestore {
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void restoreApplyPhase() {
+        for (LogOperation logOperation : insertions) {
+            if (logOperation instanceof UpdateKeyOperation) {
+                logOperation.relevantKey = ((UpdateKeyOperation) logOperation).changedKey;
+            }
+            recordMap.put(logOperation.relevantKey, logOperation);
         }
     }
 
@@ -147,7 +151,7 @@ public class DatabaseRestore {
                     new Runnable() {
                         @Override
                         public void run() {
-                            DatabaseRestore.databaseRestoreWorker[finalI].restoreApplyPhase();
+                            databaseRestoreWorker[finalI].restoreApplyPhase();
                         }
                     }
             ));
