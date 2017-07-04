@@ -14,8 +14,8 @@ import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.fina
  * Created by yche on 6/18/17.
  */
 public class RestoreComputation {
-    public static YcheLongObjectHashMap recordMap = new YcheLongObjectHashMap(20 * 1024 * 1024);
-    public static THashSet<InsertOperation> inRangeRecordSet = new THashSet<>(2 * 1024 * 1024);
+    public static YcheLongObjectHashMap recordMap = new YcheLongObjectHashMap(24 * 1024 * 1024);
+    public static THashSet<InsertOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
     public static InsertOperation tmp = new InsertOperation(-1);
 
     // byteBuffer should be flipped first
