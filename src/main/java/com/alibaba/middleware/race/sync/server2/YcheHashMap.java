@@ -1,5 +1,6 @@
 package com.alibaba.middleware.race.sync.server2;
 
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 import gnu.trove.impl.hash.TObjectHash;
 
 import java.util.Arrays;

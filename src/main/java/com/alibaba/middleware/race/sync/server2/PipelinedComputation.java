@@ -1,6 +1,7 @@
 package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.Server;
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
 
 import java.io.IOException;
 import java.util.ArrayList;

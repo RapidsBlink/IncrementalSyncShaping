@@ -1,6 +1,8 @@
 package com.alibaba.middleware.race.sync.server2;
 
 
+import com.alibaba.middleware.race.sync.server2.operations.InsertOperation;
+
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.finalResultMap;
 import static com.alibaba.middleware.race.sync.server2.PipelinedComputation.findResultListener;
 

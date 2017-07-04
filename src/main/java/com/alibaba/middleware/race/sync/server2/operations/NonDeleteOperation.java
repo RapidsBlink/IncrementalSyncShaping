@@ -1,4 +1,4 @@
-package com.alibaba.middleware.race.sync.server2;
+package com.alibaba.middleware.race.sync.server2.operations;
 
 import com.alibaba.middleware.race.sync.Server;
 
@@ -118,7 +118,7 @@ public class NonDeleteOperation extends LogOperation {
         return new String(tmpBytes);
     }
 
-    String getOneLine() {
+    public String getOneLine() {
         StringBuilder stringBuilder = new StringBuilder();
         // key
         stringBuilder.append(relevantKey).append('\t');

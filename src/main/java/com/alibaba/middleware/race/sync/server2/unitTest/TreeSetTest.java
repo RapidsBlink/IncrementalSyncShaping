@@ -1,8 +1,8 @@
 package com.alibaba.middleware.race.sync.server2.unitTest;
 
-import com.alibaba.middleware.race.sync.server2.InsertOperation;
-import com.alibaba.middleware.race.sync.server2.LogOperation;
-import com.alibaba.middleware.race.sync.server2.UpdateOperation;
+import com.alibaba.middleware.race.sync.server2.operations.InsertOperation;
+import com.alibaba.middleware.race.sync.server2.operations.LogOperation;
+import com.alibaba.middleware.race.sync.server2.operations.UpdateOperation;
 
 import java.util.TreeSet;
 
