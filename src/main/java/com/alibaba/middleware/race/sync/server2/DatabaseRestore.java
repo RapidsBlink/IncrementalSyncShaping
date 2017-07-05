@@ -105,6 +105,9 @@ class DatabaseRestore {
             LogOperation lastOperation = entry.getValue();
             LogOperation prevOperation = entry.getKey();
             ((NonDeleteOperation) lastOperation).backwardMergePrev((NonDeleteOperation) lookUp(prevOperation));
+            // update key: e.g 1->3 should insert 3, instead of 1
+            if (lastOperation instanceof UpdateKeyOperation)
+                lastOperation.relevantKey = ((UpdateKeyOperation) lastOperation).changedKey;
             insertions.add(lastOperation);
         }
     }
@@ -156,5 +159,6 @@ class DatabaseRestore {
                     }
             ));
         }
+        condWait();
     }
 }

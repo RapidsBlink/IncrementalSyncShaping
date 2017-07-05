@@ -25,7 +25,7 @@ public class NonDeleteOperation extends LogOperation {
     private short score = -1;
     private int score2 = -1;
 
-    public NonDeleteOperation(long relevantKey) {
+    NonDeleteOperation(long relevantKey) {
         super(relevantKey);
     }
 
