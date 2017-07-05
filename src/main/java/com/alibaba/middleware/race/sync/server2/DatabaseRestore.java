@@ -52,7 +52,7 @@ class DatabaseRestore {
         return pk % PipelinedComputation.RESTORE_SLAVE_NUM == index;
     }
 
-    private static long debugKey = 259479554;
+    private static long debugKey = 259481727;
 
     private void restoreDetail(LogOperation logOperation) {
         long relevantKey = logOperation.relevantKey;
@@ -67,6 +67,9 @@ class DatabaseRestore {
             } else if (activeKeys.containsKey(relevantKey)) {
                 NonDeleteOperation lastOperation = ((NonDeleteOperation) activeKeys.remove(relevantKey));
                 lastOperation.backwardMergePrev((NonDeleteOperation) logOperation);
+                if (lastOperation.relevantKey == debugKey) {
+                    System.out.println("should insert...");
+                }
                 if (isMyJob(lastOperation))
                     insertions.add(lastOperation);
             } else if (isMyJob(logOperation)) {
@@ -130,6 +133,9 @@ class DatabaseRestore {
         activeKeys.forEachEntry(new TLongObjectProcedure<LogOperation>() {
             @Override
             public boolean execute(long key, LogOperation lastOperation) {
+                if(lastOperation.relevantKey==debugKey){
+                    System.out.println("should be insert here");
+                }
                 if (isMyJob(lastOperation)) {
                     ((NonDeleteOperation) lastOperation).backwardMergePrev(lookUp(key));
                     insertions.add(lastOperation);
@@ -167,9 +173,6 @@ class DatabaseRestore {
 
     private void restoreApplyPhase() {
         for (LogOperation logOperation : insertions) {
-            if (logOperation instanceof UpdateKeyOperation) {
-                logOperation.relevantKey = ((UpdateKeyOperation) logOperation).changedKey;
-            }
             recordMap.put(logOperation.relevantKey, logOperation);
         }
     }
