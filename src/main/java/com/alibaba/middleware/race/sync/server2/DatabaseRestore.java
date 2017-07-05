@@ -52,8 +52,13 @@ class DatabaseRestore {
         return pk % PipelinedComputation.RESTORE_SLAVE_NUM == index;
     }
 
+    private static long debugKey = 259479554;
+
     private void restoreDetail(LogOperation logOperation) {
         long relevantKey = logOperation.relevantKey;
+        if (relevantKey == debugKey) {
+            System.out.println("debug relevant key");
+        }
         if (logOperation instanceof DeleteOperation) {
             deadKeys.add(relevantKey);
         } else if (logOperation instanceof InsertOperation) {
@@ -69,15 +74,28 @@ class DatabaseRestore {
             }
         } else if (logOperation instanceof UpdateKeyOperation) {
             long changedKey = ((UpdateKeyOperation) logOperation).changedKey;
+            if (changedKey == debugKey) {
+                System.out.println("debug changed key");
+            }
+
             // pay attention to changed-to key
             if (deadKeys.contains(changedKey)) {
                 deadKeys.remove(changedKey);
                 deadKeys.add(relevantKey);
+                if (changedKey == debugKey) {
+                    System.out.println("debug changed key dead keys");
+                }
             } else if (activeKeys.containsKey(changedKey)) {
                 NonDeleteOperation lastOperation = (NonDeleteOperation) activeKeys.remove(changedKey);
                 activeKeys.put(relevantKey, lastOperation);
+                if (changedKey == debugKey) {
+                    System.out.println("debug changed key active keys");
+                }
             } else {
                 activeKeys.put(relevantKey, new UpdateOperation(changedKey));
+                if (changedKey == debugKey) {
+                    System.out.println("debug changed key last operation");
+                }
             }
         } else {
             // update property, if in deadKeys, do nothing
@@ -133,6 +151,7 @@ class DatabaseRestore {
                     }
             ));
         }
+        condWait();
     }
 
     // bsp barrier: for the first phase comp
@@ -156,7 +175,6 @@ class DatabaseRestore {
     }
 
     static void submitSecondPhase() {
-        condWait();
         for (int i = 0; i < PipelinedComputation.RESTORE_SLAVE_NUM; i++) {
             final int finalI = i;
             futures.add(PipelinedComputation.computationSlaverPools[i].submit(
