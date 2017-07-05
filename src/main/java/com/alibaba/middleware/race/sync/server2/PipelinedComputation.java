@@ -23,7 +23,7 @@ public class PipelinedComputation {
     private static ExecutorService computationPool = Executors.newFixedThreadPool(1);
     private static ExecutorService mediatorPool = Executors.newFixedThreadPool(1);
 
-    static int RESTORE_SLAVE_NUM = 16;
+    static int RESTORE_SLAVE_NUM = 1;
     static ExecutorService computationSlaverPools[] = new ExecutorService[RESTORE_SLAVE_NUM];
 
     static {

@@ -3,6 +3,9 @@ package com.alibaba.middleware.race.sync.server2;
 
 import com.alibaba.middleware.race.sync.server2.operations.*;
 import gnu.trove.map.hash.TLongObjectHashMap;
+import gnu.trove.procedure.TLongObjectProcedure;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -23,12 +26,14 @@ class DatabaseRestore {
         }
     }
 
-    private HashSet<LogOperation> deadKeys = new HashSet<>();
-    private HashMap<LogOperation, LogOperation> activeKeys = new HashMap<>();
+    // 1st: dead keys
+    private TLongSet deadKeys = new TLongHashSet();
+    // 2nd: active keys, key: in chunk begin, value: in chunk end
+    private TLongObjectHashMap<LogOperation> activeKeys = new TLongObjectHashMap<>();
+
     private ArrayList<LogOperation> insertions = new ArrayList<>();
     private TLongObjectHashMap<LogOperation> recordMap;
 
-    private LogOperation changedToObj = new LogOperation(-1);
     private final int index;
 
     private DatabaseRestore(int index) {
@@ -48,68 +53,72 @@ class DatabaseRestore {
     }
 
     private void restoreDetail(LogOperation logOperation) {
+        long relevantKey = logOperation.relevantKey;
         if (logOperation instanceof DeleteOperation) {
-            if (isMyJob(logOperation)) {
-                deadKeys.add(logOperation);
-            }
+            deadKeys.add(relevantKey);
         } else if (logOperation instanceof InsertOperation) {
-            if (deadKeys.contains(logOperation)) {
-                deadKeys.remove(logOperation);
-            } else if (activeKeys.containsKey(logOperation)) {
-                NonDeleteOperation lastOperation = ((NonDeleteOperation) activeKeys.remove(logOperation));
+            if (deadKeys.contains(relevantKey)) {
+                deadKeys.remove(relevantKey);
+            } else if (activeKeys.containsKey(relevantKey)) {
+                NonDeleteOperation lastOperation = ((NonDeleteOperation) activeKeys.remove(relevantKey));
                 lastOperation.backwardMergePrev((NonDeleteOperation) logOperation);
-                insertions.add(lastOperation);
+                if (isMyJob(lastOperation))
+                    insertions.add(lastOperation);
             } else if (isMyJob(logOperation)) {
                 insertions.add(logOperation);
             }
         } else if (logOperation instanceof UpdateKeyOperation) {
+            long changedKey = ((UpdateKeyOperation) logOperation).changedKey;
             // pay attention to changed-to key
-            changedToObj.relevantKey = ((UpdateKeyOperation) logOperation).changedKey;
-            if (deadKeys.contains(changedToObj)) {
-                deadKeys.remove(changedToObj);
-                deadKeys.add(logOperation);
-            } else if (activeKeys.containsKey(changedToObj)) {
-                NonDeleteOperation lastOperation = (NonDeleteOperation) activeKeys.remove(changedToObj);
-                activeKeys.put(logOperation, lastOperation);
-            } else if (isMyJob(logOperation)) {
-                activeKeys.put(logOperation, logOperation);
+            if (deadKeys.contains(changedKey)) {
+                deadKeys.remove(changedKey);
+                deadKeys.add(relevantKey);
+            } else if (activeKeys.containsKey(changedKey)) {
+                NonDeleteOperation lastOperation = (NonDeleteOperation) activeKeys.remove(changedKey);
+                activeKeys.put(relevantKey, lastOperation);
+            } else {
+                activeKeys.put(relevantKey, new UpdateOperation(changedKey));
             }
         } else {
-            // update property
-            if (activeKeys.containsKey(logOperation)) {
-                ((NonDeleteOperation) activeKeys.get(logOperation)).backwardMergePrev((NonDeleteOperation) logOperation);
-            } else if (isMyJob(logOperation)) {
-                activeKeys.put(logOperation, logOperation);
+            // update property, if in deadKeys, do nothing
+            if (activeKeys.containsKey(relevantKey)) {
+                ((NonDeleteOperation) activeKeys.get(relevantKey)).backwardMergePrev((NonDeleteOperation) logOperation);
+            } else {
+                activeKeys.put(relevantKey, logOperation);
             }
         }
     }
 
-    private LogOperation lookUp(LogOperation logOperation) {
-        long pk = logOperation.relevantKey;
+    private NonDeleteOperation lookUp(long pk) {
         int lookUpIndex = (int) (pk % PipelinedComputation.RESTORE_SLAVE_NUM);
-        if (recordMapArr[lookUpIndex].get(logOperation.relevantKey) == null) {
-            System.out.println(lookUpIndex + " , null for relevant key:" + logOperation.relevantKey);
+        if (recordMapArr[lookUpIndex].get(pk) == null) {
+            System.out.println(lookUpIndex + " , null for relevant key:" + pk);
         }
-        return recordMapArr[lookUpIndex].get(logOperation.relevantKey);
+        return (NonDeleteOperation) recordMapArr[lookUpIndex].get(pk);
     }
 
     private void restoreFirstPhase(LogOperation[] logOperations) {
+        // 1st: clear status
         deadKeys.clear();
         activeKeys.clear();
         insertions.clear();
+
+        // 2nd: reverse update status
         for (int i = logOperations.length - 1; i >= 0; i--) {
             restoreDetail(logOperations[i]);
         }
 
-        for (Map.Entry<LogOperation, LogOperation> entry : activeKeys.entrySet()) {
-            LogOperation lastOperation = entry.getValue();
-            LogOperation prevOperation = entry.getKey();
-            ((NonDeleteOperation) lastOperation).backwardMergePrev((NonDeleteOperation) lookUp(prevOperation));
-            // update key: e.g 1->3 should insert 3, instead of 1
-            if (lastOperation instanceof UpdateKeyOperation)
-                lastOperation.relevantKey = ((UpdateKeyOperation) lastOperation).changedKey;
-            insertions.add(lastOperation);
-        }
+        // 3rd: fetch possible previous properties
+        activeKeys.forEachEntry(new TLongObjectProcedure<LogOperation>() {
+            @Override
+            public boolean execute(long key, LogOperation lastOperation) {
+                if (isMyJob(lastOperation)) {
+                    ((NonDeleteOperation) lastOperation).backwardMergePrev(lookUp(key));
+                    insertions.add(lastOperation);
+                }
+                return true;
+            }
+        });
     }
 
     static void submitFirstPhase(final LogOperation[] logOperations) {
@@ -160,5 +169,10 @@ class DatabaseRestore {
             ));
         }
         condWait();
+    }
+
+    static LogOperation getLogOperation(long pk) {
+        int index = (int) (pk % PipelinedComputation.RESTORE_SLAVE_NUM);
+        return recordMapArr[index].get(pk);
     }
 }
