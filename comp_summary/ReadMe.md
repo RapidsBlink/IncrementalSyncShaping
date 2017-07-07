@@ -358,7 +358,7 @@ private void submitIfPossible(FileTransformTask fileTransformTask) {
 
 由于实际生产环境中，数据库的schema基本是不会变化的，所以我们针对比赛数据对应的单表结构进行了存储的设计。
 
-在NonDeleteOperation中，数据通过index存储了下来。详细信息如下所示，如果schema改变用户可以依据对应table的meta信息来改变存储结构。
+在`NonDeleteOperation`中，数据通过index存储了下来。详细信息如下所示，如果schema改变用户可以依据对应table的meta信息来改变存储结构。
 
 ```java
 byte firstNameIndex = -1;
@@ -369,9 +369,13 @@ short score = -1;
 int score2 = -1;
 ```
 
-我们团队实现了index和真实char 之间的转换，详细代码如下:
+我们团队实现了index和真实char 之间的转换。通过`String toChineseChar(byte index)`可以把对应index转化成为具体的`char`，通过`byte getIndexOfChineseChar(byte[] data, int offset)`可以把具体的byte[]转化成为index。
 
-通过`String toChineseChar(byte index)`可以把对应index转化成为具体的`char`，通过`byte getIndexOfChineseChar(byte[] data, int offset)`可以把具体的byte[]转化成为index。
+现实生活中字符个数是有限的，所以我们才想到了该index的方式，而且关系型数据库中一般会specify对应字段最长长度，扩展代码时候可以类似 lastName进行处理，存多个index，如果index的字符比较多的话，可以直接考虑存储char(2 byte)。要扩展到实际中进行使用的话，需要修改`INTEGER_CHINESE_CHAR`为所有可能的char，或者直接考虑存储char(2 byte)(需要修改`byte getIndexOfChineseChar(byte[] data, int offset)`为直接返回`char`)。
+
+相应地，下面两个函数也要进行相应的修改，针对实际中某个table, `addData(int index, ByteBuffer byteBuffer)`在构建`InsertOperation`时候使用，而`mergeAnother(NonDeleteOperation nonDeleteOperation)`在落实update到对应Record时候使用。
+
+`NonDeleteOperation`中index转换相关核心代码如下：
 
 ```java
 public static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
@@ -400,9 +404,7 @@ private static byte getIndexOfChineseChar(byte[] data, int offset) {
 }
 ```
 
-现实生活中字符个数是有限的，所以我们才想到了该index的方式，而且关系型数据库中一般会specify对应字段最长长度，扩展代码时候可以类似 lastName进行处理，存多个index，如果index的字符比较多的话，可以直接考虑存储char(2 byte)。要扩展到实际中进行使用的话，需要修改`INTEGER_CHINESE_CHAR`为所有可能的char，或者直接考虑存储char(2 byte)(需要修改`byte getIndexOfChineseChar(byte[] data, int offset)`为直接返回`char`)。
-
-相应地，下面两个函数也要进行相应的修改，针对实际中某个table, `addData(int index, ByteBuffer byteBuffer)`在构建`InsertOperation`时候使用，而`mergeAnother(NonDeleteOperation nonDeleteOperation)`在落实update到对应Record时候使用。
+`NonDeleteOperation`中属性变更相关核心代码如下：
 
 ```java
 public void addData(int index, ByteBuffer byteBuffer) {
