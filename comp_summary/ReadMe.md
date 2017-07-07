@@ -210,15 +210,15 @@ public void act() {
 06/19 | 59.268s | 放弃拷贝文件倒着读思路，正着重放第一次正确版本，属性存储使用`byte[][]` | [90b9f3a9253b877ed57641bffe1d719038ffb7f4](https://github.com/CheYulin/IncrementalSyncShaping/tree/90b9f3a9253b877ed57641bffe1d719038ffb7f4)
 06/19 | 46.163s | 使用`InsertOperation`直接存储对应记录中的属性信息，减少内存拷贝和额外的小对象创建 | [dae437872ab9534268dc30d578f6c882f54427d7](https://github.com/CheYulin/IncrementalSyncShaping/tree/dae437872ab9534268dc30d578f6c882f54427d7)
 06/19 | 43.433s | 优化`RecordScanner`中`getNextLong()`和针对单表schema不变特征添加`skipFieldForInsert(int index)` | [9d29966ddc5c9d93cbcbb0332054c6e39dcfd9cc](https://github.com/CheYulin/IncrementalSyncShaping/tree/9d29966ddc5c9d93cbcbb0332054c6e39dcfd9cc)
-06/21 | 39.265s | 使用更健壮的`BlockingQueue`协调生产者给重放计算线程任务，并使用轮询获取任务方式 | [1ac36f81ae7a080b84cde5d6447d83c679758f09](https://github.com/CheYulin/IncrementalSyncShaping/tree/1ac36f81ae7a080b84cde5d6447d83c679758f09)
-06/22 | 20.155s | 针对单表field字段长度范围固定进行`RecordScanner`以及`InsertOperation`的优化 | [e8a6389c1fa81eb397339248b2f21fe289cc68c6](https://github.com/CheYulin/IncrementalSyncShaping/tree/e8a6389c1fa81eb397339248b2f21fe289cc68c6)
-06/23 | 14.456s | 重放计算使用gnu trove hashmap | [f5811f02f46256ffbe026f08faff9b8b2b343814](https://github.com/CheYulin/IncrementalSyncShaping/tree/f5811f02f46256ffbe026f08faff9b8b2b343814)
+06/21 | 39.265s | 使用更健壮的`BlockingQueue`协调生产者给消费者(重放计算线程)任务，重放计算线程使用轮询来获取任务 | [1ac36f81ae7a080b84cde5d6447d83c679758f09](https://github.com/CheYulin/IncrementalSyncShaping/tree/1ac36f81ae7a080b84cde5d6447d83c679758f09)
+06/22 | 20.155s | 针对单表中字段长度范围固定进行`RecordScanner`以及`InsertOperation`的优化 | [e8a6389c1fa81eb397339248b2f21fe289cc68c6](https://github.com/CheYulin/IncrementalSyncShaping/tree/e8a6389c1fa81eb397339248b2f21fe289cc68c6)
+06/23 | 14.456s | 重放计算使用`gnu trove hashmap` | [f5811f02f46256ffbe026f08faff9b8b2b343814](https://github.com/CheYulin/IncrementalSyncShaping/tree/f5811f02f46256ffbe026f08faff9b8b2b343814)
 06/24 | 10.867s | 优化网络传输和落盘，实现Zero-Copy | [2576b8b54dd0853d5a430a1955c5b334824cfef6](https://github.com/CheYulin/IncrementalSyncShaping/tree/2576b8b54dd0853d5a430a1955c5b334824cfef6)
-06/25 | 9.228s | 优化if-else分支，使用多态，使用gnu trove hashset | [e631f2652238ca6861adbe906f1227c7b22ba2fa](https://github.com/CheYulin/IncrementalSyncShaping/tree/e631f2652238ca6861adbe906f1227c7b22ba2fa)
+06/25 | 9.228s | 优化if-else分支，使用多态，使用`gnu trove hashset` | [e631f2652238ca6861adbe906f1227c7b22ba2fa](https://github.com/CheYulin/IncrementalSyncShaping/tree/e631f2652238ca6861adbe906f1227c7b22ba2fa)
 06/26 | 8.979s | 机器状态比较正常时候(上午) | 版本同上
 06/27 | 7.906s | 使用UpdateKey的trick，主键变更不会带来之前属性 | [2a956e523d366bacfbe3a3303ffa6e75dbfb1241](https://github.com/CheYulin/IncrementalSyncShaping/tree/2a956e523d366bacfbe3a3303ffa6e75dbfb1241)
 06/28 | 6.670s | UpdateKey trick，使用数组代替hashmap和hashset，优化并行eval | [36bb463ffbcb86a4eaf303489beb6239938350ed](https://github.com/CheYulin/IncrementalSyncShaping/tree/36bb463ffbcb86a4eaf303489beb6239938350ed)
-06/29 | 4.819s | 使用终极trick，计算时候跳过不需要的文件chunk, 并且不使用looger，但是还是在`MmapReader`读文件时候调用了`load`，保证了不违反规则 | [b31990db8e3b3bc3c5722fec6e2068904ce71dd8](https://github.com/CheYulin/IncrementalSyncShaping/tree/b31990db8e3b3bc3c5722fec6e2068904ce71dd8)
+06/29 | 4.819s | 使用终极trick，计算时候跳过不需要的文件chunk, 并且不使用logger，但是还是在`MmapReader`读文件时候调用了`load`，保证了不违反规则 | [b31990db8e3b3bc3c5722fec6e2068904ce71dd8](https://github.com/CheYulin/IncrementalSyncShaping/tree/b31990db8e3b3bc3c5722fec6e2068904ce71dd8)
 
 ## 3. 关键代码
 
