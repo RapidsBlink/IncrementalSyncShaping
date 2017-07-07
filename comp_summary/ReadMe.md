@@ -28,7 +28,7 @@
 
 对于读取的反序列化，我们做了一个实现上的优化，只要进行一次线性访问就可以获取出对应的属性，而不是通过正则表达式的`split`进行三次线性扫描。具体实现可见 https://github.com/CheYulin/OpenMessageShaping/blob/master/src/main/java/io/openmessaging/demo/DefaultBytesMessage.java 中 `public String toString()`和`static public DefaultBytesMessage valueOf(String myString)`这两个序列化和反序列化的方法。
 
-其他选手还考虑了使用一些 hard coding的trick来进一步减小磁盘IO,因为理论上分析 `4G * 0.2 = 0.8G`，只要能够使得最终的输出达到0.8G的大小的话，磁盘IO对于写线程来说总是异步的，因为写线程只是进行了内存的拷贝。我们最终没有选择进行hard coding，需要写磁盘的大小为 `2.4G`，最终的成绩为: 生产耗时 `73.952s`， 消费耗时 `35.995s`， TPS为 `363811`， 对应代码的版本为 https://github.com/CheYulin/OpenMessageShaping/commit/296f94e3b63f5d286d421a4ae180dd3af63be3b1 。
+其他选手还考虑了使用一些 hard coding的trick来进一步减小磁盘IO,因为理论上分析 `4G * 0.2 = 0.8G`，只要能够使得最终的输出达到0.8G的大小的话，磁盘IO对于写线程来说总是异步的，因为写线程只是进行了内存的拷贝。我们最终没有选择进行hard coding，需要写磁盘的大小为 `2.4G`，最终的成绩为: 生产耗时 `73.952s`， 消费耗时 `35.995s`， TPS为 `363811`， 对应代码的版本为 https://github.com/CheYulin/OpenMessageShaping/tree/296f94e3b63f5d286d421a4ae180dd3af63be3b1 。
 
 #### 1.1.4 源代码
 
@@ -54,9 +54,11 @@
 
 #### 1.2.5 源代码
 
-* trick统计信息获取版本： https://github.com/CheYulin/IncrementalSyncShaping/tree/specialStatistics
-* trick版本： https://github.com/CheYulin/IncrementalSyncShaping
-* 通用版本: https://github.com/CheYulin/IncrementalSyncShaping/tree/generalImpl8.9s
+版本 | 链接
+--- | ---
+trick统计信息获取版本 | https://github.com/CheYulin/IncrementalSyncShaping/tree/specialStatistics
+trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
+通用版本 | https://github.com/CheYulin/IncrementalSyncShaping/tree/generalImpl8.9s
 
 ## 2. 核心思路
 
