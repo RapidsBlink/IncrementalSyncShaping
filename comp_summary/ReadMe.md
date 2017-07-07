@@ -123,9 +123,83 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 #### 2.4.1 工程背景的契合
 
+本题潜在的工程需求为：canal产生流式数据，接入本题实现的模块进行范围内的数据重放，可能会在server端重放 ***多个表多个范围，备份到多个client端***，来实现真正的实时数据同步。本题中，从ramfs中读取对应的数据就模拟了canal在线生成实时数据的场景；因为canal产生的数据是有严格顺序的流式数据，所以本复赛题目才规定了只能 ***单线程顺序读取文件*** 。
+
+我们的第一阶段流水线设计中 `actor 1: mmap reader`是符合了 ***单线程顺序读取文件*** 的要求的。我们以`64MB`为chunk size，读取了文件中的每一个chunk，末尾不足`64MB`以末尾所剩余大小来处理。并且在我们流水线的设计中，至多占用 `64MB * (1 + 1 + 1 ) = 192MB` 的 direct memory(mmap reader 1份， blocking queue中1份，mediator 正消费中 1份)，严格控制了direct memory的使用，并且可配置。当需要针对 ***多个表多个范围*** 重放时候，只要配置 chunk size就可以保证 actor1 到 actor2 的流水线正常工作。
+
+若要进一步支持 ***多个表多个范围*** 的重放功能，需要再基于我们的通用8.9s版本, 针对每个表设计对应的 `LogOperation` 相关类，以及修改 `RecordScanner`(主要是基于表中固定字段值范围，进行无用byte跳跃的优化) 和 `LogOperation` 中关于单表有关的优化代码(主要是固定的字段的扁平化表示的修改，例如firstNameIndex修改为对应字段的index)。在完成 `LogOperation` 相关类，以及修改 `RecordScanner`修改后，需要进一步修改 `RestoreComputation`，为每一个表和范围创建一个单独的对象。最后流水线中数据流动的逻辑需要进行相应的修改，例如：增加blocking queue，以及block queue中放入任务逻辑的修改。但是我们设计中模块的许多基本逻辑是可以复用的。
+
 #### 2.4.2 健壮性 - 不同数据集/DML操作/pk的不同范围输入
 
+我们的通用8.9s版本可以在不同数据集/DML操作/pk的不同范围输入条件下保证正确性。
+
+在不同数据集/DML操作/pk的不同范围输入条件下保证正确性, 是因为我们的通用版本设计中使用了：hashmap(key为long, value为LogOperation)来记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，hahset(element为LogOperation)记录range范围内记录。
+
+这两个`RestoreComputation`类静态变量如下所示，分别叫做`recordMap`(追溯database)和`inRangeRecordSet`(记录range范围内的记录)：
+
+```java
+public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
+public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
+```
+
+* 对DeleteOperation 操作：仅仅对`inRangeRecordSet`进行更新，若删除的LogOperation在range范围内就把其从`inRangeRecordSet`中删除。 不对`recordMap`操作的原因，是我们在保证正确性前提下，可以让`recordMap`中含有垃圾信息(被删除的记录)，这么做可以减少remove时候probing的cost以及去除状态数组的内存开销。
+
+```java
+@Override
+public void act() {
+    if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
+        inRangeRecordSet.remove(this);
+    }
+}
+```
+
+* 对InsertOperation 操作： 对`inRangeRecordSet`进行更新，若insert的LogOperation在range范围内就把其加入到`inRangeRecordSet`中。对`recordMap`进行更新，直接插入。
+
+```java
+@Override
+public void act(){
+    recordMap.put(this); //1
+    if (PipelinedComputation.isKeyInRange(relevantKey)) {
+        inRangeRecordSet.add(this);
+    }
+}
+```
+
+* 对UpdateOperation 操作: 仅仅对`recordMap`中记录, 因为普通属性变更不会影响主键。首先probing获取`insertOperation`，然后进行`insertOperation.mergeAnother(this)`落实这次属性的变更。
+
+```java
+@Override
+public void act(){
+    InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
+    insertOperation.mergeAnother(this); //3
+};
+```
+
+* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。
+
+下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
+对象，然后插入到`recordMap`中；最后判断变更后的key若在range内，把其加入到`inRangeRecordSet`。
+
+```java
+@Override
+public void act() {
+    InsertOperation insertOperation = (InsertOperation) recordMap.get(this); //2
+    if (PipelinedComputation.isKeyInRange(this.relevantKey)) {
+        inRangeRecordSet.remove(this);
+    }
+
+    insertOperation.changePK(this.changedKey); //4
+    recordMap.put(insertOperation); //5
+
+    if (PipelinedComputation.isKeyInRange(insertOperation.relevantKey)) {
+        inRangeRecordSet.add(insertOperation);
+    }
+}
+```
+
 #### 2.4.3 健壮性 - pk外其他field不同范围输入/不同表结构
+
+对于pk外其他field不同范围输入和不同表结构的支持需要修改对应的`NonDeleteOperation`和`RecordScanner`这两个类。详细可见下一章节中`3.3 第一阶段 actor3: Transformer(Tokenizer and Parser, 16线程的线程池)`的描述。
 
 ### 2.5 版本演进历史
 
@@ -221,9 +295,6 @@ private void submitIfPossible(FileTransformTask fileTransformTask) {
         prevFutureQueue.add(prevFuture);
     }
     globalIndex++;
-}
-
-private void assignTransformTasks() {
     int avgTask = currChunkLength / WORK_NUM;
 
     // index pair
@@ -536,14 +607,16 @@ public void act() {
 
 #### 3.4.2 基于hashmap和hashset的实现
 
-* 两个关键的成员变量，一个记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，一个记录range范围内记录。该实现中的HashMap参考gnu trove hashmap进行修改，使其更memory友好，但是也更为专用。
+在不同数据集/DML操作/pk的不同范围输入条件下保证正确性, 是因为我们的通用版本设计中使用了：hashmap(key为long, value为LogOperation)来记录数据库(含有垃圾，因为不remove,但包含数据库中当前所有信息和垃圾)，hahset(element为LogOperation)记录range范围内记录。
+
+这两个`RestoreComputation`类静态变量如下所示，分别叫做`recordMap`(追溯database)和`inRangeRecordSet`(记录range范围内的记录)：
 
 ```java
 public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
 public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
 ```
 
-* 对DeleteOperation 操作
+* 对DeleteOperation 操作：仅仅对`inRangeRecordSet`进行更新，若删除的LogOperation在range范围内就把其从`inRangeRecordSet`中删除。 不对`recordMap`操作的原因，是我们在保证正确性前提下，可以让`recordMap`中含有垃圾信息(被删除的记录)，这么做可以减少remove时候probing的cost以及去除状态数组的内存开销。
 
 ```java
 @Override
@@ -554,7 +627,7 @@ public void act() {
 }
 ```
 
-* 对InsertOperation 操作
+* 对InsertOperation 操作： 对`inRangeRecordSet`进行更新，若insert的LogOperation在range范围内就把其加入到`inRangeRecordSet`中。对`recordMap`进行更新，直接插入。
 
 ```java
 @Override
@@ -566,7 +639,7 @@ public void act(){
 }
 ```
 
-* 对UpdateOperation 操作
+* 对UpdateOperation 操作: 仅仅对`recordMap`中记录, 因为普通属性变更不会影响主键。首先probing获取`insertOperation`，然后进行`insertOperation.mergeAnother(this)`落实这次属性的变更。
 
 ```java
 @Override
@@ -576,7 +649,10 @@ public void act(){
 };
 ```
 
-* 对UpdateKeyOperation 操作
+* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。
+
+下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
+对象，然后插入到`recordMap`中；最后判断变更后的key若在range内，把其加入到`inRangeRecordSet`。
 
 ```java
 @Override
@@ -722,8 +798,6 @@ public static void putThingsIntoByteBuffer(ByteBuffer byteBuffer) {
 ```
 
 ### 3.6 第二阶段后 网络传输和落盘(Zero-Copy)
-
----
 
 充分利用Direct Memory的特性，去除内核态和用户态拷贝。
 
