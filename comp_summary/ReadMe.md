@@ -1,6 +1,6 @@
 # rapids - 香港科技大学 - 比赛攻略
 
-本文分为四个章节，初赛赛题相关的分析在第一章节前半部分给出。本文的主体部分主要对复赛题目进行了剖析：赛题分析(第一章后半部分)，核心思路(第二章)，关键代码(第三章)。第四章为对整个第三届阿里中间件挑战赛比赛的总结以及心得体会。
+本文分为四个章节，初赛赛题相关的分析在第一章节前半部分给出。本文的主体部分主要对复赛题目进行了剖析：赛题分析(第一章后半部分)，核心思路(第二章)，关键代码(第三章)。第四章为rapids团队对第三届阿里中间件挑战赛比赛的总结以及心得体会。
 
 ## 1. 赛题背景分析及理解
 
@@ -8,17 +8,25 @@
 
 #### 1.1.1 赛题要求
 
-在单机环境下，实现带有持久化的消息队列引擎，由第一个生产进程产生消息队列，并在最终调用`Producer`的`flush()`接口时候，保证安全地持久化到磁盘；之后由另一个消费进程进行消息队列的消费。消息会对应到一个命名空间，例如`Topic0`，`Queue0`这样的字符串。对于同一个`Producer`产生的命名空间的消息需要保证顺序性，也就是说由`(Producer_j, Name_i)`唯一标识了一个队列，这个队列中的消息在消费的时候需要保证顺序性。题目要求实现四个`Producer`有关的接口:`createBytesMessageToTopic(topic, body)`, `createBytesMessageToQueue(queue, body)`, `send(message)` , `flush()`和两个`Consumer`有关的接口`attachQueue(queue, topics)`，`poll()`。并且，如果不同`Consumer`绑定到了同一个命名空间，这些`Consumer`看到是对应命名空间的视图，需要全部消费完命名空间中的消息，并且大家消费的内容是相同的。题目中，产生出的消息总量为40,000,000条。
+在单机环境下，实现带有持久化的消息队列引擎，由第一个生产进程产生消息队列，并在最终调用`Producer`的`flush()`接口时候，保证安全地持久化到磁盘；之后由另一个消费进程进行消息队列的消费。消息会对应到一个命名空间，例如`Topic0`，`Queue0`这样的字符串。对于同一个`Producer`产生的命名空间的消息需要保证顺序性，也就是说由`(Producer_j, Name_i)`唯一标识了一个队列，这个队列中的消息在消费的时候需要保证顺序性。
 
-#### 1.1.2 赛题分析：
+题目要求实现四个`Producer`有关的接口:`createBytesMessageToTopic(topic, body)`, `createBytesMessageToQueue(queue, body)`, `send(message)` , `flush()`和两个`Consumer`有关的接口`attachQueue(queue, topics)`，`poll()`。并且，如果不同`Consumer`绑定到了同一个命名空间，这些`Consumer`看到是对应命名空间的视图，需要全部消费完命名空间中的消息，并且大家消费的内容是相同的。题目中，产生出的消息总量为40,000,000条。
 
-题目中，产生出的消息总量为40,000,000条。如果在文件中不经过压缩，存所有信息所需的磁盘空间是4GB左右。但是测试环境的IO速度很不理想，因此选手需要充分利用linux 的 pagecache来解决IO瓶颈。根据 https://lonesysadmin.net/2013/12/22/better-linux-disk-caching-performance-vm-dirty_ratio/ 和 https://stackoverflow.com/questions/27900221/difference-between-vm-dirty-ratio-and-vm-dirty-background-ratio ，我们可以知道，在linux中，pagecache sync相关有两个主要参数 `vm.dirty_background_ratio`(默认为10%)，`vm.dirty_ratio`(默认为20%)，当dirty page的大小达到了总物理内存大小的10%时，linux操作系统会进行刷盘但不阻塞`fwrite`系统调用的写线程，但若dirty page的大小达到了物理内存大小的20%的时候，写线程就会被阻塞。因此，我们可以想到的优化策略是减小最终消息队列序列化到文件的大小，这个可以通过压缩算法达到，例如jdk中带有的`GZIPOutputStream`，`DeflaterOutputStream`, 和其他的压缩方法实现`SnappyFramedOutputStream`, `LZ4BlockOutputStream`。其他的选手也有通过统计消息的特征进行非通用的存储设计来减小最终文件的大小，利用的是相同的思路。
+#### 1.1.2 赛题分析
+
+题目中，产生出的消息总量为40,000,000条。如果在文件中不经过压缩，存所有信息所需的磁盘空间是4GB左右。但是测试环境的IO速度很不理想，因此选手需要充分利用linux 的 pagecache来解决IO瓶颈。
+
+根据 https://lonesysadmin.net/2013/12/22/better-linux-disk-caching-performance-vm-dirty_ratio/ 和 https://stackoverflow.com/questions/27900221/difference-between-vm-dirty-ratio-and-vm-dirty-background-ratio ，我们可以知道，在linux中，pagecache sync相关有两个主要参数 `vm.dirty_background_ratio`(默认为10%)，`vm.dirty_ratio`(默认为20%)，当dirty page的大小达到了总物理内存大小的10%时，linux操作系统会进行刷盘但不阻塞`fwrite`系统调用的写线程，但若dirty page的大小达到了物理内存大小的20%的时候，写线程就会被阻塞。
+
+基于此，我们可以想到的优化策略是减小最终消息队列序列化到文件的大小，这个可以通过压缩算法达到，例如jdk中带有的`GZIPOutputStream`，`DeflaterOutputStream`, 和其他的压缩方法实现`SnappyFramedOutputStream`, `LZ4BlockOutputStream`。其他的选手也有通过统计消息的特征进行非通用的存储设计来减小最终文件的大小，利用的是相同的思路。
 
 #### 1.1.3 赛题要点
 
-然后针对本题目，文件的存储方式对于最终的成绩影响并不大，我们选择的存储方式是：每个名字一个文件夹，例如`Topic0`一个文件夹；在文件夹下面，每个文件是每个线程的名字(因为一个线程绑定一个`Producer`)，例如`Thread-0`。这样的存储设计较为简单，也不需要频繁加锁，读写锁的使用当且仅当文件夹创建的时候；并且所有文件夹创建之后(命名空间确定之后)就不会有读者-写者冲突。`(Producer_j, Name_i)`唯一标识的队列对应了一个唯一的文件，该文件访问不需要加锁。当使用压缩算法时候，我们会发现jdk中带有的`GZIPOutputStream`，`DeflaterOutputStream`的压缩速率不太理想，因此最终我们选择了`SnappyFramedOutputStream`这个广泛应用的压缩算法，做一个压缩率和CPU占用的权衡。
+然后针对本题目，文件的存储方式对于最终的成绩影响并不大，我们选择的存储方式是：每个名字一个文件夹，例如`Topic0`一个文件夹；在文件夹下面，每个文件是每个线程的名字(因为一个线程绑定一个`Producer`)，例如`Thread-0`。这样的存储设计较为简单，也不需要频繁加锁，读写锁的使用当且仅当文件夹创建的时候；并且所有文件夹创建之后(命名空间确定之后)就不会有读者-写者冲突。`(Producer_j, Name_i)`唯一标识的队列对应了一个唯一的文件，该文件访问不需要加锁。
 
-对于读取的反序列化我们做了一个实现上的优化，只要进行一次线性访问就可以获取出对应的属性，而不是通过正则表达式的`split`进行三次线性扫描。具体实现可见 https://github.com/CheYulin/OpenMessageShaping/blob/master/src/main/java/io/openmessaging/demo/DefaultBytesMessage.java 中 `public String toString()`和`static public DefaultBytesMessage valueOf(String myString)`这两个序列化和反序列化的方法。
+当使用压缩算法时候，我们会发现jdk中带有的`GZIPOutputStream`，`DeflaterOutputStream`的压缩速率不太理想，因此最终我们选择了`SnappyFramedOutputStream`这个广泛应用的压缩算法，做一个压缩率和CPU占用的权衡。
+
+对于读取的反序列化，我们做了一个实现上的优化，只要进行一次线性访问就可以获取出对应的属性，而不是通过正则表达式的`split`进行三次线性扫描。具体实现可见 https://github.com/CheYulin/OpenMessageShaping/blob/master/src/main/java/io/openmessaging/demo/DefaultBytesMessage.java 中 `public String toString()`和`static public DefaultBytesMessage valueOf(String myString)`这两个序列化和反序列化的方法。
 
 其他选手还考虑了使用一些 hard coding的trick来进一步减小磁盘IO,因为理论上分析 `4G * 0.2 = 0.8G`，只要能够使得最终的输出达到0.8G的大小的话，磁盘IO对于写线程来说总是异步的，因为写线程只是进行了内存的拷贝。我们最终没有选择进行hard coding，需要写磁盘的大小为 `2.4G`，最终的成绩为: 生产耗时 `73.952s`， 消费耗时 `35.995s`， TPS为 `363811`， 对应代码的版本为 https://github.com/CheYulin/OpenMessageShaping/commit/296f94e3b63f5d286d421a4ae180dd3af63be3b1 。
 
