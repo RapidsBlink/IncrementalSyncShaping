@@ -74,7 +74,7 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 整个重放算法有关的类都放在 `server2` 文件夹下， 其中的类关系如下图所示(通过jetbrains intellij生成)。
 
-<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/core_pipeline_logic.png" alt="core pipeline logic" height="600">
+<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/core_pipeline_logic.png" alt="core pipeline logic" height="500">
 
 
 图中有四种不同的actor，这些actors的交互构成了完整的第一阶段计算的流水线：
@@ -108,7 +108,7 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 取巧版本中，三种不同的LogOperation(`InsertOperation`,`DeleteOperation`, `UpdateOperation`)在重放过程中被进行了处理。LogOperation的相关类继承关系如下图所示((通过jetbrains intellij生成)):
 
-<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/log_operation.png" alt="log operation class hierachy" height="400">
+<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/log_operation.png" alt="log operation class hierachy" height="600">
 
 如果不取巧，我们也参考Trove Hashmap实现了一个 efficient的 hashmap，另外通过另一个hashset来记录range范围内的记录有哪些，这个实现并且在其它地方都不取巧，我们可以获得8.9s的成绩。
 
@@ -405,7 +405,7 @@ private static byte getIndexOfChineseChar(byte[] data, int offset) {
 }
 ```
 
-`NonDeleteOperation`中属性变更相关核心代码如下：
+`NonDeleteOperation`中属性变更相关核心代码如下，其中`addData(int index, ByteBuffer byteBuffer)`在创建`InsertOperation`和`UpdateOperation`对象时候使用，`mergeAnother(NonDeleteOperation nonDeleteOperation)`在属性update落实的时候使用：
 
 ```java
 public void addData(int index, ByteBuffer byteBuffer) {
@@ -468,50 +468,9 @@ public void mergeAnother(NonDeleteOperation nonDeleteOperation) {
 
 当前的RecordScanner利用了当前表中数据字段长度范围和fieldName的特点，在实际使用中需要修改RecordScanner得以适应其他表结构。
 
-例如，下面的一些skip函数需要作相应数据表的修改。
+* 原本就不需要修改的函数如下:
 
 ```java
-private void skipField(int index) {
-    switch (index) {
-        case 0:
-            nextIndex += 4;
-            break;
-        case 1:
-            nextIndex += 4;
-            if (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER)
-                nextIndex += 3;
-            break;
-        case 2:
-            nextIndex += 4;
-            break;
-        default:
-            nextIndex += 3;
-            while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
-                nextIndex++;
-            }
-    }
-}
-
-private void skipHeader() {
-    nextIndex += 20;
-    while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
-        nextIndex++;
-    }
-    nextIndex += 34;
-}
-
-private void skipKey() {
-    nextIndex += RecordField.KEY_LEN + 3;
-}
-
-private void skipNull() {
-    nextIndex += 5;
-}
-
-private void skipFieldForInsert(int index) {
-    nextIndex += fieldSkipLen[index];
-}
-
 private void getNextBytesIntoTmp() {
     nextIndex++;
 
@@ -548,6 +507,61 @@ private long getNextLongForUpdate() {
         result = (10 * result) + (tmpByte - '0');
     }
     return result;
+}
+```
+
+* 由于我们使用了`RecordField`类记录一些表中的meta信息，其中不需要修改的函数如下:
+
+```java
+private void skipKey() {
+    nextIndex += RecordField.KEY_LEN + 3;
+}
+
+private void skipNull() {
+    nextIndex += 5;
+}
+
+private void skipFieldForInsert(int index) {
+    nextIndex += fieldSkipLen[index];
+}
+```
+
+* 需要修改的函数主要有`skipHeader()`, `skipField(int index)`，`int skipFieldName()`:
+
+`skipHeader()`主要skip了四个信息段，分别为msql-binlog-id(长度不固定)，因此我们先skip了一个最小的长度，也就是`20`，然后我们尝试找到`|`这个特殊的分割符，接着skip了3个信息段分别为timestamp/schema string/table string，这三个信息段的长度是固定的因此我们跳过了`34`。在通用化的过程中需要修改这一部分的逻辑以适应真实场景而不是单表日志。
+
+`skipField(int index)`主要根据所读表中对应的字段长度范围skip掉无用的值，比如在delete操作时候，所有的属性值都是没有用的。在通用化的过程中需要根据对应表的字段长度范围修改对应的skip大小。
+
+`int skipFieldName()`主要根据所读表中包含的字段field name的这个信息来跳过field name，直接找对应value，比如对于`first_name:2:0|NULL|郑|`我们只要能确定这个表的属性是`first_name`就可以跳过不需要的字节，直接取对应的value。
+
+```java
+private void skipHeader() {
+    nextIndex += 20;
+    while ((mappedByteBuffer.get(nextIndex)) != FILED_SPLITTER) {
+        nextIndex++;
+    }
+    nextIndex += 34;
+}
+
+private void skipField(int index) {
+    switch (index) {
+        case 0:
+            nextIndex += 4;
+            break;
+        case 1:
+            nextIndex += 4;
+            if (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER)
+                nextIndex += 3;
+            break;
+        case 2:
+            nextIndex += 4;
+            break;
+        default:
+            nextIndex += 3;
+            while (mappedByteBuffer.get(nextIndex) != FILED_SPLITTER) {
+                nextIndex++;
+            }
+    }
 }
 
 private int skipFieldName() {
