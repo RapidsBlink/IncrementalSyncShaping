@@ -118,7 +118,9 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 ### 2.3 第二阶段Eval以及后续传输落盘
 
-第二个阶段：遍历第一阶段的记录数组，针对每一条记录，插入主键为key并且`byte[]`为value的`ConcurrentSkipListMap`中， 为之后产生出对应的文件作准备。这个过程是并行进行的，并且我们实现了更efficient的eval，详细可见` public byte[] getOneLineBytesEfficient() `。 在最后执行完第二阶段计算时候，遍历有序的 `ConcurrentSkipListMap`， 产生出结果文件对应的 `byte[]`，并使用 java nio 的 `transferFrom` 方式直接发送到Client并通过Client Direct Memory进行落盘。
+* 第二个阶段的计算：遍历第一阶段的记录数组，针对每一条记录，插入主键为key并且`byte[]`为value的`ConcurrentSkipListMap`中， 为之后产生出对应的文件作准备。这个过程是并行进行的，并且我们实现了更efficient的eval，详细可见`3.5 第二阶段 并行Eval`中对`public byte[] getOneLineBytesEfficient()`的描述。
+
+* 在最后执行完第二阶段计算时候，遍历有序的 `ConcurrentSkipListMap`， 产生出结果文件对应的 `byte[]`，并使用 java nio 的 `transferFrom` 方式直接发送到Client并通过Client Direct Memory进行落盘。
 
 ### 2.4 整体设计的工程价值分析
 
@@ -141,6 +143,16 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 ```java
 public static YcheHashMap recordMap = new YcheHashMap(24 * 1024 * 1024);
 public static THashSet<LogOperation> inRangeRecordSet = new THashSet<>(4 * 1024 * 1024);
+```
+
+重放线程的逻辑就是顺序遍历取到的任务中每条LogOperation采取相应的行为。其中包含有`DeleteOperation`，`InsertOperation`， `UpdateOperation` 和`UpdateKeyOperation`这四种类型的操作。
+
+```java
+static void compute(LogOperation[] logOperations) {
+    for (LogOperation logOperation : logOperations) {
+        logOperation.act();
+    }
+}
 ```
 
 * 对DeleteOperation 操作：仅仅对`inRangeRecordSet`进行更新，若删除的LogOperation在range范围内就把其从`inRangeRecordSet`中删除。 不对`recordMap`操作的原因，是我们在保证正确性前提下，可以让`recordMap`中含有垃圾信息(被删除的记录)，这么做可以减少remove时候probing的cost以及去除状态数组的内存开销。
@@ -176,9 +188,7 @@ public void act(){
 };
 ```
 
-* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。
-
-下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
+* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
 对象，然后插入到`recordMap`中；最后判断变更后的key若在range内，把其加入到`inRangeRecordSet`。
 
 ```java
@@ -246,7 +256,7 @@ private void fetchNextMmapChunk() throws IOException {
 
 ### 3.2 第一阶段 actor2: Mediator(单个Mediator线程)
 
-轮询的逻辑如下代码所示：
+* 轮询的逻辑如下代码所示：
 
 ```java
 mediatorPool.execute(new Runnable() {
@@ -266,7 +276,7 @@ mediatorPool.execute(new Runnable() {
 });
 ```
 
-在最后读取完所有文件块的时候， 主线程会发送一个任务，通知 Mediator 可以结束了。该逻辑如下所示：
+* 在最后读取完所有文件块的时候， 主线程会发送一个任务，通知 Mediator 可以结束了。该逻辑如下所示：
 
 ```java
 try {
@@ -276,7 +286,7 @@ try {
 }
 ```
 
-Mediator核心的协调调度代码如下：
+* Mediator核心的协调调度代码如下：
 
 ```java
 private static Future<?> prevFuture = new Future<Object>() {
@@ -359,6 +369,8 @@ private void submitIfPossible(FileTransformTask fileTransformTask) {
 
 由于实际生产环境中，数据库的schema基本是不会变化的，所以我们针对比赛数据对应的单表结构进行了存储的设计。
 
+* 字符串类型数据针对每个字符index存储，数字类型直接存储
+
 在`NonDeleteOperation`中，数据通过index存储了下来。详细信息如下所示，如果schema改变用户可以依据对应table的meta信息来改变存储结构。
 
 ```java
@@ -370,13 +382,9 @@ short score = -1;
 int score2 = -1;
 ```
 
-我们团队实现了index和真实char 之间的转换。通过`String toChineseChar(byte index)`可以把对应index转化成为具体的`char`，通过`byte getIndexOfChineseChar(byte[] data, int offset)`可以把具体的byte[]转化成为index。
+我们团队实现了index和真实char 之间的转换。通过`String toChineseChar(byte index)`可以把对应index转化成为具体的`char`，通过`byte getIndexOfChineseChar(byte[] data, int offset)`可以把具体的byte[]转化成为index。现实生活中字符个数是有限的，所以我们才想到了该index的方式，而且关系型数据库中一般会specify对应字段最长长度，扩展代码时候可以类似 lastName进行处理，存多个index，如果index的字符比较多的话，可以直接考虑存储char(2 byte)。要扩展到实际中进行使用的话，需要修改`INTEGER_CHINESE_CHAR`为所有可能的char，或者直接考虑存储char(2 byte)(需要修改`byte getIndexOfChineseChar(byte[] data, int offset)`为直接返回`char`)。
 
-现实生活中字符个数是有限的，所以我们才想到了该index的方式，而且关系型数据库中一般会specify对应字段最长长度，扩展代码时候可以类似 lastName进行处理，存多个index，如果index的字符比较多的话，可以直接考虑存储char(2 byte)。要扩展到实际中进行使用的话，需要修改`INTEGER_CHINESE_CHAR`为所有可能的char，或者直接考虑存储char(2 byte)(需要修改`byte getIndexOfChineseChar(byte[] data, int offset)`为直接返回`char`)。
-
-相应地，下面两个函数也要进行相应的修改，针对实际中某个table, `addData(int index, ByteBuffer byteBuffer)`在构建`InsertOperation`时候使用，而`mergeAnother(NonDeleteOperation nonDeleteOperation)`在落实update到对应Record时候使用。
-
-`NonDeleteOperation`中index转换相关核心代码如下：
+* `NonDeleteOperation`中index转换相关核心代码如下：
 
 ```java
 public static int[] INTEGER_CHINESE_CHAR = {14989440, 14989441, 14989443, 14989449, 14989450, 14989465, 14989712, 14989721, 14989725, 14989964, 14989972, 14989996, 14990010, 14990230, 14991005, 14991023, 14991242, 15041963, 15041965, 15041970, 15042203, 15042712, 15042714, 15043227, 15043249, 15043969, 15044497, 15044749, 15044763, 15044788, 15045032, 15047579, 15048590, 15049897, 15050163, 15050917, 15052185, 15056301, 15056528, 15106476, 15108240, 15108241, 15111567, 15112334, 15112623, 15112630, 15113614, 15113640, 15113879, 15114163, 15118481, 15118751, 15175307, 15176860, 15176880, 15176882, 15176887, 15178634, 15182731, 15240841, 15249306, 15250869, 15303353, 15303569, 15307441, 15307693, 15308725, 15308974, 15309192, 15309736, 15310233, 15313551, 15313816, 15317902};
@@ -405,7 +413,9 @@ private static byte getIndexOfChineseChar(byte[] data, int offset) {
 }
 ```
 
-`NonDeleteOperation`中属性变更相关核心代码如下，其中`addData(int index, ByteBuffer byteBuffer)`在创建`InsertOperation`和`UpdateOperation`对象时候使用，`mergeAnother(NonDeleteOperation nonDeleteOperation)`在属性update落实的时候使用：
+* `NonDeleteOperation`中属性变更相关核心代码如下：
+
+其中`addData(int index, ByteBuffer byteBuffer)`在针对某个表，创建`InsertOperation`和`UpdateOperation`对象时候使用，`mergeAnother(NonDeleteOperation nonDeleteOperation)`在属性update落实的时候使用：
 
 ```java
 public void addData(int index, ByteBuffer byteBuffer) {
@@ -607,7 +617,7 @@ static void compute(LogOperation[] logOperations) {
 }
 ```
 
-DeleteOperation的操作， 从数据库中删除记录
+* DeleteOperation的操作， 从数据库中删除记录
 
 ```java
 @Override
@@ -616,7 +626,7 @@ public void act() {
 }
 ```
 
-InsertionOperation的操作， 数据库中插入新的记录
+* InsertionOperation的操作， 数据库中插入新的记录
 
 ```java
 @Override
@@ -625,7 +635,7 @@ public void act() {
 }
 ```
 
-Update操作， 从数据库中取出对应的记录，并进行属性更新
+* UpdateOperation的操作， 从数据库中取出对应的记录，并进行属性更新
 
 ```java
 @Override
@@ -683,9 +693,7 @@ public void act(){
 };
 ```
 
-* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。
-
-下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
+* 对UpdateKeyOperation 操作： UpdateKeyOperation相同于进行了一次DeleteOperation和一次InsertOperation，但是有一个注意点就是InsertOperation中需要带来有原来被删除的Operation对应记录中的所有属性。例如：UpdateKeyOperation进行了1->3的主键变更，那么我们需要首先获取所有1的属性，然后删除1对应记录，然后插入3并且3对应记录包含之前1的所有属性。下面代码中, 先从`recordMap`中取出UpdateKey之前的key对应记录(`InsertOperation insertOperation = (InsertOperation) recordMap.get(this);`)，然后判断如果这个变更之前的key在range内，把其从`inRangeRecordSet`删除。删除后，通过`insertOperation.changePK(this.changedKey);`得出新key对应的
 对象，然后插入到`recordMap`中；最后判断变更后的key若在range内，把其加入到`inRangeRecordSet`。
 
 ```java
