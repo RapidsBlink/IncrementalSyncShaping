@@ -74,7 +74,8 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 整个重放算法有关的类都放在 `server2` 文件夹下， 其中的类关系如下图所示(通过jetbrains intellij生成)。
 
-![core pipeline logic](https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/core_pipeline_logic.png)
+<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/core_pipeline_logic.png" alt="core pipeline logic" height="600">
+
 
 图中有四种不同的actor，这些actors的交互构成了完整的第一阶段计算的流水线：
 
@@ -107,13 +108,13 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 取巧版本中，三种不同的LogOperation(`InsertOperation`,`DeleteOperation`, `UpdateOperation`)在重放过程中被进行了处理。LogOperation的相关类继承关系如下图所示((通过jetbrains intellij生成)):
 
-![log operation class hierachy](https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/log_operation.png)
+<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/log_operation.png" alt="log operation class hierachy" height="400">
 
 如果不取巧，我们也参考Trove Hashmap实现了一个 efficient的 hashmap，另外通过另一个hashset来记录range范围内的记录有哪些，这个实现并且在其它地方都不取巧，我们可以获得8.9s的成绩。
 
 在不取巧版本中，四种不同的LogOperation(`InsertOperation`, `DeleteOperation`, `UpdateKeyOperation`, `UpdateOperation`)在重放过程中被进行了处理。LogOperation的相关类继承关系如下图所示((通过jetbrains intellij生成)):
 
-![general strategy log operation class hierachy](https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/general_log_operation.png)
+<img src="https://raw.githubusercontent.com/CheYulin/MyToys/master/pictures/general_log_operation.png" alt="general strategy log operation class hierachy" height="600">
 
 ### 2.3 第二阶段Eval以及后续传输落盘
 
