@@ -83,8 +83,8 @@ trick版本 |  https://github.com/CheYulin/IncrementalSyncShaping
 
 职责：负责顺序读取十个文件，按64MB为单位读取，若文件尾部不满64M就读取相应的大小, 读取之后对应的 `MappedByteBuffer` 会传入一个大小为1的 `BlockingQueue<FileTransformMediatorTask>`, 来让Mediator进行消费。因为阻塞队列的大小为1， 所以内存中最多只有三份 `MappedByteBuffer`(分别于主线程/Mediator线程/BlockingQueue中)， 总大小至多为192MB。
 
-在获取下一块文件Chunk的时候，该Reader会判断是否已经初始化了关于单表的Meta信息。详细代码可见:
-(其中RecordField类的类静态变量将用来记录这些Meta信息)。
+在获取下一块文件Chunk的时候，该Reader会判断是否已经初始化了关于单表的Meta信息。详细代码可见下一章节`3.1 第一阶段 actor1: MmapReader(主线程)`中的描述
+(其中`RecordField`类的类静态变量将用来记录这些Meta信息)。
 
 #### 2.2.2 actor 2: Mediator(单个Mediator线程)
 
@@ -235,6 +235,8 @@ public void act() {
 
 ### 3.1 第一阶段 actor1: MmapReader(主线程)
 
+* 主线程顺序读取文件，把任务放入对应的`mediatorTasks`队列
+
 ```java
 // 1st work
 private void fetchNextMmapChunk() throws IOException {
@@ -252,6 +254,25 @@ private void fetchNextMmapChunk() throws IOException {
         e.printStackTrace();
     }
 }
+```
+
+* 根据上面代码不难看出，在第一次读取时候，`RecordField`会被初始化
+
+```java
+if (!RecordField.isInit()) {
+    new RecordField(mappedByteBuffer).initFieldIndexMap();
+}
+```
+
+* `RecordField`中的关键类静态变量(存储表中的meta信息)
+
+其中，`fieldIndexMap`用来存储filed name string对应的byte[]，通过`ByteBuffer`wrap了起来，已经ready for reading(`flip`过了)。`fieldSkipLen`存储不同field在日志中的长度，比如`|first_name:2:0|NULL|郑|`这个日志中一行中的小片段，我们获取到的就是`first_name:2:0`的长度，这个长度会被`RecordScanner`用来优化，因为我们在insert时候总是可以跳过读取这些`byte[]`。`FILED_NUM`存储表中总共的`field`个数(除去主键)。`KEY_LEN`存储主键描述对应`byte[]`长度，也就是`id:1:1`的长度，这个作用同`fieldSkipLen`。
+
+```java
+public static Map<ByteBuffer, Integer> fieldIndexMap = new HashMap<>();
+static int[] fieldSkipLen;
+public static int FILED_NUM;
+static int KEY_LEN;
 ```
 
 ### 3.2 第一阶段 actor2: Mediator(单个Mediator线程)
