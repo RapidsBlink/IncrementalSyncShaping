@@ -1,3 +1,23 @@
+## Outline
+
+1. 背景，题目分析和理解(input/output)
+1. 核心思路overview: 第一阶段/第二阶段/网络传输和落盘
+1. 流水线设计图
+1. mmap reader
+1. coordinator(mediator)
+1. transformer pool
+1. restore computation worker
+1. 并行eval, zero-copy
+1. restore computation不同版本（并行/通用/trick）
+1. 工程价值: 背景契合度
+1. 工程价值: 通用性(3 pages)
+1. 工程价值: 通用性修改(针对`NonDeleteOperation`和`RecordScanner`)
+1. 使用的trick和理论分析(2 pages)，不同时间可能用到的trick
+1. 版本演进(通用版)
+1. 版本演进(trick版)
+
+## Content Thinking
+
 1. background: why sequentially read 10G in single thread? because of canal generator and streaming processing, input - log operations: each log line = each operation(insert/delete/update property/update primary key), range e.g, (1000000, 8000000), schema and table(single/single), output - in-range records, sorted by key, finally persistent in client-side
 1. 4 actors: mmap reader, mediator, transformer pool, restore-computation worker, 3 blocking queues: mediator task(control producer-consumer pace), transform task(no control), computation task(control producer-consumer pace)
 1. record filed initialization by mmap reader, how will it influence the record scanner
